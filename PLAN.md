@@ -8,7 +8,7 @@
 
 ## Frontend progress
 
-Updated 8 November 2026. The frontend is a **Vite + React + TypeScript** app (not Next.js yet) running on sample data with no backend. It lives in this folder: `src/site` (marketing), `src/app` (business app), `src/shop` (shop site and booking), `src/account` (client account) and `src/modes` (barber mode, kiosk, TV board). The design system is locked in `DESIGN.md`. Section 6 has a frontend column, and sections 17.2, 17.6 and 22 are marked ✅ done or ◐ partial.
+Updated 9 November 2026. The frontend is a **Vite + React + TypeScript** app (not Next.js yet) running on sample data with no backend; see `README.md` to run it. It lives in this folder: `src/site` (marketing pages and help centre), `src/app` (business app), `src/shop` (shop site and booking), `src/account` (client account), `src/modes` (barber mode, kiosk, TV board) and `src/admin` (platform admin). Client pages work in English, Arabic (right to left) and French. Changes are kept in the browser, the code is split per area, barber mode works offline, and `npm test` covers the slot finder, money, time zones and the CSV reader. The design system is locked in `DESIGN.md`, and the code is in git. Section 6 has a frontend column, and sections 17.2, 17.6 and 22 are marked ✅ done or ◐ partial.
 
 ## Table of contents
 
@@ -240,7 +240,7 @@ Legend: **MVP** = first paid version. **V1** = within about 3 months of MVP. **V
 | Reschedule / cancel by client via link | MVP | ✅ done: /s/example-barbers/manage/:id |
 | Manual booking by staff (phone, walk-in) | MVP | ✅ done: Calendar › New booking, Queue › Add a walk-in |
 | Blocked time (personal, training) | MVP | ✅ done: Calendar › New › Blocked time |
-| Waitlist for a full day | V1 | ◐ partial: Queue › Waitlist with an offer action; clients cannot join it online yet |
+| Waitlist for a full day | V1 | ✅ done: clients join from a full day in the booking flow; Queue › Waitlist offers freed times |
 | Walk-in queue (kiosk, QR, remote join, TV screen) | V1 | ✅ done: /app/queue, /kiosk, /tv, /s/example-barbers/queue |
 | Recurring bookings | V1 | ✅ done: repeat every 2, 3 or 4 weeks in Calendar › New |
 | Processing time / gaps inside a service | V1 | ✅ done: drawn on the calendar block and bookable |
@@ -273,12 +273,12 @@ Legend: **MVP** = first paid version. **V1** = within about 3 months of MVP. **V
 | Split payment (part cash, part card) and split between barbers | MVP | ◐ partial: split across methods done; not between barbers |
 | Online payments: deposits, prepayment, card on file | V1 | ◐ partial: deposit shown at booking and taken off at checkout; no payment form |
 | No-show and late cancellation fees | V1 | not yet |
-| Refunds | V1 | not yet |
+| Refunds | V1 | ✅ done: Money › Sales, with a reason and a confirmation |
 | In-person card payments through an integrated terminal (Stripe Terminal in EU) | V2 | not yet |
 | Digital tips (fixed % buttons) | V1 | ✅ done |
-| Gift cards (digital, with code and balance) | V1 | ◐ partial: Marketing › Gift cards sells and lists them; not redeemable at checkout yet |
-| Packages ("5 cuts for the price of 4") | V1 | ◐ partial: Marketing › Packages creates them; not sold at checkout yet |
-| Memberships / subscriptions ("unlimited cuts €49/month") | V2 | not yet |
+| Gift cards (digital, with code and balance) | V1 | ✅ done: sold in Marketing or at checkout, paid with at checkout |
+| Packages ("5 cuts for the price of 4") | V1 | ◐ partial: created in Marketing and sold at checkout; visits left are not tracked yet |
+| Memberships / subscriptions ("unlimited cuts €49/month") | V2 | ◐ partial: Marketing › Memberships lists and creates plans; no monthly charging |
 | Daily cash-up and drawer count | MVP | ✅ done: Money › Cash-up |
 | Expenses with receipt photo | V1 | ✅ done: Money › Expenses |
 | P&L summary, accountant export | V1 | ✅ done: Money › Profit and loss (export button not wired) |
@@ -296,8 +296,8 @@ Legend: **MVP** = first paid version. **V1** = within about 3 months of MVP. **V
 | Booth rent tracking and invoices | V1 | ◐ partial: rent shown in Team › Pay; no invoices |
 | Payroll summary per period | V1 | ✅ done: Team › Pay |
 | Time off requests and approval | V1 | ✅ done: Team › Time off |
-| Clock in / clock out | V2 | not yet |
-| Staff performance (rebook rate, average ticket, utilisation) | V1 | not yet |
+| Clock in / clock out | V2 | ◐ partial: barber mode clock in and out; no timesheet yet |
+| Staff performance (rebook rate, average ticket, utilisation) | V1 | ◐ partial: Money › Reports shows clients, takings, average ticket and chair use; no rebook rate |
 
 ### 6.5 Marketing and loyalty
 
@@ -308,7 +308,7 @@ Legend: **MVP** = first paid version. **V1** = within about 3 months of MVP. **V
 | Loyalty: digital punch card (e.g. 10th cut free) or points | V1 | ✅ done: Marketing › Loyalty, client account |
 | Referral rewards ("give 20%, get 20%") | V2 | not yet |
 | Review requests after a visit; push 5-star reviews to Google | V1 | ◐ partial: toggle and empty state |
-| Campaigns by WhatsApp / SMS / email to segments, with consent tracking | V2 | not yet |
+| Campaigns by WhatsApp / SMS / email to segments, with consent tracking | V2 | ✅ done: Marketing › Campaigns with consent counts and an opt-out check (sending not connected) |
 | Birthday messages | V1 | ✅ done: Marketing › Messages toggle |
 | Win-back messages for lapsed clients | V1 | ✅ done: Marketing › Messages, 'Time for a fresh cut' |
 
@@ -338,9 +338,9 @@ Legend: **MVP** = first paid version. **V1** = within about 3 months of MVP. **V
 | One-page site from shop data (services, team, hours, gallery, map, contact) | MVP | ◐ partial: done without a gallery; the map is a Google Maps link |
 | 3 to 5 design presets + accent colour + logo + photos | MVP | ◐ partial: 3 presets, 4 accents, logo upload; no photos |
 | Subdomain | MVP | ◐ partial: shown in the editor; not live |
-| Custom domain with automatic SSL | V1 | not yet |
-| SEO: schema.org local business markup (see note), sitemap, multi-language pages | MVP | ◐ partial: HairSalon JSON-LD and page title; no sitemap |
-| Embeddable booking widget for an existing website | V1 | not yet |
+| Custom domain with automatic SSL | V1 | ◐ partial: Website shows the DNS record to add; nothing checks it yet |
+| SEO: schema.org local business markup (see note), sitemap, multi-language pages | MVP | ◐ partial: HairSalon JSON-LD, robots.txt and a sitemap for the marketing pages; shop pages switch language but share one URL |
+| Embeddable booking widget for an existing website | V1 | ✅ done: Website › embed code, `?embed=1` |
 | Gallery of work (Instagram-style), with consent | MVP | not yet (no photos, by request) |
 
 > Note: schema.org has `HairSalon` and `BeautySalon` under `HealthAndBeautyBusiness`; check the current vocabulary when building.
@@ -934,7 +934,7 @@ Frontend status as of 8 November 2026 (✅ done, ◐ partial). All run on sample
 7. Clients list + client profile (history, notes, photos, spend, loyalty) — ◐ `/app/clients`; photos wait for uploads
 8. Money: sales, cash-up, expenses, reports — ✅ `/app/money`
 9. Team: staff list, staff profile, schedules editor, commissions, payroll — ✅ `/app/team`, `/app/team/:id`
-10. Marketing: offers, promo codes, loyalty, reviews, campaigns — ◐ `/app/marketing`; no campaigns
+10. Marketing: offers, promo codes, loyalty, reviews, campaigns — ✅ `/app/marketing`, plus gift cards, packages and memberships
 11. Website editor (preset, colours, photos, sections, domain) — ◐ `/app/website`; no photo upload
 12. Settings (business, locations, services, booking rules, payments, messages, language/currency/time zone, taxes, roles, subscription) — ◐ `/app/settings`; no locations or message templates (messages live in Marketing, roles in Team)
 13. Barber mode (phone): my day, next client card with haircut notes, my earnings — ✅ `/me`
@@ -946,10 +946,10 @@ Frontend status as of 8 November 2026 (✅ done, ◐ partial). All run on sample
 17. Manage booking (from link) — ✅
 18. Join the queue (QR / remote) — ✅ `/s/example-barbers/queue`
 19. Client login (one-time code) — ✅ `/account/login` (no code is sent yet)
-20. Client account: bookings, offers, loyalty, gift cards, receipts, settings — ◐ `/account`; no receipts
+20. Client account: bookings, offers, loyalty, gift cards, receipts, settings — ✅ `/account`, in English, Arabic and French
 
 **Marketing**
-21. Home, features, pricing (by region), switch-from pages, help centre — ◐ `/`, `/pricing`, `/switch`; no features page or help centre
+21. Home, features, pricing (by region), switch-from pages, help centre — ◐ `/`, `/pricing`, `/switch`, `/help`; the home page carries the features, and prices are in euros only
 
 ---
 
@@ -1111,16 +1111,16 @@ Assuming one developer working with Claude Code full time. Adjust if part time.
 - Commissions, booth rent, payroll summary, custom roles — frontend ✅
 - Expenses, P&L, accountant export — frontend ✅
 - Retail products and stock
-- Custom domains, embeddable booking widget
-- Barber mode PWA with offline "today"
-- Arabic and French translations live
+- Custom domains, embeddable booking widget — frontend ◐ (widget done; domain is the DNS step only)
+- Barber mode PWA with offline "today" — frontend ✅ (service worker and manifest)
+- Arabic and French translations live — frontend ◐ (every client-facing page; the business app is English)
 - Google Calendar sync for staff
 
 ### Phase 3 — V2 (6 to 12 months) → Europe expansion
 - **Fiscal integrations**: Germany (cloud TSE), Italy (RT / approved software), France (NF525 path), Egypt (ETA e-receipt) — each gated by a local legal check
 - Italian and German translations
-- Memberships / subscriptions for clients
-- Campaigns and segments, referrals, win-back automation
+- Memberships / subscriptions for clients — frontend ◐ (plans, no charging)
+- Campaigns and segments, referrals, win-back automation — frontend ◐ (campaigns and win-back; no referrals)
 - Smart gap filling, last-minute offers
 - **AI WhatsApp receptionist**: books, reschedules and answers FAQs through chat, using the same booking engine; hands off complaints and complex requests to staff
 - Multi-location features, central reports

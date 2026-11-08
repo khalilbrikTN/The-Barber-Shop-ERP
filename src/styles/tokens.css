@@ -18,4 +18,5 @@
   --shadow-card: 0 24px 40px -24px oklch(8% 0.01 260 / 0.6);
   --tracking-display: -0.03em; --display-weight: 800;
   --color-swatch-green: oklch(50% 0.13 150); --color-swatch-red: oklch(52% 0.19 27); --color-swatch-amber: oklch(72% 0.15 75);
+  --color-scrim: oklch(16% 0.014 262 / 0.45);
 }

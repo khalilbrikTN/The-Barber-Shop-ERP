@@ -161,6 +161,18 @@
 .app-side__foot { margin-block-start: auto; padding: var(--space-md); border-block-start: var(--rule-hair) solid var(--color-ink-rule); font-size: var(--text-xs); }
 .app-side__states { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-sm); margin-block-start: var(--space-2xs); }
 .app-side__states a:hover { color: var(--color-accent-2); }
+.app-side__find { display: flex; align-items: center; justify-content: space-between; gap: var(--space-xs); min-block-size: 40px; margin: 0 var(--space-md) var(--space-sm); padding: 0 var(--space-sm); border: var(--rule-hair) solid var(--color-ink-rule); background: transparent; color: var(--color-paper); font: 500 var(--text-xs)/1.2 var(--font-body); text-align: start; cursor: pointer; }
+.app-side__find:hover { border-color: var(--color-paper); }
+.app-side__find:focus-visible { outline: 2px solid var(--color-accent-2); outline-offset: 2px; }
+.app-side__find kbd { font: inherit; opacity: 0.8; white-space: nowrap; }
+.quickfind { inline-size: min(36rem, calc(100% - var(--space-xl))); margin-block-start: 12vh; padding: var(--space-md); border: var(--rule-bar) solid var(--color-ink); background: var(--color-paper-3); color: var(--color-ink); }
+.quickfind::backdrop { background: var(--color-scrim); }
+.quickfind__list { margin: var(--space-sm) 0 0; padding: 0; list-style: none; }
+.quickfind__list li { display: flex; justify-content: space-between; gap: var(--space-md); padding: var(--space-xs) var(--space-sm); cursor: pointer; }
+.quickfind__list li[aria-selected="true"] { background: var(--color-ink); color: var(--color-paper); }
+.quickfind__list li span { font-size: var(--text-sm); opacity: 0.85; }
+.quickfind__none { color: var(--color-muted); }
+.quickfind__help { margin-block-start: var(--space-sm); font-size: var(--text-xs); color: var(--color-muted); }
 .app-side__reset { margin-block-start: var(--space-sm); padding: 0; border: 0; background: none; color: var(--color-paper); font: 500 var(--text-xs)/1.4 var(--font-body); text-decoration: underline; cursor: pointer; }
 .app-side__reset:hover { color: var(--color-accent-2); }
 .app-side__reset:focus-visible { outline: 2px solid var(--color-accent-2); outline-offset: 2px; }

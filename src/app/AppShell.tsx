@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useSettings } from "../lib/settings";
 import { resetSampleData } from "../lib/store";
+import { QuickFind } from "./QuickFind";
 
 const NAV = [
   { to: "/app", label: "Today", end: true },
@@ -46,6 +47,7 @@ export function AppShell() {
           </button>
         </div>
         <nav id="app-nav" className="app-side__nav" aria-label="App">
+          <QuickFind />
           <ul>
             {NAV.map((n) => (
               <li key={n.to}>
