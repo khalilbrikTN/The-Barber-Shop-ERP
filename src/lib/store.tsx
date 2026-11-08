@@ -35,6 +35,7 @@ type Store = {
   callFromQueue: (id: string) => void;
   removeFromQueue: (id: string) => void;
   addSale: (s: Omit<Sale, "id">) => void;
+  refundSale: (id: string, reason: string) => void;
   addClient: (c: NewClient) => Client;
   updateClient: (id: string, patch: Partial<Client>) => void;
   mergeClients: (keepId: string, dropId: string) => void;
@@ -135,6 +136,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       callFromQueue: (id) => setQueue((qs) => qs.filter((q) => q.id !== id)),
       removeFromQueue: (id) => setQueue((qs) => qs.filter((q) => q.id !== id)),
       addSale: (s) => setSales((ss) => [{ ...s, id: uid("s") }, ...ss]),
+      refundSale: (id, reason) => setSales((ss) => ss.map((x) => (x.id === id ? { ...x, refunded: { at: new Date().toISOString(), reason } } : x))),
       addClient: (c) => {
         const found = clients.find((x) => digits(x.phone) === digits(c.phone));
         if (found) return found;

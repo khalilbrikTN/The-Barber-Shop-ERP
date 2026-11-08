@@ -148,7 +148,7 @@ export const QUEUE: QueueEntry[] = [
   { id: "q3", name: "Khaled", serviceId: "buzz", joined: at("10:40"), via: "website" },
 ];
 
-export type Sale = { id: string; time: string; clientId?: string; staffId: string; lines: { label: string; minor: number }[]; tipMinor: number; method: "cash" | "card" | "wallet" };
+export type Sale = { id: string; time: string; clientId?: string; staffId: string; lines: { label: string; minor: number }[]; tipMinor: number; method: "cash" | "card" | "wallet"; refunded?: { at: string; reason: string } };
 
 export const SALES: Sale[] = [
   { id: "s1", time: at("10:31"), clientId: "c12", staffId: "karim", lines: [{ label: "Skin fade", minor: 25000 }], tipMinor: 5000, method: "cash" },

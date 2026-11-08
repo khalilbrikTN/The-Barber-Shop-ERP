@@ -87,7 +87,7 @@ export function Book() {
         addBooking({ clientId: guest.id, serviceIds: [extra.serviceId], staffId: pick.staffId, start: pick.start, status: "confirmed", source: "online", groupId });
       }
     }
-    navigate(`${SHOP}/booked/${b.id}`);
+    navigate(`${SHOP}/booked/${b.id}${params.get("embed") === "1" ? "?embed=1" : ""}`);
   }
 
   function joinWaitlist(e: FormEvent) {

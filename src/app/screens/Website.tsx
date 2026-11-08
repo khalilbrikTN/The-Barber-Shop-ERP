@@ -13,6 +13,9 @@ export function Website() {
   const [site, setSite] = useState<SiteConfig>(loadSite);
   const [version, setVersion] = useState(0);
   const [logoError, setLogoError] = useState("");
+  const [domain, setDomain] = useState("");
+  const [copied, setCopied] = useState(false);
+  const embedCode = `<iframe src="${window.location.origin}/s/example-barbers/book?embed=1" title="Book at Example Barbers" style="width:100%;min-height:720px;border:0"></iframe>`;
 
   useEffect(() => {
     saveSite(site);
@@ -105,7 +108,53 @@ export function Website() {
             <p>
               <strong>example-barbers.chairside.app</strong>
             </p>
-            <p className="app-quiet">Your own domain, such as book.yourshop.com, comes with the Pro plan.</p>
+            <Field label="Your own domain (Pro plan)" hint="For example book.yourshop.com">
+              {(id, hint) => <input id={id} aria-describedby={hint} className="ui-input" value={domain} onChange={(e) => setDomain(e.target.value.trim().toLowerCase())} placeholder="book.yourshop.com" dir="ltr" />}
+            </Field>
+            {domain && (
+              <div className="dns">
+                <p>Add this record where you bought the domain, then come back:</p>
+                <table className="ui-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Type</th>
+                      <th scope="col">Name</th>
+                      <th scope="col">Points to</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>CNAME</td>
+                      <td className="num">{domain.split(".")[0]}</td>
+                      <td className="num">shops.chairside.app</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p className="app-quiet">Status: waiting for the record. The secure certificate is issued by itself once it is found; this preview does not check.</p>
+              </div>
+            )}
+          </fieldset>
+          <fieldset className="ui-fieldset">
+            <legend>Booking on your own website</legend>
+            <p className="app-quiet">Paste this where you want the booking form. It keeps your colours and language.</p>
+            <textarea className="ui-input ui-textarea embed-code" readOnly rows={3} value={embedCode} aria-label="Embed code" onFocus={(e) => e.target.select()} />
+            <div className="rebook">
+              <button
+                type="button"
+                className="ui-btn ui-btn--quiet"
+                onClick={() => {
+                  navigator.clipboard?.writeText(embedCode).then(
+                    () => setCopied(true),
+                    () => setCopied(false),
+                  );
+                }}
+              >
+                {copied ? "Copied" : "Copy the code"}
+              </button>
+              <a className="ui-btn ui-btn--text" href="/s/example-barbers/book?embed=1" target="_blank" rel="noreferrer">
+                Preview it
+              </a>
+            </div>
           </fieldset>
           <p className="app-quiet">Photos of your work and your shop are added here once you upload them.</p>
         </form>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- chairside.app is the working name's domain; update it when the name is final. Shop pages are added per shop by the server. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://chairside.app/</loc></url>
+  <url><loc>https://chairside.app/pricing</loc></url>
+  <url><loc>https://chairside.app/switch</loc></url>
+  <url><loc>https://chairside.app/help</loc></url>
+</urlset>

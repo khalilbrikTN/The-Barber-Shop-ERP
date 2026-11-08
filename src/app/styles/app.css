@@ -320,6 +320,10 @@
 .swatch[data-accent="green"] .swatch__chip { background: var(--color-swatch-green); }
 .swatch[data-accent="red"] .swatch__chip { background: var(--color-swatch-red); }
 .swatch[data-accent="ink"] .swatch__chip { background: var(--color-ink); }
+.dns { display: grid; gap: var(--space-xs); padding: var(--space-md); border: var(--rule-hair) solid var(--color-rule); background: var(--color-paper); }
+.embed-code { font-size: var(--text-xs); }
+.refund { display: flex; flex-wrap: wrap; gap: var(--space-xs); justify-content: flex-end; }
+.refund .ui-input { inline-size: auto; }
 .swatch:has(input:checked) .swatch__chip { outline: var(--rule-bar) solid var(--color-ink); outline-offset: 3px; }
 .swatch:has(input:focus-visible) .swatch__chip { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 

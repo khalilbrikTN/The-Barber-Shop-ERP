@@ -40,7 +40,7 @@ function CashUp() {
   const { sales } = useStore();
   const [counted, setCounted] = useState("");
   const [closed, setClosed] = useState(false);
-  const today = sales.filter((s) => s.time.startsWith(TODAY));
+  const today = sales.filter((s) => s.time.startsWith(TODAY) && !s.refunded);
   const sum = (m: string) => today.filter((s) => s.method === m).reduce((t, s) => t + s.lines.reduce((a, l) => a + l.minor, 0) + s.tipMinor, 0);
   const expected = FLOAT + sum("cash");
   const unit = 10 ** minorDigits(settings.currency);
@@ -93,11 +93,98 @@ function CashUp() {
   );
 }
 
+function Receipts() {
+  const f = useFormat();
+  const { sales, refundSale } = useStore();
+  const [asking, setAsking] = useState<string | null>(null);
+  const [reason, setReason] = useState("Client not happy");
+  const recent = sales.slice(0, 8);
+  const sum = (x: (typeof sales)[number]) => x.lines.reduce((t, l) => t + l.minor, 0) + x.tipMinor;
+  return (
+    <section className="app-section" aria-labelledby="rc-title">
+      <h2 id="rc-title" className="app-h2">
+        Latest sales
+      </h2>
+      {recent.length === 0 ? (
+        <div className="ui-note">
+          <p className="ui-note__title">No sales yet</p>
+          <p>Sales show here as you check clients out.</p>
+        </div>
+      ) : (
+        <div className="ui-tablewrap">
+          <table className="ui-table">
+            <thead>
+              <tr>
+                <th scope="col">When</th>
+                <th scope="col">What</th>
+                <th scope="col">Paid by</th>
+                <th scope="col" className="r">Amount</th>
+                <th scope="col">
+                  <span className="visually-hidden">Refund</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {recent.map((x) => (
+                <tr key={x.id}>
+                  <td>
+                    {f.day(x.time, "short")}, {f.time(x.time)}
+                  </td>
+                  <th scope="row">{x.lines.map((l) => l.label).join(", ")}</th>
+                  <td>{x.method}</td>
+                  <td className="r num">{x.refunded ? <s>{f.money(sum(x))}</s> : f.money(sum(x))}</td>
+                  <td className="r">
+                    {x.refunded ? (
+                      <span className="ui-status ui-status--cancelled">Refunded</span>
+                    ) : asking === x.id ? (
+                      <form
+                        className="refund"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          refundSale(x.id, reason);
+                          setAsking(null);
+                        }}
+                      >
+                        <label className="visually-hidden" htmlFor={`why-${x.id}`}>
+                          Reason for the refund
+                        </label>
+                        <select id={`why-${x.id}`} className="ui-input" value={reason} onChange={(e) => setReason(e.target.value)}>
+                          <option>Client not happy</option>
+                          <option>Charged twice</option>
+                          <option>Wrong service rung up</option>
+                          <option>Other</option>
+                        </select>
+                        <button type="submit" className="ui-btn ui-btn--primary">
+                          Refund {f.money(sum(x))}
+                        </button>
+                        <button type="button" className="ui-btn ui-btn--text" onClick={() => setAsking(null)}>
+                          Keep it
+                        </button>
+                      </form>
+                    ) : (
+                      <button type="button" className="ui-btn ui-btn--text" onClick={() => setAsking(x.id)}>
+                        Refund
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <p className="app-quiet">Card refunds go back through your payment provider once it is connected; cash refunds come out of the drawer and show in the cash-up.</p>
+    </section>
+  );
+}
+
 function Sales() {
   const f = useFormat();
   const state = useDataState();
   const total = WEEK_SALES.reduce((t, d) => t + d.cash + d.card + d.wallet, 0);
   return (
+    <>
+    <Receipts />
     <section className="app-section" aria-labelledby="sales-title">
       <h2 id="sales-title" className="app-h2">
         This week
@@ -145,6 +232,7 @@ function Sales() {
         </div>
       </Region>
     </section>
+    </>
   );
 }
 
@@ -417,6 +505,39 @@ function Reports() {
           </div>
         </section>
       </div>
+      <section className="app-section" aria-labelledby="perf-title">
+        <h2 id="perf-title" className="app-h2">
+          Each barber today
+        </h2>
+        <div className="ui-tablewrap">
+          <table className="ui-table">
+            <thead>
+              <tr>
+                <th scope="col">Barber</th>
+                <th scope="col" className="r">Clients</th>
+                <th scope="col" className="r">Worth</th>
+                <th scope="col" className="r">Average ticket</th>
+                <th scope="col" className="r">Regulars who prefer them</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BOOKABLE.map((s) => {
+                const mine = today.filter((b) => b.staffId === s.id && b.status !== "blocked");
+                const worth = mine.reduce((t, b) => t + b.serviceIds.reduce((m, id) => m + serviceById(id).priceMinor, 0), 0);
+                return (
+                  <tr key={s.id}>
+                    <th scope="row">{s.name}</th>
+                    <td className="r num">{mine.length}</td>
+                    <td className="r num">{f.money(worth, { whole: true })}</td>
+                    <td className="r num">{mine.length ? f.money(Math.round(worth / mine.length), { whole: true }) : "None yet"}</td>
+                    <td className="r num">{CLIENTS.filter((c) => c.favourite === s.id).length}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
       <p className="app-quiet">Figures come from the sample data in this preview.</p>
     </>
   );

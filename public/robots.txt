@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /app
+Disallow: /admin
+Disallow: /me
+Disallow: /kiosk
+Disallow: /tv
+Disallow: /account
+Disallow: /setup
+
+Sitemap: https://chairside.app/sitemap.xml

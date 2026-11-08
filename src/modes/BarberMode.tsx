@@ -10,6 +10,7 @@ export function BarberMode() {
   const { bookings, setStatus, sales } = useStore();
   const [me, setMe] = useState("karim");
   const [late, setLate] = useState(false);
+  const [clockedIn, setClockedIn] = useState<string | null>(null);
   const mine = bookings.filter((b) => b.staffId === me && b.start.startsWith(TODAY) && b.status !== "cancelled" && b.status !== "blocked").sort((a, b) => a.start.localeCompare(b.start));
   const now = new Date(NOW).getTime();
   const current = mine.find((b) => b.status === "in the chair");
@@ -31,7 +32,9 @@ export function BarberMode() {
             ))}
           </select>
         </label>
-        <span className="num">{f.time(NOW)}</span>
+        <button type="button" className={clockedIn ? "ui-btn ui-btn--quiet" : "ui-btn ui-btn--primary"} onClick={() => setClockedIn((c) => (c ? null : new Date().toISOString()))}>
+          {clockedIn ? "Clock out" : "Clock in"}
+        </button>
       </header>
 
       {focus && client ? (
@@ -73,6 +76,11 @@ export function BarberMode() {
         </section>
       )}
 
+      {clockedIn && (
+        <p className="app-quiet" role="status">
+          Clocked in at {f.time(clockedIn)}.
+        </p>
+      )}
       <button type="button" className="ui-btn ui-btn--quiet ui-btn--block" onClick={() => setLate(true)} disabled={late}>
         {late ? "Late message ready, not connected to WhatsApp yet" : "Running 10 minutes late"}
       </button>

@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Lang, LANGS, useLang } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { loadSite } from "../lib/site";
@@ -11,6 +11,8 @@ export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: 
   const { t, lang, setLang, dir } = useLang();
   const site = loadSite();
   const [menu, setMenu] = useState(false);
+  const [params] = useSearchParams();
+  const embed = params.get("embed") === "1";
 
   /* The page itself speaks the client's language, so screen readers and the browser's own controls follow it. */
   useEffect(() => {
@@ -29,6 +31,7 @@ export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: 
       <a className="skip" href="#shop-main">
         {t("skip")}
       </a>
+      {!embed && (
       <header className="shop__bar">
         <div className="shop__container shop__barin">
           <Link to={SHOP} className="shop__mark" aria-label={settings.shopName}>
@@ -49,9 +52,11 @@ export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: 
           </nav>
         </div>
       </header>
+      )}
       <main id="shop-main" className={narrow ? "shop__container shop__container--narrow" : undefined}>
         {children}
       </main>
+      {!embed && (
       <footer className="shop__foot">
         <div className="shop__container">
           <p dir="auto">
@@ -72,6 +77,7 @@ export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: 
           </p>
         </div>
       </footer>
+      )}
     </div>
   );
 }
