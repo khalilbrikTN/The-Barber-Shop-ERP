@@ -1,0 +1,1 @@
+{ "scanned": "2026-11-08", "findings": { "fonts": "none", "palette": "none", "motion": "none", "spacing": "none", "framework": "none (empty folder with PLAN.md); Vite + React 18 + TypeScript introduced" }, "preserve": [], "introduce": ["framework", "shape", "theme", "gates", "hero discipline", "slots"] }

@@ -1,0 +1,37 @@
+/* Hallmark · shape: Feature Stack · genre: modern-minimal · theme: Wayfind (locked in DESIGN.md) · job: sign up · draw: none, inner pages follow the home page
+ * hero: Banner · nav: slab · footer: index columns · imagery: none, type and tables carry these pages · signature: the plan table and what is never charged · wayfind: platform
+ * axes: light/mono/cool · posture: committed · contrast: pass · fold: pass · v2.0.0 */
+/* Hallmark · pre-emit critique: P4 H4 E4 S4 R5 V3 · weakest: V, inner pages share the home page's system on purpose (DESIGN.md) */
+/* Hallmark · waive 44c · hero: Banner on /pricing and /switch, the next section starts at 602px · an inner page leads with its own content, the plan table and the steps, not a full-screen hero */
+
+/* Inner marketing pages */
+.page-hero { padding-block: var(--section-gap-s) var(--space-2xl); border-block-end: var(--rule-bar) solid var(--color-ink); }
+.page-hero h1 { max-width: 18ch; font-size: var(--text-display); }
+.page-hero .lead { margin-top: var(--space-lg); color: var(--color-ink-2); }
+.page-hero .hero__actions { margin-top: var(--space-xl); }
+.pricing--page { border-top: 0; padding-top: var(--space-2xl); }
+.never { padding-block: var(--section-gap-s); }
+.never__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--gap-columns); align-items: start; }
+.never__rows { margin: 0; border-top: var(--rule-bar) solid var(--color-paper); }
+.never__rows > div { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--gap-columns); padding-block: var(--space-lg); border-bottom: var(--rule-hair) solid var(--color-ink-rule); }
+.never__rows dt { font-size: var(--text-lg); font-weight: 800; color: var(--color-accent-2); }
+.never__rows dd { margin: 0; }
+.page-cta { padding-block: var(--section-gap); }
+.page-cta__row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-xl); }
+.page-cta__text { max-width: 26ch; font-size: var(--text-display-s); }
+.steps { padding-block: var(--space-2xl) var(--section-gap-s); }
+.steps h2 { margin-bottom: var(--space-2xl); }
+.steps__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--gap-columns); margin: 0; padding: 0; list-style: none; counter-reset: step; }
+.steps__list li { display: grid; align-content: start; gap: var(--space-md); padding-top: var(--space-lg); border-top: var(--rule-bar) solid var(--color-ink); counter-increment: step; }
+.steps__list li::before { content: counter(step); font-size: var(--text-display-s); font-weight: 800; line-height: 1; letter-spacing: var(--tracking-display); }
+.steps__title { font-size: var(--text-title); line-height: 1.2; }
+.steps__list p { color: var(--color-ink-2); }
+
+
+@media (max-width: 60rem) {
+  .never__grid { grid-template-columns: minmax(0, 1fr); }
+  .steps__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 40rem) {
+  .steps__list, .never__rows > div { grid-template-columns: minmax(0, 1fr); }
+}

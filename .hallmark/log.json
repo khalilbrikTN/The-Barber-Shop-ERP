@@ -1,0 +1,62 @@
+[
+ {
+  "scope": "app",
+  "shape": "app screen",
+  "theme": "wayfind",
+  "axes": "light/mono/cool",
+  "nav": "side rail",
+  "signature": "the queue, as a board and as chairs now",
+  "sections": [
+   "today",
+   "calendar",
+   "queue",
+   "clients",
+   "checkout",
+   "money",
+   "team",
+   "marketing",
+   "website",
+   "settings",
+   "setup",
+   "barber mode",
+   "kiosk",
+   "tv",
+   "shop site",
+   "booking",
+   "account"
+  ],
+  "waived": [
+   "39b"
+  ],
+  "prompt": "Chairside business app, shop site, booking flow and client account",
+  "date": "2026-11-08",
+  "mode": "build"
+ },
+ {
+  "shape": "Stat-Led",
+  "theme": "wayfind",
+  "axes": "light/mono/cool",
+  "hero": "Settled",
+  "nav": "slab",
+  "footer": "index columns",
+  "imagery": "the product built: queue board in hero, four phone screens",
+  "photos": [],
+  "entry": "Settled hero, 0% figure beside a working queue board",
+  "fingerprint": "stat-led/wayfind/settled/slab/index-columns/product-built",
+  "sections": [
+   "hero",
+   "pinned",
+   "table-band",
+   "statement",
+   "table",
+   "rows",
+   "form-band",
+   "footer"
+  ],
+  "signature": "the shop queue board, where Call next moves the line",
+  "waived": [],
+  "prompt": "Landing page for Chairside, a barbershop and salon SaaS",
+  "date": "2026-11-08",
+  "mode": "build"
+ }
+]
