@@ -23,7 +23,7 @@ The locked system. Every Hallmark run reads this first and pages share it. Chang
 The spacing scale, the easings and the durations are the scaffold's and live in `tokens.css`. Marketing pages use the fluid type scale in `tokens.css`; app screens (`.app-root`) override it with the fixed 1.2 scale in `src/app/styles/app.css`.
 
 ## Rules
-- Chivo Mono everywhere, 400 / 500 / 800. Never a proportional face.
+- Chivo Mono everywhere, 400 / 500 / 800. Never a proportional face for Latin text. Chivo Mono has no Arabic letters, so Noto Kufi Arabic is the fallback for Arabic only (loaded per character range, never for Latin).
 - Square corners, 2px ink borders on surfaces and controls, 1px rules between rows.
 - Cobalt (`--color-accent`) marks what is live: the primary action, the current selection, the current time. Amber (`--color-accent-2`) colours figures on ink, or fills a plate under ink text; never amber text on paper.
 - Logical CSS properties only (`margin-inline-start`, `inset-inline-end`) so right-to-left languages work.

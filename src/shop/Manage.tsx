@@ -3,12 +3,15 @@ import { Link, useParams } from "react-router-dom";
 import { findSlots } from "../lib/availability";
 import { clientById, serviceById, staffById } from "../lib/data";
 import { useFormat } from "../lib/format";
+import { useLang } from "../lib/i18n";
 import { useStore } from "../lib/store";
 import { SHOP, ShopFrame } from "./ShopFrame";
 
 export function Manage() {
   const { id } = useParams();
-  const f = useFormat();
+  const { t, s, locale, lang } = useLang();
+  const f = useFormat(locale);
+  const sep = lang === "ar" ? "، " : ", ";
   const { bookings, moveBooking, setStatus } = useStore();
   const b = bookings.find((x) => x.id === id);
   const [mode, setMode] = useState<"view" | "move" | "cancel">("view");
@@ -18,10 +21,10 @@ export function Manage() {
     return (
       <ShopFrame narrow>
         <div className="book">
-          <h1>That booking link has expired</h1>
-          <p>Ask the shop on WhatsApp, or book a new time.</p>
+          <h1>{t("manage.expired")}</h1>
+          <p>{t("manage.expiredBody")}</p>
           <Link to={`${SHOP}/book`} className="shop__btn shop__btn--primary">
-            Book a chair
+            {t("site.book")}
           </Link>
         </div>
       </ShopFrame>
@@ -33,43 +36,45 @@ export function Manage() {
   return (
     <ShopFrame narrow>
       <div className="book">
-        <h1>{b.status === "cancelled" ? "Booking cancelled" : `Your booking, ${clientById(b.clientId)?.name}`}</h1>
+        <h1>{b.status === "cancelled" ? t("manage.cancelled") : t("manage.yours", { name: clientById(b.clientId)?.name ?? "" })}</h1>
         <dl className="book__summary">
           <div>
-            <dt>When</dt>
+            <dt>{t("book.when")}</dt>
             <dd>
-              {f.day(b.start)}, {f.time(b.start)}
+              {f.day(b.start)}
+              {sep}
+              {f.time(b.start)}
             </dd>
           </div>
           <div>
-            <dt>With</dt>
+            <dt>{t("book.with")}</dt>
             <dd>{staffById(b.staffId).name}</dd>
           </div>
           <div>
-            <dt>For</dt>
-            <dd>{b.serviceIds.map((s) => serviceById(s).name).join(", ")}</dd>
+            <dt>{t("book.for")}</dt>
+            <dd>{b.serviceIds.map((x) => s(serviceById(x).name)).join(sep)}</dd>
           </div>
         </dl>
 
         {b.status !== "cancelled" && mode === "view" && (
           <div className="shop-hero__actions">
             <button type="button" className="shop__btn shop__btn--primary" onClick={() => setMode("move")}>
-              Move it
+              {t("manage.move")}
             </button>
             <button type="button" className="shop__btn" onClick={() => setMode("cancel")}>
-              Cancel it
+              {t("manage.cancel")}
             </button>
           </div>
         )}
 
         {mode === "move" && (
           <section aria-labelledby="move-title">
-            <h2 id="move-title">Free times that day with {staffById(b.staffId).name}</h2>
+            <h2 id="move-title">{t("manage.free", { name: staffById(b.staffId).name })}</h2>
             <div className="slot-grid slot-grid--big">
-              {slots.map((s) => (
-                <label key={s.start} className="slot">
-                  <input type="radio" name="slot" checked={slot === s.start} onChange={() => setSlot(s.start)} />
-                  <span className="num">{f.time(s.start)}</span>
+              {slots.map((x) => (
+                <label key={x.start} className="slot">
+                  <input type="radio" name="slot" checked={slot === x.start} onChange={() => setSlot(x.start)} />
+                  <span className="num">{f.time(x.start)}</span>
                 </label>
               ))}
             </div>
@@ -84,10 +89,10 @@ export function Manage() {
                   setSlot("");
                 }}
               >
-                Move to {slot ? f.time(slot) : "this time"}
+                {t("manage.moveTo", { time: slot ? f.time(slot) : t("manage.thisTime") })}
               </button>
               <button type="button" className="shop__btn" onClick={() => setMode("view")}>
-                Keep it as it is
+                {t("manage.keep")}
               </button>
             </div>
           </section>
@@ -95,8 +100,8 @@ export function Manage() {
 
         {mode === "cancel" && (
           <section aria-labelledby="cancel-title" className="shop-confirm">
-            <h2 id="cancel-title">Cancel this booking?</h2>
-            <p>The time goes to the next person on the waitlist. Cancelling now is free.</p>
+            <h2 id="cancel-title">{t("manage.sure")}</h2>
+            <p>{t("manage.sureBody")}</p>
             <div className="shop-hero__actions">
               <button
                 type="button"
@@ -106,10 +111,10 @@ export function Manage() {
                   setMode("view");
                 }}
               >
-                Yes, cancel it
+                {t("manage.yes")}
               </button>
               <button type="button" className="shop__btn" onClick={() => setMode("view")}>
-                Keep my booking
+                {t("manage.keepMine")}
               </button>
             </div>
           </section>
@@ -117,7 +122,7 @@ export function Manage() {
 
         {b.status === "cancelled" && (
           <Link to={`${SHOP}/book`} className="shop__btn shop__btn--primary">
-            Book another time
+            {t("manage.another")}
           </Link>
         )}
       </div>

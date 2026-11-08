@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { createBrowserRouter, Navigate, RouterProvider, useParams } from "react-router-dom";
 import { SettingsProvider } from "./lib/settings";
 import { StoreProvider } from "./lib/store";
+import { LangProvider } from "./lib/i18n";
 import { NotFound, RouteError } from "./ui/Errors";
 import "./styles/page.css";
 import "./styles/pages.css";
@@ -68,7 +69,9 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <SettingsProvider>
       <StoreProvider>
-        <RouterProvider router={router} />
+        <LangProvider>
+          <RouterProvider router={router} />
+        </LangProvider>
       </StoreProvider>
     </SettingsProvider>
   </StrictMode>,

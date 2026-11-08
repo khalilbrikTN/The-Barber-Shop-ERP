@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import { clientById, serviceById, staffById } from "../lib/data";
 import { useFormat } from "../lib/format";
+import { useLang } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { loadSite } from "../lib/site";
 import { useStore } from "../lib/store";
@@ -27,7 +28,9 @@ function ics(opts: { id: string; start: string; end: string; title: string; wher
 
 export function Booked() {
   const { id } = useParams();
-  const f = useFormat();
+  const { t, s: tr, locale, lang } = useLang();
+  const f = useFormat(locale);
+  const sep = lang === "ar" ? "، " : ", ";
   const { settings } = useSettings();
   const { bookings } = useStore();
   const b = bookings.find((x) => x.id === id);
@@ -37,41 +40,43 @@ export function Booked() {
     return (
       <ShopFrame narrow>
         <div className="book">
-          <h1>We could not find that booking</h1>
-          <p>Bookings in this preview are saved in the browser they were made in. Book again here to see the confirmation.</p>
+          <h1>{t("booked.missing")}</h1>
+          <p>{t("booked.missingBody")}</p>
           <Link to={`${SHOP}/book`} className="shop__btn shop__btn--primary">
-            Book a chair
+            {t("site.book")}
           </Link>
         </div>
       </ShopFrame>
     );
 
-  const services = b.serviceIds.map((s) => serviceById(s).name).join(", ");
+  const services = b.serviceIds.map((x) => tr(serviceById(x).name)).join(sep);
   const party = b.groupId ? bookings.filter((x) => x.groupId === b.groupId && x.id !== b.id) : [];
 
   return (
     <ShopFrame narrow>
       <div className="book">
-        <h1>You are booked</h1>
+        <h1>{t("booked.title")}</h1>
         <div className="shop-sign shop-sign--wide">
           <p className="shop-sign__label">{f.day(b.start)}</p>
           <p className="shop-sign__figure num">{f.time(b.start)}</p>
           <p>
-            {services} with {staffById(b.staffId).name}
+            {services}
+            {sep}
+            {staffById(b.staffId).name}
           </p>
         </div>
         {party.map((p) => (
           <p key={p.id} className="book__party">
-            And {clientById(p.clientId)?.name}: {p.serviceIds.map((s) => serviceById(s).name).join(", ")} at {f.time(p.start)} with {staffById(p.staffId).name}.
+            {t("booked.and", { name: clientById(p.clientId)?.name ?? "", services: p.serviceIds.map((x) => tr(serviceById(x).name)).join(sep), time: f.time(p.start), barber: staffById(p.staffId).name })}
           </p>
         ))}
-        <p>A WhatsApp reminder goes out the day before, once messages are connected.</p>
+        <p>{t("booked.reminder")}</p>
         <div className="shop-hero__actions">
-          <a className="shop__btn" href={ics({ id: b.id, start: b.start, end: b.end, title: `${services}, ${settings.shopName}`, where: site.address })} download="booking.ics">
-            Add to my calendar
+          <a className="shop__btn" href={ics({ id: b.id, start: b.start, end: b.end, title: `${b.serviceIds.map((x) => serviceById(x).name).join(", ")}, ${settings.shopName}`, where: site.address })} download="booking.ics">
+            {t("booked.calendar")}
           </a>
           <Link className="shop__btn" to={`${SHOP}/manage/${b.id}`}>
-            Change or cancel
+            {t("booked.change")}
           </Link>
         </div>
       </div>

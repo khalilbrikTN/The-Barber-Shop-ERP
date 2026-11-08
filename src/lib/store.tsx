@@ -40,6 +40,7 @@ type Store = {
   mergeClients: (keepId: string, dropId: string) => void;
   importClients: (rows: NewClient[]) => { added: number; matched: number };
   removeWaitlist: (id: string) => void;
+  addWaitlist: (w: Omit<WaitEntry, "id">) => void;
   adjustStock: (id: string, by: number) => void;
   addProduct: (p: Omit<Product, "id">) => void;
   addGiftCard: (g: Omit<GiftCard, "code">) => GiftCard;
@@ -167,6 +168,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return { added: next.length - clients.length, matched };
       },
       removeWaitlist: (id) => setWaitlist((w) => w.filter((x) => x.id !== id)),
+      addWaitlist: (w) => setWaitlist((all) => [...all, { ...w, id: uid("w") }]),
       adjustStock: (id, by) => setProducts((ps) => ps.map((p) => (p.id === id ? { ...p, stock: Math.max(0, p.stock + by) } : p))),
       addProduct: (p) => setProducts((ps) => [...ps, { ...p, id: uid("p") }]),
       addGiftCard: (g) => {

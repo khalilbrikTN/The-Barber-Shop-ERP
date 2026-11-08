@@ -488,6 +488,13 @@
 .shop__foot { padding-block: var(--space-xl); border-block-start: var(--rule-bar) solid var(--color-ink); font-size: var(--text-sm); }
 .shop__foot .shop__container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--space-md); }
 .shop__powered { color: var(--color-muted); }
+.shop__lang { display: flex; align-items: center; gap: var(--space-xs); }
+.shop__lang .ui-input { inline-size: auto; min-block-size: 40px; }
+.shop[dir="rtl"] { letter-spacing: 0; }
+.shop[dir="rtl"] .shop__btn, .shop[dir="rtl"] .shop__menu, .shop[dir="rtl"] .ui-btn { line-height: 1.5; }
+.shop[dir="rtl"] h1, .shop[dir="rtl"] h2, .shop[dir="rtl"] h3 { letter-spacing: 0; line-height: 1.35; }
+.book__full { display: grid; gap: var(--space-md); justify-items: start; }
+.book__waitform { display: grid; gap: var(--space-md); inline-size: 100%; }
 
 .book { display: grid; gap: var(--space-lg); padding-block: var(--space-2xl) var(--space-3xl); }
 .book h1 { font-size: var(--text-section); max-width: none; margin-block-end: var(--space-md); }

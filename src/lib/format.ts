@@ -9,9 +9,11 @@ export function toMinor(major: number, currency: string) {
   return Math.round(major * 10 ** minorDigits(currency));
 }
 
-export function useFormat() {
+/** Formats in the shop's currency and time zone. Client pages pass the client's language as the locale. */
+export function useFormat(localeOverride?: string) {
   const { settings } = useSettings();
-  const { locale, currency, timeZone, hour12 } = settings;
+  const { currency, timeZone, hour12 } = settings;
+  const locale = localeOverride ?? settings.locale;
 
   const money = (minor: number, opts: { whole?: boolean } = {}) => {
     const d = minorDigits(currency);
