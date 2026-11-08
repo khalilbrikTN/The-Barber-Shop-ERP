@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Link } from "react-router-dom";
 import { useSettings } from "../lib/settings";
 import { loadSite } from "../lib/site";
@@ -8,8 +8,9 @@ export const SHOP = "/s/example-barbers";
 export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: boolean }) {
   const { settings } = useSettings();
   const site = loadSite();
+  const [menu, setMenu] = useState(false);
   return (
-    <div className="shop" data-preset={site.preset} data-accent={site.accent}>
+    <div className="shop" data-preset={site.preset} data-accent={site.accent} data-menu={menu || undefined}>
       <a className="skip" href="#shop-main">
         Skip to content
       </a>
@@ -20,8 +21,13 @@ export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: 
             <span>{settings.shopName}</span>
           </Link>
           <nav aria-label="Shop" className="shop__nav">
-            <Link to={`${SHOP}/queue`}>Join the queue</Link>
-            <Link to="/account">My bookings</Link>
+            <button type="button" className="shop__menu" aria-expanded={menu} aria-controls="shop-links" onClick={() => setMenu((m) => !m)}>
+              {menu ? "Close" : "Menu"}
+            </button>
+            <span className="shop__navlinks" id="shop-links">
+              <Link to={`${SHOP}/queue`}>Join the queue</Link>
+              <Link to="/account">My bookings</Link>
+            </span>
             <Link to={`${SHOP}/book`} className="shop__btn shop__btn--primary">
               Book
             </Link>

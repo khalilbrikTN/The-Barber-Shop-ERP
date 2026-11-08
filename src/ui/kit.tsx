@@ -144,5 +144,5 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
 }
 
 export function NotConnected({ what }: { what: string }) {
-  return <p className="ui-notconnected">Kept in this tab only: {what} is not connected to a server yet.</p>;
+  return <p className="ui-notconnected">Saved in this browser only: {what} is not connected to a server yet.</p>;
 }

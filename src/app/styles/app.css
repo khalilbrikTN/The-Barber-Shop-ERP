@@ -9,7 +9,7 @@
 /* Hallmark · answered F25 · on a phone the clients table keeps name, visits and spend; phone, last visit and no-shows are one tap away on the profile */
 /* Hallmark · dismissed F4 · the signal preset fills its button ink on the shop website, a separate page from the app and its cobalt primary */
 /* Hallmark · dismissed 23 · .shop-sign__figure is amber on an ink plate, the Wayfind figure colour, and turns ink on the paper preset */
-/* Hallmark · dismissed 70 · Checkout says the sale is kept in this tab until a server is connected; no success is claimed for a request */
+/* Hallmark · dismissed 70 · Checkout says the sale is saved in this browser until a server is connected; no success is claimed for a request */
 
 /* The app's fixed type scale (swatch colours live in tokens.css) */
 .app-root, .shop {
@@ -117,7 +117,10 @@
 .ui-stats > :first-child { padding-inline-start: 0; border-inline-start: 0; }
 .ui-stats--row { margin-block-end: var(--space-xl); }
 .ui-stats--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.ui-stat { display: grid; gap: var(--space-3xs); }
+.ui-stat { display: grid; align-content: start; gap: var(--space-3xs); }
+.ui-tablewrap + .app-quiet, .ui-tablewrap + p, .app-quiet + .ui-tablewrap, .ui-live + .ui-tablewrap { margin-block-start: var(--space-sm); }
+.waitlist { margin-block-start: var(--space-xl); }
+.ui-input--name { min-inline-size: 10rem; }
 .ui-stat__label { font-size: var(--text-sm); color: var(--color-ink-2); }
 .ui-stat__value { font-size: var(--text-xl); font-weight: 800; }
 .ui-stat__sub { font-size: var(--text-xs); color: var(--color-muted); }
@@ -156,6 +159,14 @@
 .app-side__foot { margin-block-start: auto; padding: var(--space-md); border-block-start: var(--rule-hair) solid var(--color-ink-rule); font-size: var(--text-xs); }
 .app-side__states { display: flex; flex-wrap: wrap; gap: var(--space-xs) var(--space-sm); margin-block-start: var(--space-2xs); }
 .app-side__states a:hover { color: var(--color-accent-2); }
+.app-side__reset { margin-block-start: var(--space-sm); padding: 0; border: 0; background: none; color: var(--color-paper); font: 500 var(--text-xs)/1.4 var(--font-body); text-decoration: underline; cursor: pointer; }
+.app-side__reset:hover { color: var(--color-accent-2); }
+.app-side__reset:focus-visible { outline: 2px solid var(--color-accent-2); outline-offset: 2px; }
+
+/* ---------- Error and not-found pages ---------- */
+.errorpage { min-block-size: 100dvh; display: grid; align-content: center; justify-items: start; gap: var(--space-md); max-inline-size: 40rem; margin-inline: auto; padding: var(--space-2xl) var(--space-md); }
+.errorpage h1 { font-size: var(--text-display); max-width: none; }
+.errorpage__code { font-size: clamp(4rem, 12vw, 8rem); font-weight: 800; line-height: 1; letter-spacing: -0.04em; }
 .app-main { padding: var(--space-xl) var(--space-xl) var(--space-3xl); min-width: 0; max-inline-size: 1440px; }
 
 .app-section { margin-block-end: var(--space-xl); min-width: 0; }
@@ -248,7 +259,7 @@
 .cal__segs { position: absolute; inset: 0; display: flex; flex-direction: column; pointer-events: none; z-index: -1; }
 .cal__seg[data-kind="wait"] { display: grid; place-items: center; background: var(--color-paper-2); border-block: var(--rule-hair) dashed var(--color-muted); color: var(--color-ink-2); font-size: var(--text-xs); }
 .cal__block:has(.cal__segs) { isolation: isolate; }
-.cal-panel { position: sticky; inset-block-start: var(--space-md); display: grid; gap: var(--space-md); padding: var(--space-lg); border: var(--rule-bar) solid var(--color-ink); background: var(--color-paper-3); max-block-size: calc(100dvh - var(--space-2xl)); overflow-y: auto; }
+.cal-panel { display: grid; align-content: start; gap: var(--space-md); padding: var(--space-lg); border: var(--rule-bar) solid var(--color-ink); background: var(--color-paper-3); }
 .cal-panel__head { display: flex; justify-content: space-between; align-items: center; }
 .cal-panel__head .app-h2 { margin: 0; }
 .cal-panel__notes { padding: var(--space-sm) var(--space-md); background: var(--color-accent-2); color: var(--color-ink); }
@@ -411,6 +422,10 @@
 .shop__mark { font-size: var(--text-lg); font-weight: 800; text-decoration: none; }
 .shop__nav { display: flex; align-items: center; gap: var(--space-lg); font-size: var(--text-sm); font-weight: 500; }
 .shop__nav a { text-decoration: none; }
+.shop__bar { position: relative; }
+.shop__navlinks { display: flex; gap: var(--space-lg); }
+.shop__menu { display: none; min-block-size: 40px; padding: 0 var(--space-md); border: var(--rule-bar) solid currentColor; background: transparent; color: inherit; font: 800 var(--text-sm)/1 var(--font-body); cursor: pointer; }
+.shop__menu:focus-visible { outline: 2px solid var(--color-accent-2); outline-offset: 2px; }
 .shop__nav a:hover { text-decoration: underline; }
 .shop__bar a:focus-visible { outline-color: var(--color-accent-2); }
 .shop[data-preset="paper"] .shop__bar a:focus-visible { outline-color: var(--color-focus); }
@@ -512,11 +527,12 @@
 
 /* ---------- Narrow screens ---------- */
 @media (max-width: 60rem) {
-  .admin__shops thead { display: none; }
-  .admin__shops tr { display: grid; grid-template-columns: repeat(3, minmax(0, auto)); gap: var(--space-3xs) var(--space-md); justify-content: start; padding-block: var(--space-sm); border-block-end: var(--rule-hair) solid var(--color-rule); }
-  .admin__shops th, .admin__shops td { padding: 0; border: 0; text-align: start; }
-  .admin__shops th { grid-column: 1 / -1; }
-  .admin__shops td:last-child { grid-column: 1 / -1; }
+  .ui-table.admin__shops thead { display: none; }
+  .ui-table.admin__shops tr { display: grid; grid-template-columns: repeat(3, minmax(0, auto)); gap: var(--space-3xs) var(--space-md); justify-content: start; padding-block: var(--space-sm); border-block-end: var(--rule-hair) solid var(--color-rule); }
+  .ui-table.admin__shops th, .ui-table.admin__shops td { padding: 0; border: 0; text-align: start; }
+  .ui-table.admin__shops td[data-label]::before { content: attr(data-label); display: block; font-size: var(--text-xs); font-weight: 500; color: var(--color-muted); }
+  .ui-table.admin__shops th { grid-column: 1 / -1; }
+  .ui-table.admin__shops td:last-child { grid-column: 1 / -1; grid-row: auto; justify-self: stretch; }
   .admin__imp { flex-wrap: wrap; justify-content: flex-start; }
   .admin__imp .ui-input { min-inline-size: 0; flex: 1 1 10rem; }
   .app-shell { grid-template-columns: minmax(0, 1fr); }
@@ -538,6 +554,14 @@
   .ui-table--stack th, .ui-table--stack td { padding: 0; border: 0; }
   .ui-table--stack td:last-child { grid-column: 2; grid-row: 1; justify-self: end; }
   .ui-table--stack td a { overflow-wrap: anywhere; }
+  .ui-table--form thead { display: none; }
+  .ui-table--form tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xs) var(--space-md); padding-block: var(--space-md); border-block-end: var(--rule-hair) solid var(--color-rule); }
+  .ui-table--form th, .ui-table--form td { padding: 0; border: 0; text-align: start; }
+  .ui-table--form th { grid-column: 1 / -1; }
+  .ui-table--form td[data-label]::before { content: attr(data-label); display: block; margin-block-end: var(--space-3xs); font-size: var(--text-xs); font-weight: 500; color: var(--color-muted); }
+  .ui-table--form .ui-input--name { inline-size: 100%; }
+  .ui-stats { gap: var(--space-md); }
+  .ui-stats > * { padding-inline: 0; border-inline-start: 0; }
   .cal { scroll-snap-type: x mandatory; grid-template-columns: 4.5rem repeat(var(--cols), calc(100% - 4.5rem)); }
   .cal__colhead { scroll-snap-align: end; }
   .tv { --text-md: 1rem; }
@@ -547,7 +571,10 @@
   .tv__table td:nth-child(2) { display: none; }
   .tv__table thead th:nth-child(2) { display: none; }
   .split, .setup__row { grid-template-columns: minmax(0, 1fr); }
-  .shop__nav a:not(.shop__btn) { display: none; }
+  .shop__menu { display: inline-flex; }
+  .shop__nav .shop__navlinks { display: none; }
+  .shop[data-menu] .shop__navlinks { display: grid; position: absolute; inset-inline: 0; inset-block-start: 64px; z-index: var(--z-dropdown); gap: var(--space-xs); padding: var(--space-md) var(--gutter); background: var(--color-ink); color: var(--color-paper); }
+  .shop[data-preset="paper"][data-menu] .shop__navlinks { background: var(--color-paper); color: var(--color-ink); border-block-end: var(--rule-bar) solid var(--color-ink); }
   .ui-dl > div, .book__summary > div { grid-template-columns: minmax(0, 1fr); gap: var(--space-3xs); }
   .offer, .rules li { flex-direction: column; align-items: flex-start; gap: var(--space-xs); }
 }

@@ -52,7 +52,7 @@ export function Checkout() {
   if (done)
     return (
       <>
-        <PageHead title="Sale recorded" sub={`${f.money(total)}${booking ? ` for ${clientById(booking.clientId)?.name}` : ""}, kept in this tab until a server is connected.`} />
+        <PageHead title="Sale recorded" sub={`${f.money(total)}${booking ? ` for ${clientById(booking.clientId)?.name}` : ""}, saved in this browser until a server is connected.`} />
         <section className="app-section app-panel app-narrow">
           <h2 className="app-h2">Book the next visit before they leave</h2>
           <div className="rebook">

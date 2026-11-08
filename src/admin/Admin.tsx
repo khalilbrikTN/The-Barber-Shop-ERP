@@ -6,12 +6,19 @@ import { PageHead, Status, Tabs, useTab } from "../ui/kit";
 
 type LogRow = { at: string; who: string; what: string };
 
+/** What each plan includes, as on /pricing: queue and deposits from Shop, domain and the AI beta on Pro. */
+function flagForPlan(flag: string, plan: string) {
+  if (flag === "WhatsApp messages") return true;
+  if (flag === "Walk-in queue" || flag === "Online deposits") return plan === "Shop" || plan === "Pro";
+  return plan === "Pro";
+}
+
 export function Admin() {
   const f = useFormat();
   const tab = useTab("tab", "shops");
   const [q, setQ] = useState("");
   const [flags, setFlags] = useState<Record<string, Record<string, boolean>>>(() =>
-    Object.fromEntries(TENANTS.map((t) => [t.id, Object.fromEntries(FLAGS.map((fl, i) => [fl, i < 3 || t.plan === "Pro"]))])),
+    Object.fromEntries(TENANTS.map((t) => [t.id, Object.fromEntries(FLAGS.map((fl) => [fl, flagForPlan(fl, t.plan)]))])),
   );
   const [log, setLog] = useState<LogRow[]>([{ at: "2026-12-11T16:20:00+02:00", who: "Support", what: "Opened Example Friseur to fix a payment setting. The shop was told." }]);
   const [reason, setReason] = useState<Record<string, string>>({});
@@ -62,16 +69,16 @@ export function Admin() {
                   {shops.map((t) => (
                     <tr key={t.id}>
                       <th scope="row">{t.name}</th>
-                      <td>{t.country}</td>
-                      <td>{t.plan}</td>
-                      <td className="r num">{t.staff}</td>
-                      <td>
+                      <td data-label="Country">{t.country}</td>
+                      <td data-label="Plan">{t.plan}</td>
+                      <td className="r num" data-label="Staff">{t.staff}</td>
+                      <td data-label="Status">
                         <Status value={t.status} />
                       </td>
-                      <td className="r num" data-warn={t.messages / t.allowance > 0.9 || undefined}>
+                      <td className="r num" data-label="Messages" data-warn={t.messages / t.allowance > 0.9 || undefined}>
                         {f.num(t.messages)} of {f.num(t.allowance)}
                       </td>
-                      <td>{f.date(`${t.since}T12:00:00Z`)}</td>
+                      <td data-label="Since">{f.date(`${t.since}T12:00:00Z`)}</td>
                       <td className="r">
                         <form
                           className="admin__imp"

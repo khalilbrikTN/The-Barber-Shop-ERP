@@ -15,10 +15,11 @@ const ROWS: { label: string; values: string[]; figure?: boolean }[] = [
 ];
 
 const NEVER = [
-  { what: "Setting up", cost: "Free, and the import from your old app is free too." },
+  { what: "Setting up", cost: "Free, with help over WhatsApp if you get stuck." },
   { what: "Each booking", cost: "Nothing, new clients included." },
-  { what: "Card payments", cost: "Your provider's fee, paid to them, never through us." },
+  { what: "Card payments", cost: "Your provider’s fee, paid to them, never through us." },
   { what: "Leaving", cost: "Nothing. Your client list downloads in one file." },
+  { what: "Switching from another app", cost: "Free. Bring your clients in one CSV file." },
 ];
 
 export function PricingPage() {
@@ -84,13 +85,7 @@ export function PricingPage() {
                 </div>
               ))}
             </dl>
-          </div>
-        </section>
-
-        <section className="page-cta" aria-label="Switching">
-          <div className="container page-cta__row">
-            <p className="statement__text page-cta__text">Coming from another booking app? Bring your clients in one file.</p>
-            <Link className="btn btn--ghost" to="/switch">
+            <Link className="btn btn--on-ink never__link" to="/switch">
               How switching works
             </Link>
           </div>

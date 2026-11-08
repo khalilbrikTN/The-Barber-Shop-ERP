@@ -282,7 +282,7 @@ export function Book() {
             <button type="submit" className="shop__btn shop__btn--primary shop__btn--block">
               {deposit > 0 ? `Book and pay ${f.money(deposit)}` : "Book"}
             </button>
-            {deposit > 0 && <p className="app-quiet">Card payment is not connected in this preview; the booking is kept in this tab only.</p>}
+            {deposit > 0 && <p className="app-quiet">Card payment is not connected in this preview; the booking is saved in this browser only.</p>}
           </form>
         )}
 

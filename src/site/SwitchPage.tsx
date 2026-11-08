@@ -41,7 +41,7 @@ export function SwitchPage() {
 
         <section className="steps" aria-labelledby="steps-title">
           <div className="container">
-            <h2 id="steps-title">Four steps</h2>
+            <h2 id="steps-title">Export, import, check, share</h2>
             <ol className="steps__list">
               {STEPS.map((s) => (
                 <li key={s.title}>

@@ -59,7 +59,7 @@ export function StaffProfile() {
           <h2 className="app-h2">What {s.name} does, and at what price</h2>
           <p className="app-quiet">Leave a price or time empty to use the shop’s. A senior barber can charge more for the same cut.</p>
           <div className="ui-tablewrap">
-            <table className="ui-table">
+            <table className="ui-table ui-table--form">
               <thead>
                 <tr>
                   <th scope="col">Does it</th>
@@ -78,8 +78,8 @@ export function StaffProfile() {
                         <input type="checkbox" checked={on} onChange={(e) => setDoes((d) => (e.target.checked ? [...d, sv.id] : d.filter((x) => x !== sv.id)))} aria-label={`${s.name} does ${sv.name}`} />
                       </td>
                       <th scope="row">{sv.name}</th>
-                      <td className="r num">{f.money(sv.priceMinor, { whole: true })}</td>
-                      <td className="r">
+                      <td className="r num" data-label="Shop price">{f.money(sv.priceMinor, { whole: true })}</td>
+                      <td className="r" data-label={`${s.name}’s price`}>
                         <input
                           className="ui-input ui-input--short num"
                           inputMode="decimal"
@@ -90,7 +90,7 @@ export function StaffProfile() {
                           aria-label={`${s.name}'s price for ${sv.name}`}
                         />
                       </td>
-                      <td className="r">
+                      <td className="r" data-label={`${s.name}’s minutes`}>
                         <input
                           className="ui-input ui-input--short num"
                           type="number"

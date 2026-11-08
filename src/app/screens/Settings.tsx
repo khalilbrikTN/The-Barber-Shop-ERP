@@ -160,7 +160,7 @@ function Services() {
       }}
     >
       <div className="ui-tablewrap">
-        <table className="ui-table">
+        <table className="ui-table ui-table--form">
           <thead>
             <tr>
               <th scope="col">Service</th>
@@ -175,15 +175,17 @@ function Services() {
             {rows.map((r) => (
               <tr key={r.id}>
                 <th scope="row">
-                  <input className="ui-input" value={r.name} onChange={(e) => edit(r.id, { name: e.target.value })} aria-label="Service name" />
+                  <input className="ui-input ui-input--name" value={r.name} onChange={(e) => edit(r.id, { name: e.target.value })} aria-label="Service name" />
                 </th>
-                <td>{r.category}</td>
-                <td className="r">
+                <td data-label="Type">{r.category}</td>
+                <td className="r" data-label="Minutes">
                   <input className="ui-input ui-input--short num" type="number" min={5} step={5} value={r.minutes} onChange={(e) => edit(r.id, { minutes: Number(e.target.value) })} aria-label={`${r.name} minutes`} />
                 </td>
-                <td className="r num">{f.money(r.priceMinor, { whole: true })}</td>
-                <td>{r.segments ? r.segments.map((g) => `${g.minutes} ${g.kind}`).join(", ") : "None"}</td>
-                <td className="c">
+                <td className="r" data-label="Price">
+                  <input className="ui-input ui-input--short num" inputMode="decimal" value={r.priceMinor / 100} onChange={(e) => edit(r.id, { priceMinor: Math.round((parseFloat(e.target.value.replace(",", ".")) || 0) * 100) })} aria-label={`${r.name} price`} />
+                </td>
+                <td data-label="Processing">{r.segments ? r.segments.map((g) => `${g.minutes} ${g.kind}`).join(", ") : "None"}</td>
+                <td className="c" data-label="Deposit">
                   <input type="checkbox" checked={!!r.deposit} onChange={(e) => edit(r.id, { deposit: e.target.checked })} aria-label={`Deposit for ${r.name}`} />
                 </td>
               </tr>

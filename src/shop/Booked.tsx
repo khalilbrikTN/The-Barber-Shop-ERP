@@ -38,7 +38,7 @@ export function Booked() {
       <ShopFrame narrow>
         <div className="book">
           <h1>We could not find that booking</h1>
-          <p>Bookings in this preview live in one browser tab. Book again to see the confirmation.</p>
+          <p>Bookings in this preview are saved in the browser they were made in. Book again here to see the confirmation.</p>
           <Link to={`${SHOP}/book`} className="shop__btn shop__btn--primary">
             Book a chair
           </Link>

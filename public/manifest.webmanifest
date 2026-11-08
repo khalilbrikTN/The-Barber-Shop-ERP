@@ -1,0 +1,11 @@
+{
+  "name": "Chairside",
+  "short_name": "Chairside",
+  "description": "Bookings, walk-ins and payments for barbershops and salons.",
+  "start_url": "/me",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#edf0f4",
+  "theme_color": "#0b0f17",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

@@ -42,6 +42,8 @@ a:hover { color: var(--color-accent); }
 .nav__links a:hover { color: var(--color-accent-2); text-decoration: underline; }
 .nav__links a:focus-visible, .nav__mark:focus-visible { outline-color: var(--color-accent-2); }
 .nav__action { min-height: 44px; }
+.nav__menu { display: none; }
+.nav__phone-only { display: none; }
 
 /* Hero: Settled */
 .hero { display: grid; align-items: center; min-height: calc(100dvh - 72px); padding-block: var(--space-2xl); }
@@ -177,7 +179,13 @@ a:hover { color: var(--color-accent); }
 
 /* Under 60rem everything stacks */
 @media (max-width: 60rem) {
+  .nav__bar { position: relative; }
+  .nav__menu { display: inline-flex; align-items: center; min-height: 44px; margin-left: auto; padding: 0 var(--space-md); border: var(--rule-bar) solid var(--color-paper); background: transparent; color: var(--color-paper); font: 800 var(--text-sm)/1 var(--font-body); cursor: pointer; }
+  .nav__menu:focus-visible { outline: 2px solid var(--color-accent-2); outline-offset: 2px; }
   .nav__bar > nav { display: none; }
+  .nav[data-open] .nav__bar > nav { display: block; position: absolute; inset-inline: 0; top: 100%; z-index: var(--z-dropdown); padding: var(--space-md) var(--gutter); background: var(--color-ink); border-top: var(--rule-hair) solid var(--color-ink-rule); }
+  .nav[data-open] .nav__links { flex-direction: column; gap: var(--space-md); }
+  .nav__action { margin-left: 0; }
   .nav__action { margin-left: auto; }
   .hero { min-height: 0; padding-block: var(--space-xl); }
   .hero__grid, .head--split, .pin, .questions__grid, .start__grid, .footer__grid { grid-template-columns: minmax(0, 1fr); }
@@ -190,6 +198,8 @@ a:hover { color: var(--color-accent); }
   .questions__row { grid-template-columns: minmax(0, 1fr); gap: var(--space-xs); }
 }
 @media (max-width: 40rem) {
+  .nav__action { display: none; }
+  .nav__phone-only { display: list-item; }
   .hero__figure { font-size: 6rem; }
   .hero__actions { flex-wrap: nowrap; gap: var(--space-xs); margin-top: var(--space-lg); }
   .hero__actions .btn { padding: 0 var(--space-md); }

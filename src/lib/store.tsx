@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useMemo, useState } from "react";
+import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import {
   Booking,
   BookingStatus,
@@ -52,14 +52,51 @@ const digits = (x: string) => x.replace(/\D/g, "");
 let seq = 0;
 const uid = (p: string) => `${p}${Date.now().toString(36)}${(seq++).toString(36)}`;
 
+/* The preview keeps what you change in this browser, so a reload does not throw your edits away.
+   The server replaces all of this later. */
+const DATA_KEY = "chairside.data.v1";
+type Saved = { bookings: Booking[]; queue: QueueEntry[]; sales: Sale[]; clients: Client[]; waitlist: WaitEntry[]; products: Product[]; giftCards: GiftCard[] };
+
+function loadSaved(): Partial<Saved> {
+  try {
+    const raw = localStorage.getItem(DATA_KEY);
+    return raw ? (JSON.parse(raw) as Partial<Saved>) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Puts every screen back to the original sample. */
+export function resetSampleData() {
+  try {
+    ["chairside.data.v1", "chairside.settings", "chairside.site"].forEach((k) => localStorage.removeItem(k));
+  } catch {
+    /* storage blocked: nothing was saved anyway */
+  }
+  window.location.assign("/app");
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const [bookings, setBookings] = useState(BOOKINGS);
-  const [queue, setQueue] = useState(QUEUE);
-  const [sales, setSales] = useState(SALES);
-  const [clients, setClients] = useState(CLIENTS);
-  const [waitlist, setWaitlist] = useState(WAITLIST);
-  const [products, setProducts] = useState(PRODUCTS);
-  const [giftCards, setGiftCards] = useState(GIFT_CARDS);
+  const [saved] = useState(loadSaved);
+  const [bookings, setBookings] = useState(saved.bookings ?? BOOKINGS);
+  const [queue, setQueue] = useState(saved.queue ?? QUEUE);
+  const [sales, setSales] = useState(saved.sales ?? SALES);
+  const [clients, setClients] = useState(() => {
+    const c = saved.clients ?? CLIENTS;
+    if (saved.clients) CLIENTS.splice(0, CLIENTS.length, ...c);
+    return c;
+  });
+  const [waitlist, setWaitlist] = useState(saved.waitlist ?? WAITLIST);
+  const [products, setProducts] = useState(saved.products ?? PRODUCTS);
+  const [giftCards, setGiftCards] = useState(saved.giftCards ?? GIFT_CARDS);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(DATA_KEY, JSON.stringify({ bookings, queue, sales, clients, waitlist, products, giftCards }));
+    } catch {
+      /* storage full or blocked: the preview still works for this tab */
+    }
+  }, [bookings, queue, sales, clients, waitlist, products, giftCards]);
 
   const value = useMemo<Store>(() => {
     const syncClients = (next: Client[]) => {

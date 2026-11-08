@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useSettings } from "../lib/settings";
+import { resetSampleData } from "../lib/store";
 
 const NAV = [
   { to: "/app", label: "Today", end: true },
@@ -72,6 +73,9 @@ export function AppShell() {
               <Link to="?state=empty">Empty</Link>
               <Link to="?state=error">Error</Link>
             </p>
+            <button type="button" className="app-side__reset" onClick={resetSampleData}>
+              Reset sample data
+            </button>
           </div>
         </nav>
       </aside>

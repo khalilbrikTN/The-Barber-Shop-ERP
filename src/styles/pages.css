@@ -2,6 +2,7 @@
  * hero: Banner · nav: slab · footer: index columns · imagery: none, type and tables carry these pages · signature: the plan table and what is never charged · wayfind: platform
  * axes: light/mono/cool · posture: committed · contrast: pass · fold: pass · v2.0.0 */
 /* Hallmark · pre-emit critique: P4 H4 E4 S4 R5 V3 · weakest: V, inner pages share the home page's system on purpose (DESIGN.md) */
+/* Hallmark · dismissed 77 · /help is a reference page: one search and the answers by topic, not a landing page */
 /* Hallmark · waive 44c · hero: Banner on /pricing and /switch, the next section starts at 602px · an inner page leads with its own content, the plan table and the steps, not a full-screen hero */
 
 /* Inner marketing pages */
@@ -14,7 +15,8 @@
 .never__grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--gap-columns); align-items: start; }
 .never__rows { margin: 0; border-top: var(--rule-bar) solid var(--color-paper); }
 .never__rows > div { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: var(--gap-columns); padding-block: var(--space-lg); border-bottom: var(--rule-hair) solid var(--color-ink-rule); }
-.never__rows dt { font-size: var(--text-lg); font-weight: 800; color: var(--color-accent-2); }
+.never__rows dt { font-size: var(--text-lg); font-weight: 800; }
+.never__link { grid-column: 2; justify-self: start; margin-top: var(--space-lg); }
 .never__rows dd { margin: 0; }
 .page-cta { padding-block: var(--section-gap); }
 .page-cta__row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: var(--space-xl); }
@@ -28,8 +30,27 @@
 .steps__list p { color: var(--color-ink-2); }
 
 
+.help__search { display: grid; gap: var(--space-xs); max-width: 36rem; margin-top: var(--space-xl); font-size: var(--text-sm); font-weight: 500; }
+.input { min-height: 52px; padding: 0 var(--space-md); border: var(--rule-bar) solid var(--color-ink); border-radius: 0; background: var(--color-paper-3); color: var(--color-ink); font-size: var(--text-md); outline: 2px solid transparent; outline-offset: -4px; }
+.input:hover { background: var(--color-paper); }
+.input:focus-visible { outline-color: var(--color-focus); }
+.input:disabled { opacity: 0.55; cursor: not-allowed; }
+.help { padding-block: var(--space-xl) var(--section-gap); }
+.help__group { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); gap: var(--gap-columns); padding-block: var(--space-xl); border-top: var(--rule-bar) solid var(--color-ink); }
+.help__group h2 { font-size: var(--text-section); line-height: 1; }
+.help__item { border-bottom: var(--rule-hair) solid var(--color-rule); }
+.help__item summary { display: flex; justify-content: space-between; gap: var(--space-md); min-height: 52px; align-items: center; font-weight: 800; cursor: pointer; list-style: none; }
+.help__item summary::-webkit-details-marker { display: none; }
+.help__item summary::after { content: "+"; font-weight: 800; }
+.help__item[open] summary::after { content: "−"; }
+.help__item summary:hover { color: var(--color-accent); }
+.help__item summary:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.help__item p { max-width: 60ch; padding-bottom: var(--space-md); color: var(--color-ink-2); }
+.help__link { display: inline-block; margin-bottom: var(--space-md); font-weight: 500; }
+.help__none { font-size: var(--text-lg); }
+
 @media (max-width: 60rem) {
-  .never__grid { grid-template-columns: minmax(0, 1fr); }
+  .never__grid, .help__group { grid-template-columns: minmax(0, 1fr); }
   .steps__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 40rem) {
