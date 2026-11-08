@@ -138,6 +138,8 @@
 .ui-search { flex: 1 1 16rem; max-inline-size: 24rem; }
 .dupe { margin-block-end: var(--space-lg); border-style: solid; border-color: var(--color-ink); background: var(--color-paper-3); }
 .import__step { margin-block-start: var(--space-xl); }
+.dupe__ask { align-self: center; font-weight: 500; }
+.dupe .row-actions { flex-wrap: wrap; align-items: center; }
 .import__go { margin-block-start: var(--space-lg); }
 .blocklist { display: grid; gap: var(--space-2xs); margin-block: var(--space-lg); padding-block: var(--space-md); border-block: var(--rule-hair) solid var(--color-rule); }
 
@@ -255,6 +257,7 @@
 .cal[data-colour="source"] .cal__block[data-source="WhatsApp"] { border-inline-start-color: var(--color-swatch-green); }
 .cal[data-colour="source"] .cal__block[data-source="phone"] { border-inline-start-color: var(--color-swatch-amber); }
 .cal-hint { margin-block-start: var(--space-sm); }
+.cal__block[data-inset] { margin-inline-start: 45%; z-index: calc(var(--z-raised) + 1); }
 .cal__block[data-status="blocked"] { border-style: dashed; border-color: var(--color-muted); background: var(--color-paper-2); color: var(--color-ink-2); }
 .cal__segs { position: absolute; inset: 0; display: flex; flex-direction: column; pointer-events: none; z-index: -1; }
 .cal__seg[data-kind="wait"] { display: grid; place-items: center; background: var(--color-paper-2); border-block: var(--rule-hair) dashed var(--color-muted); color: var(--color-ink-2); font-size: var(--text-xs); }
@@ -264,6 +267,9 @@
 .cal-panel__head .app-h2 { margin: 0; }
 .cal-panel__notes { padding: var(--space-sm) var(--space-md); background: var(--color-accent-2); color: var(--color-ink); }
 .cal-panel__actions { display: flex; flex-wrap: wrap; gap: var(--space-xs); }
+.cal-panel__undo { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
+.cal-panel__undo .ui-btn--text { min-block-size: 32px; }
+.cal-move { display: grid; gap: var(--space-sm); padding-block-start: var(--space-md); border-block-start: var(--rule-hair) solid var(--color-rule); }
 .slot-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: var(--space-xs); }
 .slot-grid--big { grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); }
 .slot { position: relative; display: grid; place-items: center; min-block-size: 44px; padding: var(--space-2xs); border: var(--rule-bar) solid var(--color-ink); cursor: pointer; text-align: center; }
@@ -300,6 +306,7 @@
 .rules li > div { display: grid; gap: var(--space-3xs); }
 .meter { block-size: 12px; margin-block: var(--space-md); border: var(--rule-bar) solid var(--color-ink); background: var(--color-paper); }
 .meter span { display: block; block-size: 100%; background: var(--color-ink); }
+.campaign__bubble { margin-block-end: var(--space-lg); padding: var(--space-md); background: var(--color-ink); color: var(--color-paper); white-space: pre-wrap; }
 
 /* ---------- Website editor ---------- */
 .site-editor { display: grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: var(--space-xl); align-items: start; }

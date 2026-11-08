@@ -15,7 +15,8 @@ export function waitFor(index: number, queue: QueueEntry[], _bookings: Booking[]
 export function Queue() {
   const f = useFormat();
   const state = useDataState();
-  const { queue, bookings, addToQueue, callFromQueue, removeFromQueue, waitlist, removeWaitlist } = useStore();
+  const { queue, bookings, addToQueue, callFromQueue, removeFromQueue, restoreQueue, waitlist, removeWaitlist } = useStore();
+  const [left, setLeft] = useState<{ entry: QueueEntry; index: number } | null>(null);
   const [offered, setOffered] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [service, setService] = useState("fade");
@@ -58,7 +59,22 @@ export function Queue() {
           </h2>
           {called && (
             <p className="ui-live" role="status">
-              {called} called. A message went to their phone.
+              {called} called to a chair. The “your turn” message waits for WhatsApp to be connected.
+            </p>
+          )}
+          {left && (
+            <p className="ui-live cal-panel__undo" role="status">
+              <span>{left.entry.name} left the queue.</span>
+              <button
+                type="button"
+                className="ui-btn ui-btn--text"
+                onClick={() => {
+                  restoreQueue(left.entry, left.index);
+                  setLeft(null);
+                }}
+              >
+                Undo
+              </button>
             </p>
           )}
           <Region state={state} label="Queue" rows={4} empty={{ title: "No one waiting", body: "Add a walk-in here, or let clients join from the QR code on your window." }}>
@@ -90,7 +106,14 @@ export function Queue() {
                     >
                       Call
                     </button>
-                    <button type="button" className="ui-btn ui-btn--text" onClick={() => removeFromQueue(q.id)}>
+                    <button
+                      type="button"
+                      className="ui-btn ui-btn--text"
+                      onClick={() => {
+                        setLeft({ entry: q, index: i });
+                        removeFromQueue(q.id);
+                      }}
+                    >
                       Left
                     </button>
                   </div>

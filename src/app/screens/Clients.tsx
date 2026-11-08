@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { staffById } from "../../lib/data";
 import { useFormat } from "../../lib/format";
@@ -10,6 +11,7 @@ export function Clients() {
   const f = useFormat();
   const state = useDataState();
   const { clients, mergeClients } = useStore();
+  const [confirming, setConfirming] = useState<string | null>(null);
   const digits = (x: string) => x.replace(/\D/g, "");
   const dupes = clients.flatMap((a, i) => clients.slice(i + 1).filter((b) => digits(b.phone) === digits(a.phone)).map((b) => [a, b] as const));
   const [params, setParams] = useSearchParams();
@@ -49,11 +51,30 @@ export function Clients() {
             {a.name} and {b.name} share the phone number {a.phone}
           </p>
           <p>Merging keeps {a.name}, adds the visits and spend of {b.name}, and moves their bookings across.</p>
-          <span className="row-actions">
-            <button type="button" className="ui-btn ui-btn--quiet" onClick={() => mergeClients(a.id, b.id)}>
-              Merge into {a.name}
-            </button>
-          </span>
+          {confirming === `${a.id}-${b.id}` ? (
+            <span className="row-actions">
+              <span className="dupe__ask">Merge for good? This cannot be undone.</span>
+              <button
+                type="button"
+                className="ui-btn ui-btn--primary"
+                onClick={() => {
+                  mergeClients(a.id, b.id);
+                  setConfirming(null);
+                }}
+              >
+                Yes, merge
+              </button>
+              <button type="button" className="ui-btn ui-btn--text" onClick={() => setConfirming(null)}>
+                Keep both
+              </button>
+            </span>
+          ) : (
+            <span className="row-actions">
+              <button type="button" className="ui-btn ui-btn--quiet" onClick={() => setConfirming(`${a.id}-${b.id}`)}>
+                Merge into {a.name}
+              </button>
+            </span>
+          )}
         </div>
       ))}
 

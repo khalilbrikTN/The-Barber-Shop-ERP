@@ -16,6 +16,8 @@ export function Marketing() {
           { id: "gifts", label: "Gift cards and packages" },
           { id: "loyalty", label: "Loyalty" },
           { id: "messages", label: "Messages" },
+          { id: "campaigns", label: "Campaigns" },
+          { id: "memberships", label: "Memberships" },
           { id: "reviews", label: "Reviews" },
         ]}
       />
@@ -25,6 +27,8 @@ export function Marketing() {
         {tab === "gifts" && <Gifts />}
         {tab === "loyalty" && <Loyalty />}
         {tab === "messages" && <Messages />}
+        {tab === "campaigns" && <Campaigns />}
+        {tab === "memberships" && <Memberships />}
         {tab === "reviews" && <Reviews />}
       </div>
     </>
@@ -413,5 +417,162 @@ function Reviews() {
         </div>
       )}
     </section>
+  );
+}
+
+const SEGMENTS: { id: string; label: string; match: (c: { tags: string[]; lastVisit?: string }) => boolean }[] = [
+  { id: "all", label: "Everyone", match: () => true },
+  { id: "lapsed", label: "Not seen for 6 weeks", match: (c) => !!c.lastVisit && c.lastVisit < "2026-10-31" },
+  { id: "vip", label: "VIP", match: (c) => c.tags.includes("VIP") },
+  { id: "new", label: "New this month", match: (c) => c.tags.includes("New") },
+  { id: "colour", label: "Colour clients", match: (c) => c.tags.includes("Colour") },
+];
+
+function Campaigns() {
+  const { clients } = useStore();
+  const [seg, setSeg] = useState("lapsed");
+  const [text, setText] = useState("Hi {name}, it has been a while. Book this week and get 10% off with code MORNING10. Reply STOP to opt out.");
+  const [channel, setChannel] = useState("WhatsApp");
+  const [queued, setQueued] = useState(false);
+  const group = clients.filter(SEGMENTS.find((x) => x.id === seg)!.match);
+  const allowed = group.filter((c) => c.marketing);
+  const sample = allowed[0] ?? group[0];
+  const preview = text.replace(/\{name\}/g, sample?.name ?? "there");
+  const tooLong = text.length > 600;
+  const noOptOut = !/stop/i.test(text);
+
+  return (
+    <div className="app-split">
+      <form
+        className="ui-form app-section"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (allowed.length && !tooLong && !noOptOut) setQueued(true);
+        }}
+      >
+        <h2 className="app-h2">New campaign</h2>
+        <Field label="Who gets it">
+          {(id) => (
+            <select
+              id={id}
+              className="ui-input"
+              value={seg}
+              onChange={(e) => {
+                setSeg(e.target.value);
+                setQueued(false);
+              }}
+            >
+              {SEGMENTS.map((x) => (
+                <option key={x.id} value={x.id}>
+                  {x.label}
+                </option>
+              ))}
+            </select>
+          )}
+        </Field>
+        <Field label="Send by">
+          {(id) => (
+            <select id={id} className="ui-input" value={channel} onChange={(e) => setChannel(e.target.value)}>
+              <option>WhatsApp</option>
+              <option>SMS</option>
+              <option>Email</option>
+            </select>
+          )}
+        </Field>
+        <Field label="Message" hint="{name} becomes each client’s first name.">
+          {(id, hint) => <textarea id={id} aria-describedby={hint} className="ui-input ui-textarea" rows={5} value={text} onChange={(e) => setText(e.target.value)} aria-invalid={tooLong || noOptOut || undefined} />}
+        </Field>
+        {noOptOut && <p className="ui-error">Add a way to stop these messages, such as “Reply STOP to opt out”. Offers need one by law in most countries.</p>}
+        {tooLong && <p className="ui-error">Keep it under 600 characters so it arrives as one message.</p>}
+        <button type="submit" className="ui-btn ui-btn--primary" disabled={!allowed.length || tooLong || noOptOut}>
+          Send to {allowed.length} {allowed.length === 1 ? "client" : "clients"}
+        </button>
+        {queued && <NotConnected what={`the ${channel} campaign`} />}
+      </form>
+      <section className="app-section app-panel" aria-labelledby="camp-prev">
+        <h2 id="camp-prev" className="app-h2">
+          What {sample?.name ?? "a client"} sees
+        </h2>
+        <p className="campaign__bubble">{preview}</p>
+        <dl className="ui-dl">
+          <div>
+            <dt>In this group</dt>
+            <dd className="num">{group.length}</dd>
+          </div>
+          <div>
+            <dt>Agreed to offers</dt>
+            <dd className="num">{allowed.length}</dd>
+          </div>
+          <div>
+            <dt>Left out, no consent</dt>
+            <dd className="num">{group.length - allowed.length}</dd>
+          </div>
+        </dl>
+        <p className="app-quiet">Clients who never agreed to offers are left out by themselves. Each message uses one credit.</p>
+      </section>
+    </div>
+  );
+}
+
+function Memberships() {
+  const f = useFormat();
+  const [plans, setPlans] = useState([
+    { id: "m1", name: "Unlimited cuts", priceMinor: 120000, what: "Any haircut, as often as you like", members: 0 },
+    { id: "m2", name: "Cut and beard club", priceMinor: 90000, what: "Two cuts and two beard trims a month", members: 0 },
+  ]);
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [what, setWhat] = useState("");
+  return (
+    <div className="app-split">
+      <section className="app-section" aria-labelledby="mem-title">
+        <h2 id="mem-title" className="app-h2">
+          Monthly memberships
+        </h2>
+        <div className="ui-tablewrap">
+          <table className="ui-table">
+            <thead>
+              <tr>
+                <th scope="col">Membership</th>
+                <th scope="col">What it covers</th>
+                <th scope="col" className="r">Each month</th>
+                <th scope="col" className="r">Members</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plans.map((m) => (
+                <tr key={m.id}>
+                  <th scope="row">{m.name}</th>
+                  <td>{m.what}</td>
+                  <td className="r num">{f.money(m.priceMinor, { whole: true })}</td>
+                  <td className="r num">{m.members}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="app-quiet">Members are charged on the same day each month through your payment provider, once payments are connected.</p>
+      </section>
+      <form
+        className="ui-form app-section app-panel"
+        onSubmit={(e) => {
+          e.preventDefault();
+          const minor = Math.round(parseFloat(price.replace(",", ".")) * 100);
+          if (!name.trim() || !minor) return;
+          setPlans((ps) => [...ps, { id: `m${Date.now()}`, name: name.trim(), priceMinor: minor, what: what.trim() || "Set what it covers", members: 0 }]);
+          setName("");
+          setPrice("");
+          setWhat("");
+        }}
+      >
+        <h2 className="app-h2">New membership</h2>
+        <Field label="Name">{(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} />}</Field>
+        <Field label="Each month">{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} />}</Field>
+        <Field label="What it covers">{(id) => <input id={id} className="ui-input" value={what} onChange={(e) => setWhat(e.target.value)} />}</Field>
+        <button type="submit" className="ui-btn ui-btn--quiet">
+          Add membership
+        </button>
+      </form>
+    </div>
   );
 }

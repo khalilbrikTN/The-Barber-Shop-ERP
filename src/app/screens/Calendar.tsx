@@ -157,7 +157,11 @@ export function Calendar() {
             {columns.map((c, ci) =>
               bookings
                 .filter((b) => b.staffId === c.staffId && b.start.startsWith(c.date) && b.status !== "cancelled")
-                .map((b) => <Block key={b.id} b={b} col={ci + 2} onDrag={setDragging} onOpen={() => set({ booking: b.id, new: null })} selected={b.id === selected} />),
+                .map((b, _i, day) => {
+                  // a booking that starts inside another one (a colour's processing time) sits beside it, not on top
+                  const inset = day.some((o) => o.id !== b.id && o.start < b.start && o.end > b.start);
+                  return <Block key={b.id} b={b} col={ci + 2} inset={inset} onDrag={setDragging} onOpen={() => set({ booking: b.id, new: null })} selected={b.id === selected} />;
+                }),
             )}
           </div>
         </Region>
@@ -170,7 +174,7 @@ export function Calendar() {
   );
 }
 
-function Block({ b, col, onDrag, onOpen, selected }: { b: Booking; col: number; onDrag: (id: string | null) => void; onOpen: () => void; selected: boolean }) {
+function Block({ b, col, inset, onDrag, onOpen, selected }: { b: Booking; col: number; inset?: boolean; onDrag: (id: string | null) => void; onOpen: () => void; selected: boolean }) {
   const f = useFormat();
   const start = minutesInZone(b.start, f.timeZone);
   const end = minutesInZone(b.end, f.timeZone);
@@ -188,6 +192,7 @@ function Block({ b, col, onDrag, onOpen, selected }: { b: Booking; col: number; 
       onDragEnd={() => onDrag(null)}
       onClick={onOpen}
       aria-pressed={selected}
+      data-inset={inset || undefined}
       data-status={b.status.replace(/\s+/g, "-")}
       data-category={first?.category}
       data-source={b.source}
@@ -211,9 +216,18 @@ function Block({ b, col, onDrag, onOpen, selected }: { b: Booking; col: number; 
 
 function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
   const f = useFormat();
-  const { setStatus } = useStore();
+  const { setStatus, moveBooking, waitlist } = useStore();
   const client = clientById(b.clientId);
-  const { waitlist } = useStore();
+  const [undo, setUndo] = useState<{ from: Booking["status"]; said: string } | null>(null);
+  const startMin = minutesInZone(b.start, f.timeZone);
+  const [moveTime, setMoveTime] = useState(startMin);
+  const [moveStaff, setMoveStaff] = useState(b.staffId);
+
+  function act(to: Booking["status"], said: string) {
+    setUndo({ from: b.status, said });
+    setStatus(b.id, to);
+  }
+
   if (b.status === "blocked")
     return (
       <aside className="cal-panel" aria-labelledby="panel-title">
@@ -229,7 +243,14 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
           {staffById(b.staffId).name}, {f.time(b.start)} to {f.time(b.end)}. Clients cannot book this time online.
         </p>
         <div className="cal-panel__actions">
-          <button type="button" className="ui-btn ui-btn--quiet" onClick={() => setStatus(b.id, "cancelled")}>
+          <button
+            type="button"
+            className="ui-btn ui-btn--quiet"
+            onClick={() => {
+              setStatus(b.id, "cancelled");
+              onClose();
+            }}
+          >
             Remove the block
           </button>
         </div>
@@ -246,6 +267,9 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
     blocked: null,
   };
   const step = next[b.status];
+  const movable = b.status === "confirmed" || b.status === "checked in";
+  const times = Array.from({ length: (SCHEDULE_HOURS.close - SCHEDULE_HOURS.open) / STEP }, (_, i) => SCHEDULE_HOURS.open + i * STEP);
+  const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
   return (
     <aside className="cal-panel" aria-labelledby="panel-title">
@@ -257,6 +281,21 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
           Close
         </button>
       </header>
+      {undo && (
+        <p className="ui-live cal-panel__undo" role="status">
+          <span>{undo.said}</span>
+          <button
+            type="button"
+            className="ui-btn ui-btn--text"
+            onClick={() => {
+              setStatus(b.id, undo.from);
+              setUndo(null);
+            }}
+          >
+            Undo
+          </button>
+        </p>
+      )}
       <dl className="ui-dl">
         <div>
           <dt>When</dt>
@@ -280,7 +319,7 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
         )}
         <div>
           <dt>Booked</dt>
-          <dd>{b.source}</dd>
+          <dd>{b.repeatId ? `${b.source}, repeating` : b.source}</dd>
         </div>
         <div>
           <dt>Status</dt>
@@ -298,7 +337,7 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
       {b.status === "cancelled" && waitlist.length > 0 && (
         <div className="cal-panel__notes">
           <p className="ui-field__label">This time is free again</p>
-          <p>{waitlist.length} on the waitlist today. Offer it from the Queue screen.</p>
+          <p>{waitlist.length} on the waitlist. Offer it from the Queue screen.</p>
           <Link className="app-more" to="/app/queue#waitlist">
             Open the waitlist
           </Link>
@@ -317,10 +356,10 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
         )}
         {b.status === "confirmed" && (
           <>
-            <button type="button" className="ui-btn ui-btn--quiet" onClick={() => setStatus(b.id, "no-show")}>
+            <button type="button" className="ui-btn ui-btn--quiet" onClick={() => act("no-show", `${client?.name ?? "Client"} marked as a no-show.`)}>
               No-show
             </button>
-            <button type="button" className="ui-btn ui-btn--text" onClick={() => setStatus(b.id, "cancelled")}>
+            <button type="button" className="ui-btn ui-btn--text" onClick={() => act("cancelled", "Booking cancelled.")}>
               Cancel booking
             </button>
           </>
@@ -329,6 +368,44 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
           Client profile
         </Link>
       </div>
+      {movable && (
+        <form
+          className="cal-move"
+          onSubmit={(e) => {
+            e.preventDefault();
+            moveBooking(b.id, moveStaff, `${b.start.slice(0, 10)}T${hhmm(moveTime)}:00+02:00`);
+          }}
+        >
+          <p className="ui-field__label">Move without dragging</p>
+          <div className="setup__row">
+            <Field label="Time">
+              {(id) => (
+                <select id={id} className="ui-input" value={moveTime} onChange={(e) => setMoveTime(Number(e.target.value))}>
+                  {times.map((m) => (
+                    <option key={m} value={m}>
+                      {hhmm(m)}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+            <Field label="Barber">
+              {(id) => (
+                <select id={id} className="ui-input" value={moveStaff} onChange={(e) => setMoveStaff(e.target.value)}>
+                  {BOOKABLE.map((x) => (
+                    <option key={x.id} value={x.id}>
+                      {x.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </Field>
+          </div>
+          <button type="submit" className="ui-btn ui-btn--quiet" disabled={moveTime === startMin && moveStaff === b.staffId}>
+            Move the booking
+          </button>
+        </form>
+      )}
     </aside>
   );
 }

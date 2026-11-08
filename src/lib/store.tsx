@@ -44,6 +44,8 @@ type Store = {
   adjustStock: (id: string, by: number) => void;
   addProduct: (p: Omit<Product, "id">) => void;
   addGiftCard: (g: Omit<GiftCard, "code">) => GiftCard;
+  redeemGiftCard: (code: string, minor: number) => void;
+  restoreQueue: (entry: QueueEntry, index: number) => void;
 };
 
 const StoreContext = createContext<Store | null>(null);
@@ -177,6 +179,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         setGiftCards((gs) => [card, ...gs]);
         return card;
       },
+      redeemGiftCard: (code, minor) => setGiftCards((gs) => gs.map((g) => (g.code === code ? { ...g, balanceMinor: Math.max(0, g.balanceMinor - minor) } : g))),
+      restoreQueue: (entry, index) =>
+        setQueue((qs) => {
+          const next = qs.filter((q) => q.id !== entry.id);
+          next.splice(Math.min(index, next.length), 0, entry);
+          return next;
+        }),
     };
   }, [bookings, queue, sales, clients, waitlist, products, giftCards]);
 

@@ -1,39 +1,8 @@
 import { ChangeEvent, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { parseCsv } from "../../lib/csv";
 import { useStore } from "../../lib/store";
 import { Field, NotConnected, PageHead } from "../../ui/kit";
-
-/** Small CSV reader: commas or semicolons, quoted fields, doubled quotes. Enough for exports from booking apps and spreadsheets. */
-function parseCsv(text: string): string[][] {
-  const sep = (text.split("\n")[0].match(/;/g)?.length ?? 0) > (text.split("\n")[0].match(/,/g)?.length ?? 0) ? ";" : ",";
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = "";
-  let quoted = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (quoted) {
-      if (ch === '"' && text[i + 1] === '"') {
-        cell += '"';
-        i++;
-      } else if (ch === '"') quoted = false;
-      else cell += ch;
-    } else if (ch === '"') quoted = true;
-    else if (ch === sep) {
-      row.push(cell.trim());
-      cell = "";
-    } else if (ch === "\n" || ch === "\r") {
-      if (ch === "\r" && text[i + 1] === "\n") i++;
-      row.push(cell.trim());
-      if (row.some((c) => c)) rows.push(row);
-      row = [];
-      cell = "";
-    } else cell += ch;
-  }
-  row.push(cell.trim());
-  if (row.some((c) => c)) rows.push(row);
-  return rows;
-}
 
 const FIELDS = [
   { id: "name", label: "Name", guess: /name|nom|nome|client/i },
