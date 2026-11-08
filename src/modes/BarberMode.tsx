@@ -17,7 +17,7 @@ export function BarberMode() {
   const next = mine.find((b) => new Date(b.start).getTime() > now && (b.status === "confirmed" || b.status === "checked in"));
   const focus = current ?? next;
   const client = focus ? clientById(focus.clientId) : undefined;
-  const earned = sales.filter((s) => s.staffId === me && s.time.startsWith(TODAY)).reduce((t, s) => t + s.lines.reduce((a, l) => a + l.minor, 0) + s.tipMinor, 0);
+  const earned = sales.filter((s) => s.staffId === me && s.time.startsWith(TODAY) && !s.refunded).reduce((t, s) => t + s.lines.reduce((a, l) => a + l.minor, 0) + s.tipMinor, 0);
 
   return (
     <div className="app-root mode-barber">

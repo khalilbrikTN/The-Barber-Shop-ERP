@@ -318,7 +318,7 @@ export function Checkout() {
                 </button>
               </p>
             )}
-            <p className={remaining === 0 ? "app-quiet" : "ui-error"} aria-live="polite">
+            <p className={remaining > 0 ? "checkout__due" : "app-quiet"} aria-live="polite">
               {remaining === 0 ? "Paid in full." : remaining > 0 ? `${f.money(remaining)} still to pay.` : `${f.money(-remaining)} over. Give change in cash.`}
             </p>
           </fieldset>

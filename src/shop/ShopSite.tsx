@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { BOOKABLE, OFFERS, SERVICES } from "../lib/data";
+import { BOOKABLE, OFFERS, SERVICES, TODAY } from "../lib/data";
 import { useFormat } from "../lib/format";
 import { useLang } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
@@ -20,11 +20,13 @@ const HOURS = [
 ];
 
 export function ShopSite() {
-  const { t, s, locale } = useLang();
+  const { t, s, locale, lang } = useLang();
+
   const f = useFormat(locale);
   const { settings } = useSettings();
   const { queue, bookings } = useStore();
   const site = loadSite();
+  const about = (lang === "ar" && site.aboutAr) || (lang === "fr" && site.aboutFr) || s(site.about);
   const categories = Array.from(new Set(SERVICES.map((x) => x.category)));
   const offers = OFFERS.filter((o) => o.live);
   const wait = queue.length ? waitFor(queue.length, queue, bookings) : 0;
@@ -61,7 +63,7 @@ export function ShopSite() {
               {settings.shopName}
             </h1>
             <p className="shop-hero__line" dir="auto">
-              {site.about}
+              {about}
             </p>
             <div className="shop-hero__actions">
               <Link to={`${SHOP}/book`} className="shop__btn shop__btn--primary">
@@ -80,7 +82,7 @@ export function ShopSite() {
               {f.num(wait)}
               <small>{t("min")}</small>
             </p>
-            <p>{t("site.inLine", { n: f.num(queue.length) })}</p>
+            <p>{t("site.inLine", { n: f.num(queue.length), time: f.time(`${TODAY}T21:00:00+02:00`) })}</p>
             <Link to={`${SHOP}/queue`} className="shop__btn shop__btn--onink">
               {t("site.joinHere")}
             </Link>
@@ -162,7 +164,7 @@ export function ShopSite() {
                 {HOURS.map(([d, o, c]) => (
                   <tr key={d} data-today={d === "Saturday" || undefined}>
                     <th scope="row">{s(d)}</th>
-                    <td className="num">{o ? t("site.to", { from: o, to: c }) : t("site.closed")}</td>
+                    <td className="num">{o ? t("site.to", { from: f.time(`${TODAY}T${o}:00+02:00`), to: f.time(`${TODAY}T${c}:00+02:00`) }) : t("site.closed")}</td>
                   </tr>
                 ))}
               </tbody>
@@ -173,7 +175,7 @@ export function ShopSite() {
           <section aria-labelledby="find-title">
             <h2 id="find-title">{t("site.find")}</h2>
             <p className="shop-find__addr" dir="auto">
-              {site.address}
+              {s(site.address)}
             </p>
             <div className="shop-hero__actions">
               <a href={mapUrl} className="shop__btn" target="_blank" rel="noreferrer">
@@ -184,7 +186,10 @@ export function ShopSite() {
               </a>
             </div>
             <p className="shop-find__ig">
-              Instagram: <a href={`https://instagram.com/${site.instagram}`} dir="ltr">@{site.instagram}</a>
+              {t("site.instagram")}:{" "}
+              <a href={`https://instagram.com/${site.instagram}`}>
+                <bdi>@{site.instagram}</bdi>
+              </a>
             </p>
           </section>
         )}

@@ -15,7 +15,7 @@ export function Website() {
   const [logoError, setLogoError] = useState("");
   const [domain, setDomain] = useState("");
   const [copied, setCopied] = useState(false);
-  const embedCode = `<iframe src="${window.location.origin}/s/example-barbers/book?embed=1" title="Book at Example Barbers" style="width:100%;min-height:720px;border:0"></iframe>`;
+  const embedCode = `<iframe id="chairside-book" src="${window.location.origin}/s/example-barbers/book?embed=1" title="Book at Example Barbers" style="width:100%;height:760px;border:0"></iframe>\n<script>addEventListener("message",function(e){if(e.data&&e.data.chairside==="height"){document.getElementById("chairside-book").style.height=e.data.height+"px"}})</script>`;
 
   useEffect(() => {
     saveSite(site);
@@ -92,6 +92,12 @@ export function Website() {
             </button>
           )}
           <Field label="One line about the shop">{(id) => <input id={id} className="ui-input" value={site.about} onChange={(e) => set({ about: e.target.value })} />}</Field>
+          <Field label="The same line in Arabic" hint="Shown to clients reading in Arabic. Leave empty to use the line above.">
+            {(id, hint) => <input id={id} aria-describedby={hint} className="ui-input" dir="rtl" lang="ar" value={site.aboutAr ?? ""} onChange={(e) => set({ aboutAr: e.target.value })} />}
+          </Field>
+          <Field label="The same line in French">
+            {(id) => <input id={id} className="ui-input" lang="fr" value={site.aboutFr ?? ""} onChange={(e) => set({ aboutFr: e.target.value })} />}
+          </Field>
           <Field label="Address">{(id) => <input id={id} className="ui-input" value={site.address} onChange={(e) => set({ address: e.target.value, area: e.target.value })} />}</Field>
           <Field label="WhatsApp number">{(id) => <input id={id} className="ui-input" type="tel" value={site.whatsapp} onChange={(e) => set({ whatsapp: e.target.value })} />}</Field>
           <Field label="Instagram">{(id) => <input id={id} className="ui-input" value={site.instagram} onChange={(e) => set({ instagram: e.target.value })} />}</Field>
@@ -136,8 +142,8 @@ export function Website() {
           </fieldset>
           <fieldset className="ui-fieldset">
             <legend>Booking on your own website</legend>
-            <p className="app-quiet">Paste this where you want the booking form. It keeps your colours and language.</p>
-            <textarea className="ui-input ui-textarea embed-code" readOnly rows={3} value={embedCode} aria-label="Embed code" onFocus={(e) => e.target.select()} />
+            <p className="app-quiet">Paste this where you want the booking form. It keeps your colours and language, and grows with each step so it never scrolls inside itself.</p>
+            <textarea className="ui-input ui-textarea embed-code" readOnly rows={5} value={embedCode} aria-label="Embed code" onFocus={(e) => e.target.select()} />
             <div className="rebook">
               <button
                 type="button"

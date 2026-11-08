@@ -274,7 +274,7 @@
 .cal__segs { position: absolute; inset: 0; display: flex; flex-direction: column; pointer-events: none; z-index: -1; }
 .cal__seg[data-kind="wait"] { display: grid; place-items: center; background: var(--color-paper-2); border-block: var(--rule-hair) dashed var(--color-muted); color: var(--color-ink-2); font-size: var(--text-xs); }
 .cal__block:has(.cal__segs) { isolation: isolate; }
-.cal-panel { display: grid; align-content: start; gap: var(--space-md); padding: var(--space-lg); border: var(--rule-bar) solid var(--color-ink); background: var(--color-paper-3); }
+.cal-panel { scroll-margin-block-start: var(--space-3xl); display: grid; align-content: start; gap: var(--space-md); padding: var(--space-lg); border: var(--rule-bar) solid var(--color-ink); background: var(--color-paper-3); }
 .cal-panel__head { display: flex; justify-content: space-between; align-items: center; }
 .cal-panel__head .app-h2 { margin: 0; }
 .cal-panel__notes { padding: var(--space-sm) var(--space-md); background: var(--color-accent-2); color: var(--color-ink); }
@@ -303,6 +303,7 @@
 .totals dd { margin: 0; }
 .totals__total { margin-block-start: var(--space-xs); padding-block-start: var(--space-sm); border-block-start: var(--rule-bar) solid var(--color-ink); font-size: var(--text-2xl); font-weight: 800; }
 .totals__tax { font-size: var(--text-sm); color: var(--color-muted); }
+.checkout__due { font-weight: 800; }
 .split { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-xs); margin-block-start: var(--space-sm); }
 
 /* ---------- Marketing ---------- */
@@ -584,6 +585,8 @@
   .ui-table--stack th, .ui-table--stack td { padding: 0; border: 0; }
   .ui-table--stack td:last-child { grid-column: 2; grid-row: 1; justify-self: end; }
   .ui-table--stack td a { overflow-wrap: anywhere; }
+  .ui-table.receipts td:last-child { grid-column: 1 / -1; grid-row: auto; justify-self: stretch; }
+  .ui-table.receipts .refund { justify-content: flex-start; }
   .ui-table--form thead { display: none; }
   .ui-table--form tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-xs) var(--space-md); padding-block: var(--space-md); border-block-end: var(--rule-hair) solid var(--color-rule); }
   .ui-table--form th, .ui-table--form td { padding: 0; border: 0; text-align: start; }
@@ -592,7 +595,7 @@
   .ui-table--form .ui-input--name { inline-size: 100%; }
   .ui-stats { gap: var(--space-md); }
   .ui-stats > * { padding-inline: 0; border-inline-start: 0; }
-  .cal { scroll-snap-type: x mandatory; grid-template-columns: 4.5rem repeat(var(--cols), calc(100% - 4.5rem)); }
+  .cal { scroll-snap-type: x mandatory; grid-template-columns: 3.5rem repeat(var(--cols), calc(78% - 3.5rem)); }
   .cal__colhead { scroll-snap-align: end; }
   .tv { --text-md: 1rem; }
   .tv__head, .tv__chairs, .tv__body, .tv__foot { padding-inline: var(--space-md); }

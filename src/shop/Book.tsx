@@ -312,7 +312,7 @@ export function Book() {
                   <select id="extra-svc" className="ui-input" value={extra.serviceId} onChange={(e) => setExtra({ ...extra, serviceId: e.target.value })}>
                     {SERVICES.filter((x) => !x.deposit).map((x) => (
                       <option key={x.id} value={x.id}>
-                        {s(x.name)}, {f.money(x.priceMinor, { whole: true })}
+                        {`${s(x.name)}${sep}${f.money(x.priceMinor, { whole: true })}`}
                       </option>
                     ))}
                   </select>,

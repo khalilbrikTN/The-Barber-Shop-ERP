@@ -8,11 +8,20 @@ export const SHOP = "/s/example-barbers";
 
 export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: boolean }) {
   const { settings } = useSettings();
-  const { t, lang, setLang, dir } = useLang();
+  const { t, s, lang, setLang, dir } = useLang();
   const site = loadSite();
   const [menu, setMenu] = useState(false);
   const [params] = useSearchParams();
   const embed = params.get("embed") === "1";
+  /* In an iframe on the shop's own site, tell the page how tall the form is so it never scrolls inside its frame. */
+  useEffect(() => {
+    if (!embed || window.parent === window) return;
+    const post = () => window.parent.postMessage({ chairside: "height", height: document.documentElement.scrollHeight }, "*");
+    const ro = new ResizeObserver(post);
+    ro.observe(document.body);
+    post();
+    return () => ro.disconnect();
+  }, [embed]);
 
   /* The page itself speaks the client's language, so screen readers and the browser's own controls follow it. */
   useEffect(() => {
@@ -60,7 +69,9 @@ export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: 
       <footer className="shop__foot">
         <div className="shop__container">
           <p dir="auto">
-            {settings.shopName}, {site.address}
+            {settings.shopName}
+            {lang === "ar" ? "، " : ", "}
+            {s(site.address)}
           </p>
           <label className="shop__lang">
             <span>{t("nav.language")}</span>

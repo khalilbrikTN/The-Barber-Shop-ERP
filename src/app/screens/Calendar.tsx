@@ -1,4 +1,4 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { findSlots } from "../../lib/availability";
 import { Booking, BOOKABLE, clientById, CLIENTS, NOW, SCHEDULE_HOURS, serviceById, SERVICES, staffById, TODAY } from "../../lib/data";
@@ -166,7 +166,7 @@ export function Calendar() {
           </div>
         </Region>
 
-        {booking && <BookingPanel b={booking} onClose={() => set({ booking: null })} />}
+        {booking && <BookingPanel key={booking.id} b={booking} onClose={() => set({ booking: null })} />}
         {creating && <NewBookingPanel date={date} onClose={() => set({ new: null })} onCreated={(id) => set({ new: null, booking: id })} />}
       </div>
       {state === "full" && <p className="app-quiet cal-hint">Drag a booking to another time or barber to move it.</p>}
@@ -222,6 +222,11 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
   const startMin = minutesInZone(b.start, f.timeZone);
   const [moveTime, setMoveTime] = useState(startMin);
   const [moveStaff, setMoveStaff] = useState(b.staffId);
+  const panelRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    // on a phone the panel sits under the calendar; bring it to the barber's thumb
+    if (window.matchMedia("(max-width: 60rem)").matches) panelRef.current?.scrollIntoView({ block: "start" });
+  }, []);
 
   function act(to: Booking["status"], said: string) {
     setUndo({ from: b.status, said });
@@ -272,7 +277,7 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
   const hhmm = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 
   return (
-    <aside className="cal-panel" aria-labelledby="panel-title">
+    <aside className="cal-panel" aria-labelledby="panel-title" ref={panelRef}>
       <header className="cal-panel__head">
         <h2 id="panel-title" className="app-h2">
           {client?.name}

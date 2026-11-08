@@ -7,7 +7,8 @@ import { waitFor } from "../app/screens/Queue";
 import { ShopFrame } from "./ShopFrame";
 
 export function JoinQueue() {
-  const { t, s, locale } = useLang();
+  const { t, s, locale, lang } = useLang();
+  const sep = lang === "ar" ? "، " : ", ";
   const f = useFormat(locale);
   const { queue, bookings, addToQueue, removeFromQueue } = useStore();
   const [name, setName] = useState("");
@@ -75,7 +76,7 @@ export function JoinQueue() {
               <select id="jq-svc" className="ui-input" value={service} onChange={(e) => setService(e.target.value)}>
                 {SERVICES.filter((x) => !x.deposit).map((x) => (
                   <option key={x.id} value={x.id}>
-                    {s(x.name)}, {f.num(x.minutes)} {t("min")}
+                    {`${s(x.name)}${sep}${f.num(x.minutes)} ${t("min")}`}
                   </option>
                 ))}
               </select>

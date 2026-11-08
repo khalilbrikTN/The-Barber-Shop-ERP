@@ -4,6 +4,9 @@ export type SiteConfig = {
   accent: "cobalt" | "green" | "red" | "ink";
   area: string;
   about: string;
+  /** the shop's own line in Arabic and French; empty falls back to the line above */
+  aboutAr?: string;
+  aboutFr?: string;
   sections: { services: boolean; team: boolean; offers: boolean; hours: boolean; find: boolean };
   whatsapp: string;
   phone: string;

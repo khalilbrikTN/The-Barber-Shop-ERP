@@ -112,7 +112,7 @@ function Receipts() {
         </div>
       ) : (
         <div className="ui-tablewrap">
-          <table className="ui-table">
+          <table className="ui-table ui-table--stack receipts">
             <thead>
               <tr>
                 <th scope="col">When</th>
@@ -197,8 +197,8 @@ function Sales() {
                 <th scope="col">Day</th>
                 <th scope="col" className="r">Bookings</th>
                 <th scope="col" className="r">Cash</th>
-                <th scope="col" className="r">Card</th>
-                <th scope="col" className="r">Wallet</th>
+                <th scope="col" className="r opt">Card</th>
+                <th scope="col" className="r opt">Wallet</th>
                 <th scope="col" className="r">Total</th>
               </tr>
             </thead>
@@ -208,8 +208,8 @@ function Sales() {
                   <th scope="row">{f.day(`${d.day}T12:00:00+02:00`, "short")}</th>
                   <td className="r num">{d.bookings || "Closed"}</td>
                   <td className="r num">{f.money(d.cash, { whole: true })}</td>
-                  <td className="r num">{f.money(d.card, { whole: true })}</td>
-                  <td className="r num">{f.money(d.wallet, { whole: true })}</td>
+                  <td className="r num opt">{f.money(d.card, { whole: true })}</td>
+                  <td className="r num opt">{f.money(d.wallet, { whole: true })}</td>
                   <td className="r num">
                     <strong>{f.money(d.cash + d.card + d.wallet, { whole: true })}</strong>
                   </td>
@@ -221,8 +221,8 @@ function Sales() {
                 <th scope="row">Week</th>
                 <td className="r num">{WEEK_SALES.reduce((t, d) => t + d.bookings, 0)}</td>
                 <td />
-                <td />
-                <td />
+                <td className="opt" />
+                <td className="opt" />
                 <td className="r num">
                   <strong>{f.money(total, { whole: true })}</strong>
                 </td>
@@ -516,8 +516,8 @@ function Reports() {
                 <th scope="col">Barber</th>
                 <th scope="col" className="r">Clients</th>
                 <th scope="col" className="r">Worth</th>
-                <th scope="col" className="r">Average ticket</th>
-                <th scope="col" className="r">Regulars who prefer them</th>
+                <th scope="col" className="r opt">Average ticket</th>
+                <th scope="col" className="r opt">Regulars who prefer them</th>
               </tr>
             </thead>
             <tbody>
@@ -529,8 +529,8 @@ function Reports() {
                     <th scope="row">{s.name}</th>
                     <td className="r num">{mine.length}</td>
                     <td className="r num">{f.money(worth, { whole: true })}</td>
-                    <td className="r num">{mine.length ? f.money(Math.round(worth / mine.length), { whole: true }) : "None yet"}</td>
-                    <td className="r num">{CLIENTS.filter((c) => c.favourite === s.id).length}</td>
+                    <td className="r num opt">{mine.length ? f.money(Math.round(worth / mine.length), { whole: true }) : "None yet"}</td>
+                    <td className="r num opt">{CLIENTS.filter((c) => c.favourite === s.id).length}</td>
                   </tr>
                 );
               })}

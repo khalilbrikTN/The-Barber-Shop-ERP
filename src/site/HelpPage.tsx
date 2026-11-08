@@ -39,7 +39,7 @@ export function HelpPage() {
       <main id="main">
         <section className="page-hero" aria-labelledby="help-title">
           <div className="container">
-            <h1 id="help-title">Help for shop owners</h1>
+            <h1 id="help-title">Running your shop on Chairside</h1>
             <label className="help__search">
               <span>Search the answers</span>
               <input className="input" type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="deposits, walk-ins, import" />
