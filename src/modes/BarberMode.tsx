@@ -4,9 +4,11 @@ import { BOOKABLE, clientById, NOW, serviceById, TODAY } from "../lib/data";
 import { useFormat } from "../lib/format";
 import { useStore } from "../lib/store";
 import { Status } from "../ui/kit";
+import { useT } from "../app/i18n";
 
 export function BarberMode() {
   const f = useFormat();
+  const { t } = useT();
   const { bookings, setStatus, sales } = useStore();
   const [me, setMe] = useState("karim");
   const [late, setLate] = useState(false);
@@ -23,7 +25,7 @@ export function BarberMode() {
     <div className="app-root mode-barber">
       <header className="mode-barber__top">
         <label>
-          <span className="visually-hidden">Barber</span>
+          <span className="visually-hidden">{t("common.barber")}</span>
           <select className="ui-input" value={me} onChange={(e) => setMe(e.target.value)}>
             {BOOKABLE.map((s) => (
               <option key={s.id} value={s.id}>
@@ -33,61 +35,61 @@ export function BarberMode() {
           </select>
         </label>
         <button type="button" className={clockedIn ? "ui-btn ui-btn--quiet" : "ui-btn ui-btn--primary"} onClick={() => setClockedIn((c) => (c ? null : new Date().toISOString()))}>
-          {clockedIn ? "Clock out" : "Clock in"}
+          {clockedIn ? t("bm.clockOut") : t("bm.clockIn")}
         </button>
       </header>
 
       {focus && client ? (
         <section className="next-card" aria-labelledby="nc-title">
-          <p className="next-card__label">{current ? "In your chair" : `Next at ${f.time(focus.start)}`}</p>
+          <p className="next-card__label">{current ? t("bm.inChair") : t("bm.nextAt", { time: f.time(focus.start) })}</p>
           <h1 id="nc-title" className="next-card__name">
             {client.name}
           </h1>
           <p>{focus.serviceIds.map((id) => serviceById(id).name).join(", ")}</p>
           {client.notes && (
             <div className="next-card__notes">
-              <p className="next-card__label">Notes</p>
+              <p className="next-card__label">{t("bm.notes")}</p>
               <p>{client.notes}</p>
             </div>
           )}
           <div className="next-card__actions">
             {focus.status === "confirmed" && (
               <button type="button" className="ui-btn ui-btn--on-ink" onClick={() => setStatus(focus.id, "checked in")}>
-                Checked in
+                {t("bm.checkedIn")}
               </button>
             )}
             {focus.status === "checked in" && (
               <button type="button" className="ui-btn ui-btn--on-ink" onClick={() => setStatus(focus.id, "in the chair")}>
-                Start
+                {t("cal.start")}
               </button>
             )}
             {focus.status === "in the chair" && (
               <Link className="ui-btn ui-btn--on-ink" to={`/app/checkout?booking=${focus.id}`}>
-                Done, check out
+                {t("bm.done")}
               </Link>
             )}
           </div>
         </section>
       ) : (
         <section className="next-card">
-          <h1 className="next-card__name">Free chair</h1>
-          <p>Nothing booked next.</p>
-          <p>The front desk can send you the next walk-in.</p>
+          <h1 className="next-card__name">{t("bm.free")}</h1>
+          <p>{t("bm.nothing")}</p>
+          <p>{t("bm.sendWalkIn")}</p>
         </section>
       )}
 
       {clockedIn && (
         <p className="app-quiet" role="status">
-          Clocked in at {f.time(clockedIn)}.
+          {t("bm.clockedAt", { time: f.time(clockedIn) })}
         </p>
       )}
       <button type="button" className="ui-btn ui-btn--quiet ui-btn--block" onClick={() => setLate(true)} disabled={late}>
-        {late ? "Late message ready, not connected to WhatsApp yet" : "Running 10 minutes late"}
+        {late ? t("bm.lateReady") : t("bm.late")}
       </button>
 
       <section aria-labelledby="day-title">
         <h2 id="day-title" className="app-h2">
-          My day
+          {t("bm.myDay")}
         </h2>
         <ol className="my-day">
           {mine.map((b) => (
@@ -104,11 +106,11 @@ export function BarberMode() {
 
       <section className="mode-barber__earned" aria-labelledby="earn-title">
         <h2 id="earn-title" className="app-h2">
-          Taken today
+          {t("bm.taken")}
         </h2>
         <p className="num mode-barber__figure">{f.money(earned, { whole: true })}</p>
         <Link to="/app" className="app-more">
-          Open the full app
+          {t("bm.fullApp")}
         </Link>
       </section>
     </div>

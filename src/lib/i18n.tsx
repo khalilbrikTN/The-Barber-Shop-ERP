@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
+import { Entry, fill, Plural, pluralForm, Vars } from "./plural";
 
 /* Translations for the pages clients see: the shop site, booking, the queue and the client account.
    The business app is in English at launch (PLAN.md section 8.1). Service names are shop data and
@@ -107,11 +108,11 @@ const en = {
   "manage.another": "Book another time",
   "queue.inLine": "You are in line",
   "queue.place": "Your place",
-  "queue.about": "About {n} minutes for: {service}.",
+  "queue.about": "About {minutes} for: {service}.",
   "queue.leaveWhen": "Leave when you are second. A WhatsApp message tells you, once messages are connected; until then keep this page open.",
   "queue.leave": "Leave the queue",
   "queue.title": "Join the queue from here",
-  "queue.now": "{n} in line now, about {m} minutes.",
+  "queue.now": "{n} in line now, about {minutes}.",
   "queue.first": "First name",
   "queue.phone": "Phone, for the “you are next” message",
   "queue.forWhat": "For",
@@ -133,7 +134,7 @@ const en = {
   "acc.nothing": "Nothing booked.",
   "acc.change": "Change",
   "acc.loyalty": "Loyalty card",
-  "acc.toFree": "{n} more visits to a free cut.",
+  "acc.toFree": { one: "{n} more visit to a free cut.", other: "{n} more visits to a free cut." },
   "acc.offers": "Offers for you",
   "acc.past": "Past visits",
   "acc.pastEmpty": "Your past visits show here.",
@@ -148,10 +149,43 @@ const en = {
   "acc.always": "Reminders for your bookings always come. Offers only if you say yes.",
   "acc.signOut": "Sign out",
   "acc.packages": "Visits left on your package",
-};
+  "min.count": { one: "{n} minute", other: "{n} minutes" },
+  "kiosk.waiting": { zero: "No one waiting", one: "{n} waiting", other: "{n} waiting" },
+  "kiosk.number": "You are number",
+  "kiosk.done": "About {minutes}, {name}. Take a seat; your name comes up on the screen.",
+  "kiosk.what": "What are you having?",
+  "kiosk.name": "Your first name",
+  "kiosk.desk": "Colour and longer services: ask at the desk.",
+  "tv.chairs": "Chairs",
+  "tv.chair": "Chair {n}, {name}",
+  "tv.free": "Free",
+  "tv.until": "until {time}",
+  "tv.nextWalkIn": "Next walk-in",
+  "tv.walkIns": "Walk-ins",
+  "tv.name": "Name",
+  "tv.wait": "Wait",
+  "tv.noWait": "No wait. Take a seat and you are next.",
+  "tv.booked": "Booked next",
+  "tv.scan": "Scan the code on the window to join from your phone.",
+  "err.404": "There is no page here",
+  "err.404Body": "The link may be old, or a letter may be missing from it.",
+  "err.backToday": "Back to Today",
+  "err.home": "Go to the home page",
+  "err.shop": "Open the shop’s page",
+  "err.offline": "Offline",
+  "err.error": "Error",
+  "err.needsNet": "This screen needs a connection",
+  "err.stopped": "This screen stopped working",
+  "err.offlineBody": "Screens you have opened before still work. Reconnect to load this one.",
+  "err.stoppedBody": "Nothing you saved is lost. Reload the page; if it happens again, tell us what you clicked.",
+  "err.reload": "Reload",
+} satisfies Record<string, Entry>;
 export type Key = keyof typeof en;
+export type TextKey = { [K in Key]: (typeof en)[K] extends string ? K : never }[Key];
+export type PluralKey = Exclude<Key, TextKey>;
+type Catalogue = { [K in Key]: (typeof en)[K] extends string ? string : Plural };
 
-const ar: Record<Key, string> = {
+const ar: Catalogue = {
   "nav.queue": "انضم إلى الدور",
   "nav.bookings": "حجوزاتي",
   "nav.book": "احجز",
@@ -247,11 +281,11 @@ const ar: Record<Key, string> = {
   "manage.another": "احجز وقتًا آخر",
   "queue.inLine": "أنت في الدور",
   "queue.place": "ترتيبك",
-  "queue.about": "حوالي {n} دقيقة لـ: {service}.",
+  "queue.about": "حوالي {minutes} لـ: {service}.",
   "queue.leaveWhen": "تحرّك عندما تكون الثاني. تصلك رسالة واتساب عند تفعيل الرسائل؛ حتى ذلك الحين أبقِ هذه الصفحة مفتوحة.",
   "queue.leave": "اخرج من الدور",
   "queue.title": "انضم إلى الدور من هنا",
-  "queue.now": "{n} في الدور الآن، حوالي {m} دقيقة.",
+  "queue.now": "{n} في الدور الآن، حوالي {minutes}.",
   "queue.first": "الاسم الأول",
   "queue.phone": "رقم الهاتف، لرسالة «دورك التالي»",
   "queue.forWhat": "الخدمة",
@@ -273,7 +307,7 @@ const ar: Record<Key, string> = {
   "acc.nothing": "لا توجد حجوزات.",
   "acc.change": "تغيير",
   "acc.loyalty": "بطاقة الولاء",
-  "acc.toFree": "باقٍ {n} زيارات لقصة مجانية.",
+  "acc.toFree": { one: "باقٍ زيارة واحدة لقصة مجانية.", two: "باقٍ زيارتان لقصة مجانية.", few: "باقٍ {n} زيارات لقصة مجانية.", many: "باقٍ {n} زيارة لقصة مجانية.", other: "باقٍ {n} زيارة لقصة مجانية." },
   "acc.offers": "عروض لك",
   "acc.past": "الزيارات السابقة",
   "acc.pastEmpty": "تظهر زياراتك السابقة هنا.",
@@ -288,9 +322,39 @@ const ar: Record<Key, string> = {
   "acc.always": "تذكيرات حجوزاتك تصلك دائمًا. العروض فقط إذا وافقت.",
   "acc.signOut": "تسجيل الخروج",
   "acc.packages": "الزيارات المتبقية في باقتك",
+  "min.count": { one: "دقيقة واحدة", two: "دقيقتان", few: "{n} دقائق", many: "{n} دقيقة", other: "{n} دقيقة" },
+  "kiosk.waiting": { zero: "لا أحد في الانتظار", one: "شخص واحد في الانتظار", two: "شخصان في الانتظار", few: "{n} أشخاص في الانتظار", many: "{n} شخصًا في الانتظار", other: "{n} شخص في الانتظار" },
+  "kiosk.number": "رقمك",
+  "kiosk.done": "حوالي {minutes} يا {name}. تفضّل بالجلوس؛ سيظهر اسمك على الشاشة.",
+  "kiosk.what": "ماذا تريد اليوم؟",
+  "kiosk.name": "اسمك الأول",
+  "kiosk.desk": "للصبغة والخدمات الأطول: اسأل في الاستقبال.",
+  "tv.chairs": "الكراسي",
+  "tv.chair": "كرسي {n}، {name}",
+  "tv.free": "متاح",
+  "tv.until": "حتى {time}",
+  "tv.nextWalkIn": "للزبون التالي بدون موعد",
+  "tv.walkIns": "بدون موعد",
+  "tv.name": "الاسم",
+  "tv.wait": "الانتظار",
+  "tv.noWait": "لا انتظار. تفضّل بالجلوس، أنت التالي.",
+  "tv.booked": "المواعيد القادمة",
+  "tv.scan": "امسح الرمز على الواجهة لتنضم من هاتفك.",
+  "err.404": "لا توجد صفحة هنا",
+  "err.404Body": "ربما الرابط قديم، أو ينقصه حرف.",
+  "err.backToday": "العودة إلى اليوم",
+  "err.home": "الذهاب إلى الصفحة الرئيسية",
+  "err.shop": "افتح صفحة المحل",
+  "err.offline": "غير متصل",
+  "err.error": "خطأ",
+  "err.needsNet": "هذه الشاشة تحتاج إلى اتصال",
+  "err.stopped": "توقفت هذه الشاشة عن العمل",
+  "err.offlineBody": "الشاشات التي فتحتها من قبل ما زالت تعمل. أعد الاتصال لتحميل هذه الشاشة.",
+  "err.stoppedBody": "لم يضع شيء مما حفظته. أعد تحميل الصفحة؛ وإن تكرر ذلك، أخبرنا بما ضغطت عليه.",
+  "err.reload": "إعادة التحميل",
 };
 
-const fr: Record<Key, string> = {
+const fr: Catalogue = {
   "nav.queue": "Rejoindre la file",
   "nav.bookings": "Mes réservations",
   "nav.book": "Réserver",
@@ -386,11 +450,11 @@ const fr: Record<Key, string> = {
   "manage.another": "Réserver une autre heure",
   "queue.inLine": "Vous êtes dans la file",
   "queue.place": "Votre place",
-  "queue.about": "Environ {n} minutes pour : {service}.",
+  "queue.about": "Environ {minutes} pour : {service}.",
   "queue.leaveWhen": "Partez quand vous êtes deuxième. Un message WhatsApp vous préviendra une fois les messages connectés ; d’ici là, gardez cette page ouverte.",
   "queue.leave": "Quitter la file",
   "queue.title": "Rejoindre la file d’ici",
-  "queue.now": "{n} dans la file, environ {m} minutes.",
+  "queue.now": "{n} dans la file, environ {minutes}.",
   "queue.first": "Prénom",
   "queue.phone": "Téléphone, pour le message « c’est bientôt vous »",
   "queue.forWhat": "Pour",
@@ -412,7 +476,7 @@ const fr: Record<Key, string> = {
   "acc.nothing": "Aucune réservation.",
   "acc.change": "Modifier",
   "acc.loyalty": "Carte de fidélité",
-  "acc.toFree": "Encore {n} visites avant une coupe offerte.",
+  "acc.toFree": { one: "Encore {n} visite avant une coupe offerte.", other: "Encore {n} visites avant une coupe offerte." },
   "acc.offers": "Offres pour vous",
   "acc.past": "Visites passées",
   "acc.pastEmpty": "Vos visites passées s’affichent ici.",
@@ -427,9 +491,40 @@ const fr: Record<Key, string> = {
   "acc.always": "Les rappels de vos réservations arrivent toujours. Les offres seulement si vous dites oui.",
   "acc.signOut": "Se déconnecter",
   "acc.packages": "Visites restantes sur votre forfait",
+  "min.count": { one: "{n} minute", other: "{n} minutes" },
+  "kiosk.waiting": { zero: "Personne en attente", one: "{n} en attente", other: "{n} en attente" },
+  "kiosk.number": "Vous êtes le numéro",
+  "kiosk.done": "Environ {minutes}, {name}. Installez-vous ; votre prénom s’affiche à l’écran.",
+  "kiosk.what": "Que prenez-vous ?",
+  "kiosk.name": "Votre prénom",
+  "kiosk.desk": "Couleur et prestations longues : demandez à l’accueil.",
+  "tv.chairs": "Fauteuils",
+  "tv.chair": "Fauteuil {n}, {name}",
+  "tv.free": "Libre",
+  "tv.until": "jusqu’à {time}",
+  "tv.nextWalkIn": "Prochain sans rendez-vous",
+  "tv.walkIns": "Sans rendez-vous",
+  "tv.name": "Nom",
+  "tv.wait": "Attente",
+  "tv.noWait": "Pas d’attente. Installez-vous, vous êtes le prochain.",
+  "tv.booked": "Prochains rendez-vous",
+  "tv.scan": "Scannez le code sur la vitrine pour rejoindre depuis votre téléphone.",
+  "err.404": "Il n’y a pas de page ici",
+  "err.404Body": "Le lien est peut-être ancien, ou il lui manque une lettre.",
+  "err.backToday": "Retour à Aujourd’hui",
+  "err.home": "Aller à l’accueil",
+  "err.shop": "Ouvrir la page du salon",
+  "err.offline": "Hors ligne",
+  "err.error": "Erreur",
+  "err.needsNet": "Cet écran a besoin d’une connexion",
+  "err.stopped": "Cet écran a cessé de fonctionner",
+  "err.offlineBody": "Les écrans déjà ouverts fonctionnent toujours. Reconnectez-vous pour charger celui-ci.",
+  "err.stoppedBody": "Rien de ce que vous avez enregistré n’est perdu. Rechargez la page ; si cela se reproduit, dites-nous sur quoi vous avez cliqué.",
+  "err.reload": "Recharger",
 };
 
-const DICTS: Record<Lang, Record<Key, string>> = { en, ar, fr };
+/** Exported for the catalogue test only. */
+export const DICTS: Record<Lang, Catalogue> = { en, ar, fr };
 
 /* The sample shop's own translations of its services, roles and offers. */
 const SHOP_TEXT: Record<Lang, Record<string, string>> = {
@@ -548,8 +643,10 @@ export function useLang() {
   const ctx = useContext(LangContext);
   const lang = ctx?.lang ?? "en";
   const meta = LANGS.find((l) => l.id === lang)!;
-  const t = (key: Key, vars: Record<string, string | number> = {}) => DICTS[lang][key].replace(/\{(\w+)\}/g, (_, k) => String(vars[k] ?? `{${k}}`));
+  const t = (key: TextKey, vars: Vars = {}) => fill(DICTS[lang][key] as string, vars);
+  /** A string that depends on a count; {n} is the count, formatted for the language. */
+  const tp = (key: PluralKey, n: number, vars: Vars = {}) => fill(pluralForm(DICTS[lang][key] as Plural, n, meta.locale), { n: new Intl.NumberFormat(meta.locale).format(n), ...vars });
   /** The shop's own words (service names, descriptions, offers) in the client's language, or as written. */
   const s = (text: string) => SHOP_TEXT[lang][text] ?? text;
-  return { lang, setLang: ctx?.setLang ?? (() => undefined), t, s, locale: meta.locale, dir: meta.dir };
+  return { lang, setLang: ctx?.setLang ?? (() => undefined), t, tp, s, locale: meta.locale, dir: meta.dir };
 }

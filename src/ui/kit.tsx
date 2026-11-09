@@ -1,5 +1,6 @@
 import { ReactNode, useId } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { useT } from "../app/i18n";
 
 export type DataState = "full" | "loading" | "empty" | "error";
 
@@ -21,15 +22,16 @@ type RegionProps = {
 };
 
 export function Region({ state, label, rows = 4, empty, error, skeleton, children }: RegionProps) {
+  const { t } = useT();
   if (state === "loading" && skeleton)
     return (
-      <div role="status" aria-label={`Loading ${label}`}>
+      <div role="status" aria-label={t("kit.loading", { label })}>
         {skeleton}
       </div>
     );
   if (state === "loading")
     return (
-      <div className="ui-skeleton" role="status" aria-label={`Loading ${label}`}>
+      <div className="ui-skeleton" role="status" aria-label={t("kit.loading", { label })}>
         {Array.from({ length: rows }, (_, i) => (
           <span key={i} className="ui-skeleton__row" />
         ))}
@@ -38,10 +40,10 @@ export function Region({ state, label, rows = 4, empty, error, skeleton, childre
   if (state === "error")
     return (
       <div className="ui-note ui-note--error" role="alert">
-        <p className="ui-note__title">{label} did not load</p>
-        <p>{error ?? "The connection dropped. Your data is safe; try again in a moment."}</p>
+        <p className="ui-note__title">{t("kit.failed", { label })}</p>
+        <p>{error ?? t("kit.failedBody")}</p>
         <Link className="ui-btn ui-btn--quiet" to="?">
-          Try again
+          {t("kit.retry")}
         </Link>
       </div>
     );
@@ -71,8 +73,9 @@ export function PageHead({ title, sub, actions }: { title: string; sub?: string;
 export function Tabs({ param = "tab", tabs }: { param?: string; tabs: { id: string; label: string }[] }) {
   const [params, setParams] = useSearchParams();
   const current = params.get(param) ?? tabs[0].id;
+  const { t } = useT();
   return (
-    <div className="ui-tabs" role="tablist" aria-label="Sections">
+    <div className="ui-tabs" role="tablist" aria-label={t("kit.sections")}>
       {tabs.map((t) => (
         <button
           key={t.id}
@@ -130,8 +133,15 @@ export function Stat({ label, value, sub }: { label: string; value: string; sub?
   );
 }
 
-export function Status({ value }: { value: string }) {
-  return <span className={`ui-status ui-status--${value.replace(/\s+/g, "-")}`}>{value}</span>;
+/** A status chip. Known statuses (bookings, tenants) are translated; anything else shows as given. */
+export function Status({ value, label }: { value: string; label?: string }) {
+  const { label: dataLabel } = useT();
+  return <span className={`ui-status ui-status--${value.replace(/\s+/g, "-")}`}>{label ?? dataLabel("status", value)}</span>;
+}
+
+/** A translated string with <b>bold</b> parts, without injecting HTML. */
+export function Rich({ text }: { text: string }) {
+  return <>{text.split(/(<b>.*?<\/b>)/g).map((part, i) => (part.startsWith("<b>") ? <strong key={i}>{part.slice(3, -4)}</strong> : part))}</>;
 }
 
 export function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
@@ -144,5 +154,6 @@ export function Toggle({ checked, onChange, label }: { checked: boolean; onChang
 }
 
 export function NotConnected({ what }: { what: string }) {
-  return <p className="ui-notconnected">Saved in this browser only: {what} is not connected to a server yet.</p>;
+  const { t } = useT();
+  return <p className="ui-notconnected">{t("kit.notConnected", { what })}</p>;
 }

@@ -3,11 +3,11 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { findSlots } from "../lib/availability";
 import { BOOKABLE, serviceById, SERVICES, staffById, TODAY } from "../lib/data";
 import { useFormat } from "../lib/format";
-import { Key, useLang } from "../lib/i18n";
+import { TextKey, useLang } from "../lib/i18n";
 import { useStore } from "../lib/store";
 import { SHOP, ShopFrame } from "./ShopFrame";
 
-const STEPS: Key[] = ["book.s0", "book.s1", "book.s2", "book.s3"];
+const STEPS: TextKey[] = ["book.s0", "book.s1", "book.s2", "book.s3"];
 
 function nextDays(n: number) {
   return Array.from({ length: n }, (_, i) => {

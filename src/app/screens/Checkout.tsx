@@ -5,12 +5,14 @@ import { minorDigits, useFormat } from "../../lib/format";
 import { useSettings } from "../../lib/settings";
 import { useStore } from "../../lib/store";
 import { Field, NotConnected, PageHead } from "../../ui/kit";
+import { useT } from "../i18n";
 
 type Line = { key: string; label: string; minor: number; kind?: "service" | "product" | "gift" | "package"; ref?: string };
 type Method = "cash" | "card" | "wallet";
 
 export function Checkout() {
   const f = useFormat();
+  const { t } = useT();
   const { settings } = useSettings();
   const [params] = useSearchParams();
   const { bookings, setStatus, addSale, products, adjustStock, giftCards, addGiftCard, redeemGiftCard } = useStore();
@@ -49,9 +51,9 @@ export function Checkout() {
 
   function applyGift() {
     const card = giftCards.find((g) => g.code === giftCode.trim().toUpperCase());
-    if (!card) return setGiftError("No gift card has that code. Check the letters on the card.");
-    if (card.balanceMinor <= 0) return setGiftError("That card has nothing left on it.");
-    if (card.expires < NOW.slice(0, 10)) return setGiftError("That card has expired.");
+    if (!card) return setGiftError(t("co.errNoCard"));
+    if (card.balanceMinor <= 0) return setGiftError(t("co.errEmpty"));
+    if (card.expires < NOW.slice(0, 10)) return setGiftError(t("co.errExpired"));
     setGiftError("");
     setGift({ code: card.code, minor: card.balanceMinor });
   }
@@ -61,7 +63,7 @@ export function Checkout() {
     addSale({ time: NOW, clientId: booking?.clientId, staffId, lines: lines.map((l) => ({ label: l.label, minor: l.minor })), tipMinor: tip, method });
     lines.filter((l) => l.kind === "product" && l.ref).forEach((l) => adjustStock(l.ref!, -1));
     if (gift && giftPaid > 0) redeemGiftCard(gift.code, giftPaid);
-    const newCards = lines.filter((l) => l.kind === "gift").map((l) => addGiftCard({ initialMinor: l.minor, balanceMinor: l.minor, buyer: (booking && clientById(booking.clientId)?.name) || "Walk-in", to: "Not said", expires: "2027-12-31" }).code);
+    const newCards = lines.filter((l) => l.kind === "gift").map((l) => addGiftCard({ initialMinor: l.minor, balanceMinor: l.minor, buyer: (booking && clientById(booking.clientId)?.name) || t("co.walkIn"), to: t("co.notSaid"), expires: "2027-12-31" }).code);
     setSold(newCards);
     if (booking) setStatus(booking.id, "done");
     setDone(true);
@@ -70,25 +72,25 @@ export function Checkout() {
   if (done)
     return (
       <>
-        <PageHead title="Sale recorded" sub={`${f.money(total)}${booking ? ` for ${clientById(booking.clientId)?.name}` : ""}, saved in this browser until a server is connected.`} />
+        <PageHead title={t("co.recorded")} sub={booking ? t("co.recordedSubFor", { amount: f.money(total), name: clientById(booking.clientId)?.name ?? "" }) : t("co.recordedSub", { amount: f.money(total) })} />
         <section className="app-section app-panel app-narrow">
-          <h2 className="app-h2">Book the next visit before they leave</h2>
+          <h2 className="app-h2">{t("co.rebook")}</h2>
           <div className="rebook">
             {[2, 3, 4].map((w) => (
               <Link key={w} className="ui-btn ui-btn--quiet" to="/app/calendar?new=1">
-                In {w} weeks
+                {t("co.inWeeks", { n: w })}
               </Link>
             ))}
           </div>
           {sold.length > 0 && (
             <p className="ui-live" role="status">
-              Gift card {sold.join(", ")} is ready to hand over.
+              {t("co.giftReady", { codes: sold.join(", ") })}
             </p>
           )}
-          <p className="app-quiet">Give the client a receipt from your certified till until fiscal receipts are connected for your country.</p>
-          <NotConnected what="the sale" />
+          <p className="app-quiet">{t("co.receipt")}</p>
+          <NotConnected what={t("co.thing")} />
           <Link className="ui-btn ui-btn--text" to="/app">
-            Back to Today
+            {t("common.backToday")}
           </Link>
         </section>
       </>
@@ -96,17 +98,17 @@ export function Checkout() {
 
   return (
     <>
-      <PageHead title="Checkout" sub={booking ? `${clientById(booking.clientId)?.name}, booked with ${BOOKABLE.find((s) => s.id === booking.staffId)?.name}` : "Walk-in or retail sale"} />
+      <PageHead title={t("co.title")} sub={booking ? t("co.bookedWith", { name: clientById(booking.clientId)?.name ?? "", barber: BOOKABLE.find((s) => s.id === booking.staffId)?.name ?? "" }) : t("co.walkInSale")} />
 
       <div className="app-split app-split--checkout">
         <section className="app-section" aria-labelledby="items-title">
           <h2 id="items-title" className="app-h2">
-            Items
+            {t("co.items")}
           </h2>
           {lines.length === 0 ? (
             <div className="ui-note">
-              <p className="ui-note__title">Nothing on the bill</p>
-              <p>Add a service or a product below.</p>
+              <p className="ui-note__title">{t("co.nothing")}</p>
+              <p>{t("co.nothingBody")}</p>
             </div>
           ) : (
             <ul className="bill">
@@ -114,8 +116,8 @@ export function Checkout() {
                 <li key={l.key}>
                   <span>{l.label}</span>
                   <span className="num">{f.money(l.minor)}</span>
-                  <button type="button" className="ui-btn ui-btn--text" onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))} aria-label={`Remove ${l.label}`}>
-                    Remove
+                  <button type="button" className="ui-btn ui-btn--text" onClick={() => setLines((ls) => ls.filter((x) => x.key !== l.key))} aria-label={t("co.removeItem", { name: l.label })}>
+                    {t("common.remove")}
                   </button>
                 </li>
               ))}
@@ -123,7 +125,7 @@ export function Checkout() {
           )}
 
           <div className="add-row">
-            <Field label="Add a service">
+            <Field label={t("co.addService")}>
               {(id) => (
                 <select
                   id={id}
@@ -134,16 +136,16 @@ export function Checkout() {
                     setLines((ls) => [...ls, { key: `${s.id}-${Date.now()}`, label: s.name, minor: s.priceMinor }]);
                   }}
                 >
-                  <option value="">Choose</option>
+                  <option value="">{t("common.choose")}</option>
                   {SERVICES.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name}, {f.money(s.priceMinor, { whole: true })}
+                      {t("common.itemPrice", { name: s.name, price: f.money(s.priceMinor, { whole: true }) })}
                     </option>
                   ))}
                 </select>
               )}
             </Field>
-            <Field label="Sell a gift card or package">
+            <Field label={t("co.sellGift")}>
               {(id) => (
                 <select
                   id={id}
@@ -153,28 +155,28 @@ export function Checkout() {
                     const v = e.target.value;
                     if (v.startsWith("gift-")) {
                       const minor = Number(v.slice(5));
-                      setLines((ls) => [...ls, { key: `${v}-${Date.now()}`, label: `Gift card, ${f.money(minor, { whole: true })}`, minor, kind: "gift" }]);
+                      setLines((ls) => [...ls, { key: `${v}-${Date.now()}`, label: t("co.giftLine", { amount: f.money(minor, { whole: true }) }), minor, kind: "gift" }]);
                     } else {
                       const pk = PACKAGES.find((x) => x.id === v)!;
-                      setLines((ls) => [...ls, { key: `${pk.id}-${Date.now()}`, label: `Package: ${pk.name}`, minor: pk.priceMinor, kind: "package", ref: pk.id }]);
+                      setLines((ls) => [...ls, { key: `${pk.id}-${Date.now()}`, label: t("co.packageLine", { name: pk.name }), minor: pk.priceMinor, kind: "package", ref: pk.id }]);
                     }
                   }}
                 >
-                  <option value="">Choose</option>
+                  <option value="">{t("common.choose")}</option>
                   {[25000, 50000, 100000].map((m) => (
                     <option key={m} value={`gift-${m}`}>
-                      Gift card, {f.money(m, { whole: true })}
+                      {t("co.giftLine", { amount: f.money(m, { whole: true }) })}
                     </option>
                   ))}
                   {PACKAGES.map((pk) => (
                     <option key={pk.id} value={pk.id}>
-                      {pk.name}, {f.money(pk.priceMinor, { whole: true })}
+                      {t("common.itemPrice", { name: pk.name, price: f.money(pk.priceMinor, { whole: true }) })}
                     </option>
                   ))}
                 </select>
               )}
             </Field>
-            <Field label="Add a product">
+            <Field label={t("co.addProduct")}>
               {(id) => (
                 <select
                   id={id}
@@ -185,16 +187,16 @@ export function Checkout() {
                     setLines((ls) => [...ls, { key: `${p.id}-${Date.now()}`, label: p.name, minor: p.priceMinor, kind: "product", ref: p.id }]);
                   }}
                 >
-                  <option value="">Choose</option>
+                  <option value="">{t("common.choose")}</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id} disabled={p.stock === 0}>
-                      {p.name}, {f.money(p.priceMinor, { whole: true })}, {p.stock} in stock
+                      {t("co.productOption", { name: p.name, price: f.money(p.priceMinor, { whole: true }), stock: p.stock })}
                     </option>
                   ))}
                 </select>
               )}
             </Field>
-            <Field label="Commission goes to">
+            <Field label={t("co.commissionTo")}>
               {(id) => (
                 <select id={id} className="ui-input" value={staffId} onChange={(e) => setStaffId(e.target.value)}>
                   {BOOKABLE.map((s) => (
@@ -213,7 +215,7 @@ export function Checkout() {
               e.preventDefault();
               const found = PROMO_CODES.find((p) => p.code === code.trim().toUpperCase());
               if (!found) {
-                setCodeError("That code does not exist or has ended.");
+                setCodeError(t("co.errCode"));
                 setApplied(null);
                 return;
               }
@@ -221,9 +223,9 @@ export function Checkout() {
               setApplied(found.code);
             }}
           >
-            <Field label="Promo code">{(id) => <input id={id} className="ui-input" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="off" aria-invalid={!!codeError || undefined} />}</Field>
+            <Field label={t("co.promo")}>{(id) => <input id={id} className="ui-input" value={code} onChange={(e) => setCode(e.target.value)} autoComplete="off" aria-invalid={!!codeError || undefined} />}</Field>
             <button type="submit" className="ui-btn ui-btn--quiet">
-              Apply
+              {t("common.apply")}
             </button>
           </form>
           {codeError && (
@@ -235,11 +237,11 @@ export function Checkout() {
 
         <section className="app-section app-panel" aria-labelledby="pay-title">
           <h2 id="pay-title" className="app-h2">
-            Payment
+            {t("co.payment")}
           </h2>
           <dl className="totals">
             <div>
-              <dt>Subtotal</dt>
+              <dt>{t("co.subtotal")}</dt>
               <dd className="num">{f.money(subtotal)}</dd>
             </div>
             {discount > 0 && (
@@ -250,59 +252,59 @@ export function Checkout() {
             )}
             {deposit > 0 && (
               <div>
-                <dt>Deposit paid online</dt>
+                <dt>{t("co.depositOnline")}</dt>
                 <dd className="num">−{f.money(deposit)}</dd>
               </div>
             )}
             <div>
-              <dt>Tip</dt>
+              <dt>{t("co.tip")}</dt>
               <dd className="num">{f.money(tip)}</dd>
             </div>
             <div className="totals__total">
-              <dt>To pay</dt>
+              <dt>{t("co.toPay")}</dt>
               <dd className="num">{f.money(total)}</dd>
             </div>
             {taxIncluded > 0 && (
               <div className="totals__tax">
-                <dt>Includes tax at {f.pct(settings.taxRate)}</dt>
+                <dt>{t("co.tax", { rate: f.pct(settings.taxRate) })}</dt>
                 <dd className="num">{f.money(taxIncluded)}</dd>
               </div>
             )}
           </dl>
 
           <fieldset className="ui-fieldset">
-            <legend>Tip</legend>
-            <div className="ui-seg" role="radiogroup">
+            <legend>{t("co.tip")}</legend>
+            <div className="ui-seg" role="radiogroup" aria-label={t("co.tip")}>
               {[0, 10, 15, 20].map((p) => (
                 <button key={p} type="button" role="radio" aria-checked={tipPct === p} className="ui-segbtn" onClick={() => setTipPct(p)}>
-                  {p === 0 ? "No tip" : `${p}%`}
+                  {p === 0 ? t("co.noTip") : t("co.pct", { n: p })}
                 </button>
               ))}
             </div>
           </fieldset>
 
           <fieldset className="ui-fieldset">
-            <legend>Paid with</legend>
+            <legend>{t("co.paidWith")}</legend>
             <div className="ui-seg ui-seg--fill">
               {(["cash", "card", "wallet"] as Method[]).map((m) => (
                 <button key={m} type="button" className="ui-segbtn" onClick={() => payAll(m)}>
-                  All {m}
+                  {t("co.all", { method: t(`method.${m}` as const).toLowerCase() })}
                 </button>
               ))}
             </div>
             <div className="split">
               {(["cash", "card", "wallet"] as Method[]).map((m) => (
-                <Field key={m} label={m[0].toUpperCase() + m.slice(1)}>
+                <Field key={m} label={t(`method.${m}` as const)}>
                   {(id) => <input id={id} className="ui-input num" inputMode="decimal" value={split[m]} onChange={(e) => setSplit((s) => ({ ...s, [m]: e.target.value }))} placeholder="0" />}
                 </Field>
               ))}
             </div>
             <div className="code-row">
-              <Field label="Gift card code">
+              <Field label={t("co.giftCode")}>
                 {(id) => <input id={id} className="ui-input num" value={giftCode} onChange={(e) => setGiftCode(e.target.value)} placeholder="GIFT-7KQ2" autoComplete="off" aria-invalid={!!giftError || undefined} />}
               </Field>
               <button type="button" className="ui-btn ui-btn--quiet" onClick={applyGift} disabled={!giftCode.trim() || !!gift}>
-                Use card
+                {t("co.useCard")}
               </button>
             </div>
             {giftError && (
@@ -312,19 +314,19 @@ export function Checkout() {
             )}
             {gift && (
               <p className="app-quiet">
-                {gift.code} pays {f.money(giftPaid)}; {f.money(gift.minor - giftPaid)} stays on the card.{" "}
+                {t("co.giftPays", { code: gift.code, paid: f.money(giftPaid), left: f.money(gift.minor - giftPaid) })}{" "}
                 <button type="button" className="ui-btn ui-btn--text" onClick={() => setGift(null)}>
-                  Remove
+                  {t("common.remove")}
                 </button>
               </p>
             )}
             <p className={remaining > 0 ? "checkout__due" : "app-quiet"} aria-live="polite">
-              {remaining === 0 ? "Paid in full." : remaining > 0 ? `${f.money(remaining)} still to pay.` : `${f.money(-remaining)} over. Give change in cash.`}
+              {remaining === 0 ? t("co.paidFull") : remaining > 0 ? t("co.stillDue", { amount: f.money(remaining) }) : t("co.over", { amount: f.money(-remaining) })}
             </p>
           </fieldset>
 
           <button type="button" className="ui-btn ui-btn--primary ui-btn--block" disabled={lines.length === 0 || remaining > 0} onClick={complete}>
-            Take {f.money(total)}
+            {t("co.take", { amount: f.money(total) })}
           </button>
         </section>
       </div>

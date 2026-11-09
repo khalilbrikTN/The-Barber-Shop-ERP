@@ -4,11 +4,13 @@ import { staffById } from "../../lib/data";
 import { useFormat } from "../../lib/format";
 import { useStore } from "../../lib/store";
 import { PageHead, Region, useDataState } from "../../ui/kit";
+import { useT } from "../i18n";
 
-const SEGMENTS = ["All", "Regular", "VIP", "New", "Lapsed", "Colour"];
+const SEGMENTS = ["All", "Regular", "VIP", "New", "Lapsed", "Colour"] as const;
 
 export function Clients() {
   const f = useFormat();
+  const { t, tp, label } = useT();
   const state = useDataState();
   const { clients, mergeClients } = useStore();
   const [confirming, setConfirming] = useState<string | null>(null);
@@ -17,6 +19,7 @@ export function Clients() {
   const [params, setParams] = useSearchParams();
   const q = params.get("q") ?? "";
   const seg = params.get("segment") ?? "All";
+  const tag = (x: string) => label("tag", x);
 
   const set = (k: string, v: string) => {
     const next = new URLSearchParams(params);
@@ -31,15 +34,15 @@ export function Clients() {
   return (
     <>
       <PageHead
-        title="Clients"
-        sub={`${f.num(clients.length)} clients`}
+        title={t("nav.clients")}
+        sub={tp("cl.count", clients.length)}
         actions={
           <>
             <Link className="ui-btn ui-btn--quiet" to="/app/clients/import">
-              Import from CSV
+              {t("cl.import")}
             </Link>
             <button type="button" className="ui-btn ui-btn--quiet">
-              Export all
+              {t("cl.export")}
             </button>
           </>
         }
@@ -48,12 +51,12 @@ export function Clients() {
       {dupes.map(([a, b]) => (
         <div key={`${a.id}-${b.id}`} className="ui-note dupe" role="status">
           <p className="ui-note__title">
-            {a.name} and {b.name} share the phone number {a.phone}
+            {t("cl.dupe", { a: a.name, b: b.name, phone: a.phone })}
           </p>
-          <p>Merging keeps {a.name}, adds the visits and spend of {b.name}, and moves their bookings across.</p>
+          <p>{t("cl.dupeBody", { a: a.name, b: b.name })}</p>
           {confirming === `${a.id}-${b.id}` ? (
             <span className="row-actions">
-              <span className="dupe__ask">Merge for good? This cannot be undone.</span>
+              <span className="dupe__ask">{t("cl.mergeAsk")}</span>
               <button
                 type="button"
                 className="ui-btn ui-btn--primary"
@@ -62,16 +65,16 @@ export function Clients() {
                   setConfirming(null);
                 }}
               >
-                Yes, merge
+                {t("cl.mergeYes")}
               </button>
               <button type="button" className="ui-btn ui-btn--text" onClick={() => setConfirming(null)}>
-                Keep both
+                {t("cl.keepBoth")}
               </button>
             </span>
           ) : (
             <span className="row-actions">
               <button type="button" className="ui-btn ui-btn--quiet" onClick={() => setConfirming(`${a.id}-${b.id}`)}>
-                Merge into {a.name}
+                {t("cl.mergeInto", { name: a.name })}
               </button>
             </span>
           )}
@@ -80,36 +83,36 @@ export function Clients() {
 
       <div className="cal-toolbar">
         <label className="ui-search">
-          <span className="visually-hidden">Search clients</span>
-          <input className="ui-input" type="search" placeholder="Name, phone or email" value={q} onChange={(e) => set("q", e.target.value)} />
+          <span className="visually-hidden">{t("cl.search")}</span>
+          <input className="ui-input" type="search" placeholder={t("cl.searchPlaceholder")} value={q} onChange={(e) => set("q", e.target.value)} />
         </label>
-        <div className="ui-seg" role="radiogroup" aria-label="Segment">
+        <div className="ui-seg" role="radiogroup" aria-label={t("cl.segment")}>
           {SEGMENTS.map((s) => (
             <button key={s} type="button" role="radio" aria-checked={seg === s} className="ui-segbtn" onClick={() => set("segment", s === "All" ? "" : s)}>
-              {s}
+              {tag(s)}
             </button>
           ))}
         </div>
       </div>
 
-      <Region state={state} label="Clients" rows={8} empty={{ title: "No clients yet", body: "Clients are added when they book. Bring your list from another app with a CSV.", action: <Link className="ui-btn ui-btn--quiet" to="/app/clients/import">Import from CSV</Link> }}>
+      <Region state={state} label={t("nav.clients")} rows={8} empty={{ title: t("cl.empty"), body: t("cl.emptyBody"), action: <Link className="ui-btn ui-btn--quiet" to="/app/clients/import">{t("cl.import")}</Link> }}>
         {rows.length === 0 ? (
           <div className="ui-note">
-            <p className="ui-note__title">No client matches “{q}”</p>
-            <p>Check the spelling, or search by phone number.</p>
+            <p className="ui-note__title">{t("cl.noMatch", { q })}</p>
+            <p>{t("cl.noMatchBody")}</p>
           </div>
         ) : (
           <div className="ui-tablewrap">
             <table className="ui-table">
               <thead>
                 <tr>
-                  <th scope="col">Name</th>
-                  <th scope="col" className="opt">Phone</th>
-                  <th scope="col" className="r">Visits</th>
-                  <th scope="col" className="r">Spent</th>
-                  <th scope="col" className="opt">Last visit</th>
-                  <th scope="col" className="opt">Usual barber</th>
-                  <th scope="col" className="r opt">No-shows</th>
+                  <th scope="col">{t("common.name")}</th>
+                  <th scope="col" className="opt">{t("common.phone")}</th>
+                  <th scope="col" className="r">{t("cl.visits")}</th>
+                  <th scope="col" className="r">{t("cl.spent")}</th>
+                  <th scope="col" className="opt">{t("cl.lastVisit")}</th>
+                  <th scope="col" className="opt">{t("cl.usual")}</th>
+                  <th scope="col" className="r opt">{t("cl.noShows")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -117,13 +120,13 @@ export function Clients() {
                   <tr key={c.id}>
                     <th scope="row">
                       <Link to={`/app/clients/${c.id}`}>{c.name}</Link>
-                      {(c.tags.length > 0 || c.blocked) && <span className="ui-tags">{[...(c.blocked ? ["Blocked"] : []), ...c.tags].join(", ")}</span>}
+                      {(c.tags.length > 0 || c.blocked) && <span className="ui-tags">{[...(c.blocked ? ["Blocked"] : []), ...c.tags].map(tag).join(", ")}</span>}
                     </th>
                     <td className="num opt">{c.phone}</td>
                     <td className="r num">{c.visits}</td>
                     <td className="r num">{f.money(c.spentMinor, { whole: true })}</td>
-                    <td className="opt">{c.lastVisit ? f.date(`${c.lastVisit}T12:00:00Z`) : "Never"}</td>
-                    <td className="opt">{c.favourite ? staffById(c.favourite).name : "Anyone"}</td>
+                    <td className="opt">{c.lastVisit ? f.date(`${c.lastVisit}T12:00:00Z`) : t("cl.never")}</td>
+                    <td className="opt">{c.favourite ? staffById(c.favourite).name : t("cl.anyone")}</td>
                     <td className="r num opt" data-warn={c.noShows > 1 || undefined}>
                       {c.noShows}
                     </td>

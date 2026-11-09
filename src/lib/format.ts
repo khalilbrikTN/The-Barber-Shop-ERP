@@ -40,10 +40,14 @@ export function useFormat(localeOverride?: string) {
   const date = (iso: string | Date) =>
     new Intl.DateTimeFormat(locale, { day: "numeric", month: "short", year: "numeric", timeZone }).format(new Date(iso));
 
+  const weekday = (iso: string | Date, style: "short" | "long" = "short") => new Intl.DateTimeFormat(locale, { weekday: style, timeZone }).format(new Date(iso));
+
+  const month = (iso: string | Date) => new Intl.DateTimeFormat(locale, { month: "long", timeZone }).format(new Date(iso));
+
   const num = (n: number) => new Intl.NumberFormat(locale).format(n);
   const pct = (n: number) => new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 }).format(n);
 
-  return { money, time, day, date, num, pct, currency, locale, timeZone };
+  return { money, time, day, date, weekday, month, num, pct, currency, locale, timeZone };
 }
 
 /** Minutes from midnight in the shop's time zone, for laying out the calendar. */

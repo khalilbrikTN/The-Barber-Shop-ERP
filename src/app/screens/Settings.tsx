@@ -1,35 +1,30 @@
 import { useState } from "react";
 import { HOLIDAYS_EG_2027, NOW, SERVICES } from "../../lib/data";
-import { useFormat } from "../../lib/format";
+import { minorDigits, toMinor, useFormat } from "../../lib/format";
 import { COUNTRY_PRESETS, useSettings } from "../../lib/settings";
 import { Field, NotConnected, PageHead, Tabs, Toggle, useTab } from "../../ui/kit";
+import { useT } from "../i18n";
 
 const ZONES = ["Africa/Cairo", "Africa/Tunis", "Europe/Rome", "Europe/Paris", "Europe/Berlin", "Europe/London", "Asia/Dubai"];
 const CURRENCIES = ["EGP", "TND", "EUR", "GBP", "AED", "USD"];
-const LOCALES = [
-  { id: "en-EG", label: "English (Egypt)" },
-  { id: "en-GB", label: "English (UK)" },
-  { id: "fr-TN", label: "French (Tunisia)" },
-  { id: "fr-FR", label: "French (France)" },
-  { id: "it-IT", label: "Italian" },
-  { id: "de-DE", label: "German" },
-  { id: "ar-EG", label: "Arabic (Egypt)" },
-];
+/** Format locales; their names come from Intl in the staff's language, so the list needs no translating. */
+const LOCALES = ["en-EG", "en-GB", "fr-TN", "fr-FR", "it-IT", "de-DE", "ar-EG"];
 
 export function SettingsScreen() {
   const tab = useTab("tab", "region");
+  const { t } = useT();
   return (
     <>
-      <PageHead title="Settings" />
+      <PageHead title={t("nav.settings")} />
       <Tabs
         tabs={[
-          { id: "region", label: "Language and region" },
-          { id: "business", label: "Business" },
-          { id: "services", label: "Services" },
-          { id: "booking", label: "Booking rules" },
-          { id: "holidays", label: "Holidays" },
-          { id: "payments", label: "Payments" },
-          { id: "plan", label: "Your plan" },
+          { id: "region", label: t("set.tabRegion") },
+          { id: "business", label: t("set.tabBusiness") },
+          { id: "services", label: t("set.tabServices") },
+          { id: "booking", label: t("set.tabBooking") },
+          { id: "holidays", label: t("set.tabHolidays") },
+          { id: "payments", label: t("set.tabPayments") },
+          { id: "plan", label: t("set.tabPlan") },
         ]}
       />
       <div className="app-tabpanel" role="tabpanel">
@@ -48,31 +43,35 @@ export function SettingsScreen() {
 function Region() {
   const { settings, update } = useSettings();
   const f = useFormat();
+  const { t, label, lang } = useT();
+  const names = new Intl.DisplayNames([lang], { type: "language" });
   return (
     <div className="app-split">
       <form className="ui-form app-section" onSubmit={(e) => e.preventDefault()}>
-        <Field label="Country" hint="Sets currency, time zone, week start and tax together. Change any of them after.">
+        <Field label={t("set.country")} hint={t("set.countryHint")}>
           {(id, hint) => (
             <select id={id} aria-describedby={hint} className="ui-input" defaultValue="" onChange={(e) => e.target.value && update(COUNTRY_PRESETS[e.target.value])}>
-              <option value="">Choose to fill in the rest</option>
+              <option value="">{t("set.countryChoose")}</option>
               {Object.keys(COUNTRY_PRESETS).map((c) => (
-                <option key={c}>{c}</option>
-              ))}
-            </select>
-          )}
-        </Field>
-        <Field label="Formats">
-          {(id) => (
-            <select id={id} className="ui-input" value={settings.locale} onChange={(e) => update({ locale: e.target.value })}>
-              {LOCALES.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.label}
+                <option key={c} value={c}>
+                  {label("country", c)}
                 </option>
               ))}
             </select>
           )}
         </Field>
-        <Field label="Currency" hint="Prices you entered keep their numbers; only the currency changes.">
+        <Field label={t("set.formats")}>
+          {(id) => (
+            <select id={id} className="ui-input" value={settings.locale} onChange={(e) => update({ locale: e.target.value })}>
+              {LOCALES.map((l) => (
+                <option key={l} value={l}>
+                  {names.of(l)}
+                </option>
+              ))}
+            </select>
+          )}
+        </Field>
+        <Field label={t("set.currency")} hint={t("set.currencyHint")}>
           {(id, hint) => (
             <select id={id} aria-describedby={hint} className="ui-input" value={settings.currency} onChange={(e) => update({ currency: e.target.value })}>
               {CURRENCIES.map((c) => (
@@ -81,7 +80,7 @@ function Region() {
             </select>
           )}
         </Field>
-        <Field label="Time zone">
+        <Field label={t("set.zone")}>
           {(id) => (
             <select id={id} className="ui-input" value={settings.timeZone} onChange={(e) => update({ timeZone: e.target.value })}>
               {ZONES.map((z) => (
@@ -90,27 +89,25 @@ function Region() {
             </select>
           )}
         </Field>
-        <Toggle checked={settings.hour12} onChange={(v) => update({ hour12: v })} label="12-hour clock" />
-        <Toggle checked={settings.dir === "rtl"} onChange={(v) => update({ dir: v ? "rtl" : "ltr" })} label="Right-to-left layout (preview for Arabic)" />
-        <p className="app-quiet">The app is in English at launch. Arabic, French, Italian and German follow.</p>
+        <Toggle checked={settings.hour12} onChange={(v) => update({ hour12: v })} label={t("set.hour12")} />
+        <Toggle checked={settings.dir === "rtl"} onChange={(v) => update({ dir: v ? "rtl" : "ltr" })} label={t("set.rtl")} />
+        <p className="app-quiet">{t("set.launchLang")}</p>
       </form>
       <section className="app-section app-panel" aria-labelledby="looks-title">
         <h2 id="looks-title" className="app-h2">
-          How it looks now
+          {t("set.looks")}
         </h2>
         <dl className="ui-dl">
           <div>
-            <dt>A haircut</dt>
+            <dt>{t("set.haircut")}</dt>
             <dd className="num">{f.money(25000)}</dd>
           </div>
           <div>
-            <dt>Now</dt>
-            <dd>
-              {f.day(NOW)}, {f.time(NOW)}
-            </dd>
+            <dt>{t("set.now")}</dt>
+            <dd>{t("cp.dateTime", { date: f.day(NOW), time: f.time(NOW) })}</dd>
           </div>
           <div>
-            <dt>Time zone</dt>
+            <dt>{t("set.zone")}</dt>
             <dd>{settings.timeZone}</dd>
           </div>
         </dl>
@@ -121,6 +118,7 @@ function Region() {
 
 function Business() {
   const { settings, update } = useSettings();
+  const { t } = useT();
   const [saved, setSaved] = useState(false);
   return (
     <form
@@ -130,24 +128,26 @@ function Business() {
         setSaved(true);
       }}
     >
-      <Field label="Shop name">{(id) => <input id={id} className="ui-input" value={settings.shopName} onChange={(e) => update({ shopName: e.target.value })} />}</Field>
-      <Field label="Tax number">{(id) => <input id={id} className="ui-input" autoComplete="off" />}</Field>
-      <Toggle checked={settings.pricesIncludeTax} onChange={(v) => update({ pricesIncludeTax: v })} label="Prices include tax" />
-      <Field label="Tax rate" hint="A default for your country. Check it with your accountant.">
+      <Field label={t("set.shopName")}>{(id) => <input id={id} className="ui-input" value={settings.shopName} onChange={(e) => update({ shopName: e.target.value })} />}</Field>
+      <Field label={t("set.taxNumber")}>{(id) => <input id={id} className="ui-input" autoComplete="off" />}</Field>
+      <Toggle checked={settings.pricesIncludeTax} onChange={(v) => update({ pricesIncludeTax: v })} label={t("set.taxIncluded")} />
+      <Field label={t("set.taxRate")} hint={t("set.taxRateHint")}>
         {(id, hint) => (
           <input id={id} aria-describedby={hint} className="ui-input num" type="number" step="0.01" min={0} max={0.5} value={settings.taxRate} onChange={(e) => update({ taxRate: Number(e.target.value) })} />
         )}
       </Field>
       <button type="submit" className="ui-btn ui-btn--quiet">
-        Save
+        {t("common.save")}
       </button>
-      {saved && <NotConnected what="business details" />}
+      {saved && <NotConnected what={t("set.businessThing")} />}
     </form>
   );
 }
 
 function Services() {
   const f = useFormat();
+  const { t, label } = useT();
+  const unit = 10 ** minorDigits(f.currency);
   const [rows, setRows] = useState(SERVICES.map((s) => ({ ...s })));
   const [saved, setSaved] = useState(false);
   const edit = (id: string, patch: Partial<(typeof rows)[number]>) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -163,51 +163,52 @@ function Services() {
         <table className="ui-table ui-table--form">
           <thead>
             <tr>
-              <th scope="col">Service</th>
-              <th scope="col">Type</th>
-              <th scope="col" className="r">Minutes</th>
-              <th scope="col" className="r">Price</th>
-              <th scope="col">Processing time</th>
-              <th scope="col" className="c">Deposit</th>
+              <th scope="col">{t("common.service")}</th>
+              <th scope="col">{t("money.type")}</th>
+              <th scope="col" className="r">{t("set.minutes")}</th>
+              <th scope="col" className="r">{t("common.price")}</th>
+              <th scope="col">{t("set.processing")}</th>
+              <th scope="col" className="c">{t("set.deposit")}</th>
             </tr>
           </thead>
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
                 <th scope="row">
-                  <input className="ui-input ui-input--name" value={r.name} onChange={(e) => edit(r.id, { name: e.target.value })} aria-label="Service name" />
+                  <input className="ui-input ui-input--name" value={r.name} onChange={(e) => edit(r.id, { name: e.target.value })} aria-label={t("set.serviceName")} />
                 </th>
-                <td data-label="Type">{r.category}</td>
-                <td className="r" data-label="Minutes">
-                  <input className="ui-input ui-input--short num" type="number" min={5} step={5} value={r.minutes} onChange={(e) => edit(r.id, { minutes: Number(e.target.value) })} aria-label={`${r.name} minutes`} />
+                <td data-label={t("money.type")}>{label("category", r.category)}</td>
+                <td className="r" data-label={t("set.minutes")}>
+                  <input className="ui-input ui-input--short num" type="number" min={5} step={5} value={r.minutes} onChange={(e) => edit(r.id, { minutes: Number(e.target.value) })} aria-label={t("set.serviceMinutes", { name: r.name })} />
                 </td>
-                <td className="r" data-label="Price">
-                  <input className="ui-input ui-input--short num" inputMode="decimal" value={r.priceMinor / 100} onChange={(e) => edit(r.id, { priceMinor: Math.round((parseFloat(e.target.value.replace(",", ".")) || 0) * 100) })} aria-label={`${r.name} price`} />
+                <td className="r" data-label={t("common.price")}>
+                  <input className="ui-input ui-input--short num" inputMode="decimal" value={r.priceMinor / unit} onChange={(e) => edit(r.id, { priceMinor: toMinor(parseFloat(e.target.value.replace(",", ".")) || 0, f.currency) })} aria-label={t("set.servicePrice", { name: r.name })} />
                 </td>
-                <td data-label="Processing">{r.segments ? r.segments.map((g) => `${g.minutes} ${g.kind}`).join(", ") : "None"}</td>
-                <td className="c" data-label="Deposit">
-                  <input type="checkbox" checked={!!r.deposit} onChange={(e) => edit(r.id, { deposit: e.target.checked })} aria-label={`Deposit for ${r.name}`} />
+                <td data-label={t("set.processingShort")}>{r.segments ? r.segments.map((g) => t(g.kind === "work" ? "set.segWork" : "set.segWait", { n: g.minutes })).join(", ") : t("common.none")}</td>
+                <td className="c" data-label={t("set.deposit")}>
+                  <input type="checkbox" checked={!!r.deposit} onChange={(e) => edit(r.id, { deposit: e.target.checked })} aria-label={t("set.depositFor", { name: r.name })} />
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-      <p className="app-quiet">Processing time is when the stylist is free during a service, such as colour developing. Other clients can be booked into it.</p>
+      <p className="app-quiet">{t("set.processingNote")}</p>
       <div className="rebook">
         <button type="button" className="ui-btn ui-btn--quiet">
-          Add a service
+          {t("set.addService")}
         </button>
         <button type="submit" className="ui-btn ui-btn--primary">
-          Save services
+          {t("set.saveServices")}
         </button>
       </div>
-      {saved && <NotConnected what="services" />}
+      {saved && <NotConnected what={t("set.servicesThing")} />}
     </form>
   );
 }
 
 function BookingRules() {
+  const { t, tp } = useT();
   const [saved, setSaved] = useState(false);
   const [deposit, setDeposit] = useState(true);
   const [gender, setGender] = useState(false);
@@ -219,103 +220,109 @@ function BookingRules() {
         setSaved(true);
       }}
     >
-      <Field label="Shortest notice for an online booking">
+      <Field label={t("set.notice")}>
         {(id) => (
           <select id={id} className="ui-input" defaultValue="30">
-            <option value="0">None</option>
-            <option value="30">30 minutes</option>
-            <option value="120">2 hours</option>
-            <option value="1440">1 day</option>
+            <option value="0">{t("common.none")}</option>
+            <option value="30">{tp("set.mins", 30)}</option>
+            <option value="120">{tp("set.hours", 2)}</option>
+            <option value="1440">{tp("set.days", 1)}</option>
           </select>
         )}
       </Field>
-      <Field label="Furthest ahead clients can book">
+      <Field label={t("set.ahead")}>
         {(id) => (
           <select id={id} className="ui-input" defaultValue="30">
-            <option value="14">2 weeks</option>
-            <option value="30">30 days</option>
-            <option value="90">3 months</option>
+            <option value="14">{tp("set.weeks", 2)}</option>
+            <option value="30">{tp("set.days", 30)}</option>
+            <option value="90">{tp("set.months", 3)}</option>
           </select>
         )}
       </Field>
-      <Field label="Times start every">
+      <Field label={t("set.step")}>
         {(id) => (
           <select id={id} className="ui-input" defaultValue="15">
-            <option value="10">10 minutes</option>
-            <option value="15">15 minutes</option>
-            <option value="30">30 minutes</option>
+            {[10, 15, 30].map((m) => (
+              <option key={m} value={m}>
+                {tp("set.mins", m)}
+              </option>
+            ))}
           </select>
         )}
       </Field>
-      <Field label="Free cancellation until">
+      <Field label={t("set.cancel")}>
         {(id) => (
           <select id={id} className="ui-input" defaultValue="2">
-            <option value="1">1 hour before</option>
-            <option value="2">2 hours before</option>
-            <option value="24">24 hours before</option>
+            {[1, 2, 24].map((h) => (
+              <option key={h} value={h}>
+                {tp("set.hoursBefore", h)}
+              </option>
+            ))}
           </select>
         )}
       </Field>
-      <Toggle checked={deposit} onChange={setDeposit} label="Ask a deposit from clients with two or more no-shows" />
-      <Toggle checked={gender} onChange={setGender} label="Clients can pick a barber by gender" />
+      <Toggle checked={deposit} onChange={setDeposit} label={t("set.depositRule")} />
+      <Toggle checked={gender} onChange={setGender} label={t("set.gender")} />
       <button type="submit" className="ui-btn ui-btn--quiet">
-        Save rules
+        {t("set.saveRules")}
       </button>
-      {saved && <NotConnected what="booking rules" />}
+      {saved && <NotConnected what={t("set.rulesThing")} />}
     </form>
   );
 }
 
 function Payments() {
   const { settings } = useSettings();
+  const { t } = useT();
   const provider = settings.currency === "EGP" ? "Paymob" : settings.currency === "TND" ? "Konnect" : "Stripe";
   return (
     <div className="app-section app-narrow">
       <dl className="ui-dl">
         <div>
-          <dt>Cash</dt>
-          <dd>On. Counted in the evening cash-up.</dd>
+          <dt>{t("set.cash")}</dt>
+          <dd>{t("set.cashBody")}</dd>
         </div>
         <div>
-          <dt>Card terminal</dt>
-          <dd>Your own terminal. Mark card payments at checkout.</dd>
+          <dt>{t("set.terminal")}</dt>
+          <dd>{t("set.terminalBody")}</dd>
         </div>
         <div>
-          <dt>Online deposits</dt>
-          <dd>Paid straight into your {provider} account. We never hold your money.</dd>
+          <dt>{t("set.online")}</dt>
+          <dd>{t("set.onlineBody", { provider })}</dd>
         </div>
       </dl>
       <button type="button" className="ui-btn ui-btn--primary">
-        Connect {provider}
+        {t("set.connect", { provider })}
       </button>
-      <p className="app-quiet">The connection opens {provider}'s own page. It is not wired up in this preview.</p>
+      <p className="app-quiet">{t("set.connectNote", { provider })}</p>
     </div>
   );
 }
 
 function Plan() {
+  const { t } = useT();
   return (
     <div className="app-section app-narrow">
       <dl className="ui-dl">
         <div>
-          <dt>Plan</dt>
-          <dd>Shop, up to 6 bookable staff</dd>
+          <dt>{t("set.plan")}</dt>
+          <dd>{t("set.planValue")}</dd>
         </div>
         <div>
-          <dt>Trial</dt>
-          <dd>14 days, no card on file</dd>
+          <dt>{t("set.trial")}</dt>
+          <dd>{t("set.trialValue")}</dd>
         </div>
         <div>
-          <dt>Commission on bookings</dt>
-          <dd>None</dd>
+          <dt>{t("set.commission")}</dt>
+          <dd>{t("common.none")}</dd>
         </div>
       </dl>
       <div className="rebook">
         <button type="button" className="ui-btn ui-btn--quiet">
-          Change plan
+          {t("set.changePlan")}
         </button>
         <button type="button" className="ui-btn ui-btn--text">
-          Export all my data
+          {t("set.export")}
         </button>
       </div>
     </div>
@@ -324,6 +331,7 @@ function Plan() {
 
 function Holidays() {
   const f = useFormat();
+  const { t } = useT();
   const [open, setOpen] = useState<Record<string, boolean>>({});
   const [extra, setExtra] = useState<{ date: string; name: string }[]>([]);
   const [date, setDate] = useState("");
@@ -333,16 +341,16 @@ function Holidays() {
     <div className="app-split">
       <section className="app-section" aria-labelledby="hol-title">
         <h2 id="hol-title" className="app-h2">
-          Closed days in 2027
+          {t("set.closedIn", { year: 2027 })}
         </h2>
-        <p className="app-quiet">Public holidays load for your country. Religious holidays move with the moon, so check the dates nearer the time.</p>
+        <p className="app-quiet">{t("set.holidayNote")}</p>
         <div className="ui-tablewrap">
           <table className="ui-table">
             <thead>
               <tr>
-                <th scope="col">Date</th>
-                <th scope="col">Holiday</th>
-                <th scope="col">Shop</th>
+                <th scope="col">{t("common.date")}</th>
+                <th scope="col">{t("set.holiday")}</th>
+                <th scope="col">{t("set.shop")}</th>
               </tr>
             </thead>
             <tbody>
@@ -353,7 +361,7 @@ function Holidays() {
                   <td>
                     <label className="ui-check">
                       <input type="checkbox" checked={!!open[h.date]} onChange={(e) => setOpen((o) => ({ ...o, [h.date]: e.target.checked }))} />
-                      <span>{open[h.date] ? "Open" : "Closed"}</span>
+                      <span>{open[h.date] ? t("set.open") : t("set.closed")}</span>
                     </label>
                   </td>
                 </tr>
@@ -372,13 +380,13 @@ function Holidays() {
           setName("");
         }}
       >
-        <h2 className="app-h2">Close another day</h2>
-        <Field label="Date">{(id) => <input id={id} type="date" className="ui-input" value={date} onChange={(e) => setDate(e.target.value)} />}</Field>
-        <Field label="Reason">{(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Shop refit" />}</Field>
+        <h2 className="app-h2">{t("set.closeAnother")}</h2>
+        <Field label={t("common.date")}>{(id) => <input id={id} type="date" className="ui-input" value={date} onChange={(e) => setDate(e.target.value)} />}</Field>
+        <Field label={t("cal.reason")}>{(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} placeholder={t("set.refit")} />}</Field>
         <button type="submit" className="ui-btn ui-btn--quiet">
-          Close the shop that day
+          {t("set.closeDay")}
         </button>
-        <p className="app-quiet">Bookings already on a closed day stay, and the calendar warns you about them.</p>
+        <p className="app-quiet">{t("set.closedNote")}</p>
       </form>
     </div>
   );

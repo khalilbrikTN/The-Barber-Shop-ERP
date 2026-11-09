@@ -1,42 +1,46 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useStore } from "../lib/store";
+import { TextKey, useT } from "./i18n";
 
 type Item = { label: string; hint: string; to: string };
+type Screen = { label: TextKey; hint: TextKey; to: string };
 
-const SCREENS: Item[] = [
-  { label: "Today", hint: "Screen", to: "/app" },
-  { label: "Calendar", hint: "Screen", to: "/app/calendar" },
-  { label: "New booking", hint: "Action", to: "/app/calendar?new=1" },
-  { label: "Queue", hint: "Screen", to: "/app/queue" },
-  { label: "Clients", hint: "Screen", to: "/app/clients" },
-  { label: "Import clients", hint: "Action", to: "/app/clients/import" },
-  { label: "Checkout", hint: "Screen", to: "/app/checkout" },
-  { label: "Cash-up", hint: "Money", to: "/app/money" },
-  { label: "Reports", hint: "Money", to: "/app/money?tab=reports" },
-  { label: "Team", hint: "Screen", to: "/app/team" },
-  { label: "Marketing", hint: "Screen", to: "/app/marketing" },
-  { label: "Website", hint: "Screen", to: "/app/website" },
-  { label: "Settings", hint: "Screen", to: "/app/settings" },
-  { label: "TV board", hint: "Mode", to: "/tv" },
-  { label: "Kiosk", hint: "Mode", to: "/kiosk" },
-  { label: "Barber mode", hint: "Mode", to: "/me" },
+const SCREENS: Screen[] = [
+  { label: "nav.today", hint: "find.screen", to: "/app" },
+  { label: "nav.calendar", hint: "find.screen", to: "/app/calendar" },
+  { label: "find.newBooking", hint: "find.action", to: "/app/calendar?new=1" },
+  { label: "nav.queue", hint: "find.screen", to: "/app/queue" },
+  { label: "nav.clients", hint: "find.screen", to: "/app/clients" },
+  { label: "find.import", hint: "find.action", to: "/app/clients/import" },
+  { label: "nav.checkout", hint: "find.screen", to: "/app/checkout" },
+  { label: "find.cashup", hint: "find.money", to: "/app/money" },
+  { label: "find.reports", hint: "find.money", to: "/app/money?tab=reports" },
+  { label: "nav.team", hint: "find.screen", to: "/app/team" },
+  { label: "nav.marketing", hint: "find.screen", to: "/app/marketing" },
+  { label: "nav.website", hint: "find.screen", to: "/app/website" },
+  { label: "nav.settings", hint: "find.screen", to: "/app/settings" },
+  { label: "nav.tv", hint: "find.mode", to: "/tv" },
+  { label: "nav.kiosk", hint: "find.mode", to: "/kiosk" },
+  { label: "nav.barberMode", hint: "find.mode", to: "/me" },
 ];
 
 /** Ctrl+K (or ⌘K) opens a search over screens and clients, for a front desk that lives on the keyboard. */
 export function QuickFind() {
   const navigate = useNavigate();
   const { clients } = useStore();
+  const { t } = useT();
   const dialog = useRef<HTMLDialogElement>(null);
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
 
   const items = useMemo(() => {
-    const all: Item[] = [...SCREENS, ...clients.map((c) => ({ label: c.name, hint: c.phone, to: `/app/clients/${c.id}` }))];
+    const screens: Item[] = SCREENS.map((s) => ({ label: t(s.label), hint: t(s.hint), to: s.to }));
+    const all: Item[] = [...screens, ...clients.map((c) => ({ label: c.name, hint: c.phone, to: `/app/clients/${c.id}` }))];
     const needle = q.trim().toLowerCase();
     const digits = needle.replace(/\D/g, "");
-    return (needle ? all.filter((i) => i.label.toLowerCase().includes(needle) || (digits.length > 2 && i.hint.replace(/\D/g, "").includes(digits))) : SCREENS).slice(0, 8);
-  }, [q, clients]);
+    return (needle ? all.filter((i) => i.label.toLowerCase().includes(needle) || (digits.length > 2 && i.hint.replace(/\D/g, "").includes(digits))) : screens).slice(0, 8);
+  }, [q, clients, t]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -68,19 +72,19 @@ export function QuickFind() {
           dialog.current?.showModal();
         }}
       >
-        Find <kbd>Ctrl K</kbd>
+        {t("find.open")} <kbd>Ctrl K</kbd>
       </button>
-      <dialog ref={dialog} className="quickfind" aria-label="Find a client or screen">
+      <dialog ref={dialog} className="quickfind" aria-label={t("find.title")}>
         <form method="dialog" onSubmit={(e) => (e.preventDefault(), go(items[active]))}>
           <label className="visually-hidden" htmlFor="qf-input">
-            Search
+            {t("find.search")}
           </label>
           <input
             id="qf-input"
             className="ui-input"
             autoFocus
             autoComplete="off"
-            placeholder="Name, phone or screen"
+            placeholder={t("find.placeholder")}
             value={q}
             role="combobox"
             aria-expanded="true"
@@ -101,7 +105,7 @@ export function QuickFind() {
             }}
           />
           <ul id="qf-list" role="listbox" className="quickfind__list">
-            {items.length === 0 && <li className="quickfind__none">Nothing matches. Try a phone number.</li>}
+            {items.length === 0 && <li className="quickfind__none">{t("find.none")}</li>}
             {items.map((i, n) => (
               <li key={i.to} id={`qf-${n}`} role="option" aria-selected={n === active} onMouseEnter={() => setActive(n)} onClick={() => go(i)}>
                 <strong>{i.label}</strong>
@@ -109,7 +113,7 @@ export function QuickFind() {
               </li>
             ))}
           </ul>
-          <p className="quickfind__help">Arrow keys to move, Enter to open, Esc to close.</p>
+          <p className="quickfind__help">{t("find.help")}</p>
         </form>
       </dialog>
     </>

@@ -223,7 +223,7 @@ The staff app is a PWA that keeps working offline for viewing the day and checki
 
 Legend: **MVP** = first paid version. **V1** = within about 3 months of MVP. **V2** = later.
 
-**Frontend column** (updated 8 November 2026): ✅ done = the screen is built and works with sample data in the browser, with no backend. ◐ partial = some of it is built; the note says what is missing. Nothing in this column means the backend exists.
+**Frontend column** (updated 9 November 2026): ✅ done = the screen is built and works with sample data in the browser, with no backend. ◐ partial = some of it is built; the note says what is missing. Nothing in this column means the backend exists.
 
 ### 6.1 Booking and calendar
 
@@ -874,8 +874,8 @@ Hallmark is built for **new pages and app screens**. It has three behaviours tha
 | 2 | **Turn the system into code** | Put Hallmark's tokens (colours, type, spacing, radii, motion) into `packages/ui/tokens.css` and the Tailwind preset. Build base components (button, input, select, dialog, sheet, tabs, toast, data table, empty state) with Radix primitives, styled only through tokens. | ✅ done: `src/styles/tokens.css`, `src/ui/kit.tsx` and `src/app/styles/app.css`; plain React and CSS instead of Tailwind and Radix |
 | 3 | **Business app screens** | For each main screen (Calendar, Queue, Clients, Checkout, Money, Team, Settings), run `/hallmark <screen description>` with real sample data. Hallmark follows `DESIGN.md`. | ✅ done: every screen in 17.6, checked with `sloplint --scope app` |
 | 4 | **Booking flow and client account** | `/hallmark` for the booking flow (mobile first; it is the most-used public screen) and the client account. Same locked system, or a lighter variant of it. | ✅ done |
-| 5 | **Shop website presets** | Build **3 to 5 shop site presets** with separate Hallmark runs (each a different dealt theme: for example an editorial one, a bold barber one, a soft salon one). Each preset is a set of tokens + section layouts. Shops pick a preset, then their accent colour, logo and photos override tokens at runtime. | ◐ partial: 2 presets (Board, Paper) and 4 accents, not 3 to 5 |
-| 6 | **Our marketing site** | Built **last**, once the product exists, so Hallmark can capture **real product screenshots** (it runs the app with `capture.mjs`) instead of placeholders. Genre: modern-minimal (SaaS). | ◐ partial: the landing page is done; features, pricing and switch-from pages are not; product pictures are still built samples |
+| 5 | **Shop website presets** | Build **3 to 5 shop site presets** with separate Hallmark runs (each a different dealt theme: for example an editorial one, a bold barber one, a soft salon one). Each preset is a set of tokens + section layouts. Shops pick a preset, then their accent colour, logo and photos override tokens at runtime. | ✅ done: 3 presets (Board, Paper, Signal) and 4 accents; shop photos still to come |
+| 6 | **Our marketing site** | Built **last**, once the product exists, so Hallmark can capture **real product screenshots** (it runs the app with `capture.mjs`) instead of placeholders. Genre: modern-minimal (SaaS). | ◐ partial: home, pricing, switch-from and help pages are done; prices are in euros only and product pictures are still built samples |
 
 ### 17.3 Prompts to use (starting points)
 
@@ -922,7 +922,7 @@ Plus our own:
 
 ### 17.6 Key screens list (for design and build)
 
-Frontend status as of 8 November 2026 (✅ done, ◐ partial). All run on sample data; see the frontend column in section 6.
+Frontend status as of 9 November 2026 (✅ done, ◐ partial). All run on sample data; see the frontend column in section 6.
 
 **Business app**
 1. Sign up / onboarding wizard (shop type → services template → hours → staff → booking page live) — ✅ `/setup`
@@ -940,7 +940,7 @@ Frontend status as of 8 November 2026 (✅ done, ◐ partial). All run on sample
 13. Barber mode (phone): my day, next client card with haircut notes, my earnings — ✅ `/me`
 
 **Public / client**
-14. Shop website (per preset) — ◐ `/s/example-barbers`, 2 presets
+14. Shop website (per preset) — ◐ `/s/example-barbers`, 3 presets; no gallery or photos
 15. Booking flow (5 steps, one per screen on mobile) — ✅ 4 steps
 16. Booking confirmation + add to calendar — ✅ with a real .ics calendar file
 17. Manage booking (from link) — ✅
@@ -1087,12 +1087,12 @@ Assuming one developer working with Claude Code full time. Adjust if part time.
 - `CLAUDE.md` with project rules (section 17.4)
 
 ### Phase 1 — MVP (8 to 10 weeks) → first design-partner shops
-- Services, staff, schedules, time off, opening hours, holidays — frontend ◐ (no holiday editor)
+- Services, staff, schedules, time off, opening hours, holidays — frontend ✅ (Settings › Holidays)
 - **Booking engine** with exclusion constraint, full tests
 - Calendar (staff columns, drag and drop) — frontend ✅
 - Online booking flow + manage-booking links — frontend ✅
-- Shop website (2 to 3 presets), subdomain, Google Maps, gallery — frontend ◐ (2 presets, Maps link; no gallery)
-- Client accounts (OTP login), client profiles, notes, import from CSV — frontend ◐ (no import flow)
+- Shop website (2 to 3 presets), subdomain, Google Maps, gallery — frontend ◐ (3 presets, Maps link; no gallery)
+- Client accounts (OTP login), client profiles, notes, import from CSV — frontend ✅ (`/app/clients/import`; no code is sent at login yet)
 - Reminders: WhatsApp + email (+ SMS fallback)
 - Checkout recording (cash/card/other), tips, discounts, daily cash-up — frontend ✅
 - Offers and promo codes on site and client account — frontend ✅
@@ -1107,7 +1107,7 @@ Assuming one developer working with Claude Code full time. Adjust if part time.
 - Online payments: Stripe Connect (EU), Paymob (EG), Konnect/Flouci (TN); deposits, card on file, no-show fees, refunds
 - Reliability score and automatic deposit rules
 - Waitlist, recurring bookings, group bookings, processing time, resources
-- Loyalty, gift cards, packages, review requests (+ Google review push) — frontend ◐ (loyalty done; gift card balance only; review toggle)
+- Loyalty, gift cards, packages, review requests (+ Google review push) — frontend ◐ (loyalty and gift cards done; packages do not track visits left; reviews are a toggle only)
 - Commissions, booth rent, payroll summary, custom roles — frontend ✅
 - Expenses, P&L, accountant export — frontend ✅
 - Retail products and stock

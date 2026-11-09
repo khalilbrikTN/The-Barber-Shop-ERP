@@ -11,7 +11,7 @@ const ME = "c1";
 const GOAL = 10;
 
 export function Account() {
-  const { t, s, locale, lang } = useLang();
+  const { t, tp, s, locale, lang } = useLang();
   const f = useFormat(locale);
   const sep = lang === "ar" ? "، " : ", ";
   const { bookings, sales, updateClient } = useStore();
@@ -69,7 +69,7 @@ export function Account() {
               </span>
             ))}
           </div>
-          <p>{t("acc.toFree", { n: f.num(GOAL - me.punches) })}</p>
+          <p>{tp("acc.toFree", GOAL - me.punches)}</p>
         </section>
 
         <section aria-labelledby="off-title">

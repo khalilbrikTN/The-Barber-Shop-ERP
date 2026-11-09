@@ -7,7 +7,7 @@ import { waitFor } from "../app/screens/Queue";
 import { ShopFrame } from "./ShopFrame";
 
 export function JoinQueue() {
-  const { t, s, locale, lang } = useLang();
+  const { t, tp, s, locale, lang } = useLang();
   const sep = lang === "ar" ? "، " : ", ";
   const f = useFormat(locale);
   const { queue, bookings, addToQueue, removeFromQueue } = useStore();
@@ -40,7 +40,7 @@ export function JoinQueue() {
             <div className="shop-sign shop-sign--wide" role="status">
               <p className="shop-sign__label">{t("queue.place")}</p>
               <p className="shop-sign__figure num">{f.num(myIndex + 1)}</p>
-              <p>{t("queue.about", { n: f.num(waitFor(myIndex, queue, bookings)), service: s(serviceById(queue[myIndex].serviceId).name) })}</p>
+              <p>{t("queue.about", { minutes: tp("min.count", waitFor(myIndex, queue, bookings)), service: s(serviceById(queue[myIndex].serviceId).name) })}</p>
             </div>
             <p>{t("queue.leaveWhen")}</p>
             <button
@@ -57,7 +57,7 @@ export function JoinQueue() {
         ) : (
           <form onSubmit={join} noValidate>
             <h1>{t("queue.title")}</h1>
-            <p>{t("queue.now", { n: f.num(queue.length), m: f.num(waitFor(queue.length, queue, bookings)) })}</p>
+            <p>{t("queue.now", { n: f.num(queue.length), minutes: tp("min.count", waitFor(queue.length, queue, bookings)) })}</p>
             <div className="ui-field">
               <label htmlFor="jq-name">{t("queue.first")}</label>
               <input id="jq-name" className="ui-input" autoComplete="given-name" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!!error || undefined} aria-describedby={error ? "jq-err" : undefined} />

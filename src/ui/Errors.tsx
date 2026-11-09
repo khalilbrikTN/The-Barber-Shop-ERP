@@ -1,17 +1,19 @@
 import { isRouteErrorResponse, Link, useRouteError } from "react-router-dom";
+import { useLang } from "../lib/i18n";
 
 export function NotFound({ inApp = false }: { inApp?: boolean }) {
+  const { t, lang, dir } = useLang();
   return (
-    <main className="app-root errorpage" id="main">
+    <main className="app-root errorpage" id="main" lang={lang} dir={dir}>
       <p className="errorpage__code num">404</p>
-      <h1>There is no page here</h1>
-      <p>The link may be old, or a letter may be missing from it.</p>
+      <h1>{t("err.404")}</h1>
+      <p>{t("err.404Body")}</p>
       <div className="rebook">
         <Link className="ui-btn ui-btn--primary" to={inApp ? "/app" : "/"}>
-          {inApp ? "Back to Today" : "Go to the home page"}
+          {inApp ? t("err.backToday") : t("err.home")}
         </Link>
         <Link className="ui-btn ui-btn--quiet" to="/s/example-barbers">
-          Open the shop’s page
+          {t("err.shop")}
         </Link>
       </div>
     </main>
@@ -20,19 +22,20 @@ export function NotFound({ inApp = false }: { inApp?: boolean }) {
 
 export function RouteError() {
   const err = useRouteError();
+  const { t, lang, dir } = useLang();
   if (isRouteErrorResponse(err) && err.status === 404) return <NotFound />;
   const offline = typeof navigator !== "undefined" && !navigator.onLine;
   return (
-    <main className="app-root errorpage" id="main" role="alert">
-      <p className="errorpage__code num">{offline ? "Offline" : "Error"}</p>
-      <h1>{offline ? "This screen needs a connection" : "This screen stopped working"}</h1>
-      <p>{offline ? "Screens you have opened before still work. Reconnect to load this one." : "Nothing you saved is lost. Reload the page; if it happens again, tell us what you clicked."}</p>
+    <main className="app-root errorpage" id="main" role="alert" lang={lang} dir={dir}>
+      <p className="errorpage__code num">{offline ? t("err.offline") : t("err.error")}</p>
+      <h1>{offline ? t("err.needsNet") : t("err.stopped")}</h1>
+      <p>{offline ? t("err.offlineBody") : t("err.stoppedBody")}</p>
       <div className="rebook">
         <button type="button" className="ui-btn ui-btn--primary" onClick={() => window.location.reload()}>
-          Reload
+          {t("err.reload")}
         </button>
         <Link className="ui-btn ui-btn--quiet" to="/app">
-          Back to Today
+          {t("err.backToday")}
         </Link>
       </div>
     </main>

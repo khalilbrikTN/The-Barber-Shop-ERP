@@ -3,19 +3,21 @@ import { Link } from "react-router-dom";
 import { parseCsv } from "../../lib/csv";
 import { useStore } from "../../lib/store";
 import { Field, NotConnected, PageHead } from "../../ui/kit";
+import { TextKey, useT } from "../i18n";
 
 const FIELDS = [
-  { id: "name", label: "Name", guess: /name|nom|nome|client/i },
-  { id: "phone", label: "Phone", guess: /phone|mobile|tel|cell|whatsapp/i },
-  { id: "email", label: "Email", guess: /mail/i },
-  { id: "notes", label: "Notes", guess: /note|comment/i },
-] as const;
+  { id: "name", label: "common.name", guess: /name|nom|nome|client/i },
+  { id: "phone", label: "common.phone", guess: /phone|mobile|tel|cell|whatsapp/i },
+  { id: "email", label: "common.email", guess: /mail/i },
+  { id: "notes", label: "imp.notes", guess: /note|comment/i },
+] as const satisfies readonly { id: string; label: TextKey; guess: RegExp }[];
 type FieldId = (typeof FIELDS)[number]["id"];
 
 const SAMPLE = 'Name,Mobile,Email,Notes\n"Karim Fathy",+20 100 000 0201,karim.f@example.com,"Short back and sides"\nYoussef,+20 100 000 0104,,"Already a client: matched by phone"\n"Mona S.",+20 100 000 0203,mona@example.com,\n';
 
 export function ClientImport() {
   const { clients, importClients } = useStore();
+  const { t, tp } = useT();
   const [rows, setRows] = useState<string[][]>([]);
   const [fileName, setFileName] = useState("");
   const [map, setMap] = useState<Record<FieldId, number>>({ name: -1, phone: -1, email: -1, notes: -1 });
@@ -25,7 +27,7 @@ export function ClientImport() {
   function load(text: string, name: string) {
     const parsed = parseCsv(text);
     if (parsed.length < 2) {
-      setError("That file has no rows under its header. Export again with your clients included.");
+      setError(t("imp.errEmpty"));
       setRows([]);
       return;
     }
@@ -43,7 +45,7 @@ export function ClientImport() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!/\.(csv|txt)$/i.test(file.name)) {
-      setError("Choose a .csv file. In Excel or Google Sheets, use Save as or Download as CSV.");
+      setError(t("imp.errType"));
       return;
     }
     file.text().then((t) => load(t, file.name));
@@ -55,22 +57,22 @@ export function ClientImport() {
     return rows.slice(1).map((r) => {
       const get = (id: FieldId) => (map[id] >= 0 ? r[map[id]] ?? "" : "");
       const phone = get("phone");
-      const issue = !get("name") ? "No name" : digits(phone).length < 8 ? "No phone" : clients.some((c) => digits(c.phone) === digits(phone)) ? "Already a client" : "";
+      const issue = !get("name") ? "noName" : digits(phone).length < 8 ? "noPhone" : clients.some((c) => digits(c.phone) === digits(phone)) ? "matched" : "";
       return { name: get("name"), phone, email: get("email"), notes: get("notes"), issue };
     });
   }, [rows, map, clients]);
 
-  const ready = preview.filter((p) => !p.issue || p.issue === "Already a client");
+  const ready = preview.filter((p) => !p.issue || p.issue === "matched");
   const canImport = map.name >= 0 && map.phone >= 0 && ready.length > 0;
 
   return (
     <>
       <PageHead
-        title="Import clients"
-        sub="From a CSV export of another booking app, or a spreadsheet."
+        title={t("imp.title")}
+        sub={t("imp.sub")}
         actions={
           <Link className="ui-btn ui-btn--quiet" to="/app/clients">
-            Back to clients
+            {t("cp.back")}
           </Link>
         }
       />
@@ -78,13 +80,13 @@ export function ClientImport() {
       <div className="app-split">
         <section className="app-section" aria-labelledby="file-title">
           <h2 id="file-title" className="app-h2">
-            1. Choose the file
+            {t("imp.step1")}
           </h2>
           <div className="rebook">
-            <Field label="CSV file">{(id) => <input id={id} className="ui-file" type="file" accept=".csv,text/csv,.txt" onChange={onFile} />}</Field>
+            <Field label={t("imp.file")}>{(id) => <input id={id} className="ui-file" type="file" accept=".csv,text/csv,.txt" onChange={onFile} />}</Field>
           </div>
           <button type="button" className="ui-btn ui-btn--text" onClick={() => load(SAMPLE, "sample.csv")}>
-            Try a sample file
+            {t("imp.sample")}
           </button>
           {error && (
             <p className="ui-error" role="alert">
@@ -94,16 +96,16 @@ export function ClientImport() {
 
           {rows.length > 1 && (
             <>
-              <h2 className="app-h2 import__step">2. Match the columns in {fileName}</h2>
+              <h2 className="app-h2 import__step">{t("imp.step2", { file: fileName })}</h2>
               <div className="add-row">
                 {FIELDS.map((f) => (
-                  <Field key={f.id} label={f.label}>
+                  <Field key={f.id} label={t(f.label)}>
                     {(id) => (
                       <select id={id} className="ui-input" value={map[f.id]} onChange={(e) => setMap((m) => ({ ...m, [f.id]: Number(e.target.value) }))}>
-                        <option value={-1}>Not in the file</option>
+                        <option value={-1}>{t("imp.notInFile")}</option>
                         {rows[0].map((h, i) => (
                           <option key={i} value={i}>
-                            {h || `Column ${i + 1}`}
+                            {h || t("imp.column", { n: i + 1 })}
                           </option>
                         ))}
                       </select>
@@ -112,24 +114,24 @@ export function ClientImport() {
                 ))}
               </div>
 
-              <h2 className="app-h2 import__step">3. Check before importing</h2>
+              <h2 className="app-h2 import__step">{t("imp.step3")}</h2>
               <div className="ui-tablewrap">
                 <table className="ui-table">
                   <thead>
                     <tr>
-                      <th scope="col">Name</th>
-                      <th scope="col">Phone</th>
-                      <th scope="col">Email</th>
-                      <th scope="col">What happens</th>
+                      <th scope="col">{t("common.name")}</th>
+                      <th scope="col">{t("common.phone")}</th>
+                      <th scope="col">{t("common.email")}</th>
+                      <th scope="col">{t("imp.what")}</th>
                     </tr>
                   </thead>
                   <tbody>
                     {preview.slice(0, 50).map((p, i) => (
                       <tr key={i}>
-                        <th scope="row">{p.name || "Missing"}</th>
-                        <td className="num">{p.phone || "Missing"}</td>
-                        <td>{p.email || "None"}</td>
-                        <td data-warn={p.issue === "No name" || p.issue === "No phone" || undefined}>{p.issue === "Already a client" ? "Matched, not duplicated" : p.issue ? `Skipped: ${p.issue.toLowerCase()}` : "Added"}</td>
+                        <th scope="row">{p.name || t("imp.missing")}</th>
+                        <td className="num">{p.phone || t("imp.missing")}</td>
+                        <td>{p.email || t("common.none")}</td>
+                        <td data-warn={p.issue === "noName" || p.issue === "noPhone" || undefined}>{p.issue === "matched" ? t("imp.matched") : p.issue === "noName" ? t("imp.skippedName") : p.issue === "noPhone" ? t("imp.skippedPhone") : t("imp.added")}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -141,42 +143,42 @@ export function ClientImport() {
 
         <section className="app-section app-panel" aria-labelledby="sum-title">
           <h2 id="sum-title" className="app-h2">
-            Summary
+            {t("imp.summary")}
           </h2>
           {rows.length < 2 ? (
-            <p className="app-quiet">Most booking apps export clients from their settings or client list. Name and phone are enough; email and notes come along if they are there.</p>
+            <p className="app-quiet">{t("imp.howTo")}</p>
           ) : (
             <>
               <dl className="ui-dl">
                 <div>
-                  <dt>Rows in the file</dt>
+                  <dt>{t("imp.rows")}</dt>
                   <dd className="num">{preview.length}</dd>
                 </div>
                 <div>
-                  <dt>New clients</dt>
+                  <dt>{t("imp.new")}</dt>
                   <dd className="num">{preview.filter((p) => !p.issue).length}</dd>
                 </div>
                 <div>
-                  <dt>Already clients</dt>
-                  <dd className="num">{preview.filter((p) => p.issue === "Already a client").length}</dd>
+                  <dt>{t("imp.already")}</dt>
+                  <dd className="num">{preview.filter((p) => p.issue === "matched").length}</dd>
                 </div>
                 <div>
-                  <dt>Skipped</dt>
-                  <dd className="num">{preview.filter((p) => p.issue === "No name" || p.issue === "No phone").length}</dd>
+                  <dt>{t("imp.skipped")}</dt>
+                  <dd className="num">{preview.filter((p) => p.issue === "noName" || p.issue === "noPhone").length}</dd>
                 </div>
               </dl>
               <button type="button" className="ui-btn ui-btn--primary ui-btn--block import__go" disabled={!canImport || !!result} onClick={() => setResult(importClients(ready))}>
-                Import {preview.filter((p) => !p.issue).length} clients
+                {tp("imp.go", preview.filter((p) => !p.issue).length)}
               </button>
-              {!canImport && <p className="ui-error">Match at least the name and phone columns.</p>}
+              {!canImport && <p className="ui-error">{t("imp.needCols")}</p>}
               {result && (
                 <>
                   <p className="ui-live" role="status">
-                    {result.added} added, {result.matched} matched to existing clients.
+                    {t("imp.result", { added: result.added, matched: result.matched })}
                   </p>
-                  <NotConnected what="the import" />
+                  <NotConnected what={t("imp.thing")} />
                   <Link className="app-more" to="/app/clients?segment=New">
-                    See the new clients
+                    {t("imp.seeNew")}
                   </Link>
                 </>
               )}

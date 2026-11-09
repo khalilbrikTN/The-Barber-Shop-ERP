@@ -1,25 +1,27 @@
 import { useState } from "react";
 import { BOOKABLE, BOOKINGS, CLIENTS, EXPENSES, SCHEDULE_HOURS, serviceById, SERVICES, TODAY, WEEK_SALES } from "../../lib/data";
-import { minorDigits, useFormat } from "../../lib/format";
+import { minorDigits, toMinor, useFormat } from "../../lib/format";
 import { useSettings } from "../../lib/settings";
 import { useStore } from "../../lib/store";
 import { Field, NotConnected, PageHead, Region, Stat, Tabs, useDataState, useTab } from "../../ui/kit";
+import { useT } from "../i18n";
 
 const FLOAT = 50000;
 
 export function Money() {
   const tab = useTab("tab", "cashup");
+  const { t } = useT();
   return (
     <>
-      <PageHead title="Money" sub="Cash-up, sales, expenses and the month at a glance." />
+      <PageHead title={t("nav.money")} sub={t("money.sub")} />
       <Tabs
         tabs={[
-          { id: "cashup", label: "Cash-up" },
-          { id: "sales", label: "Sales" },
-          { id: "expenses", label: "Expenses" },
-          { id: "products", label: "Products" },
-          { id: "reports", label: "Reports" },
-          { id: "report", label: "Profit and loss" },
+          { id: "cashup", label: t("money.tabCashup") },
+          { id: "sales", label: t("money.tabSales") },
+          { id: "expenses", label: t("money.tabExpenses") },
+          { id: "products", label: t("money.tabProducts") },
+          { id: "reports", label: t("money.tabReports") },
+          { id: "report", label: t("money.tabPL") },
         ]}
       />
       <div className="app-tabpanel" role="tabpanel">
@@ -36,6 +38,7 @@ export function Money() {
 
 function CashUp() {
   const f = useFormat();
+  const { t } = useT();
   const { settings } = useSettings();
   const { sales } = useStore();
   const [counted, setCounted] = useState("");
@@ -51,22 +54,22 @@ function CashUp() {
     <div className="app-split">
       <section className="app-section" aria-labelledby="cu-title">
         <h2 id="cu-title" className="app-h2">
-          Today, {f.day(`${TODAY}T12:00:00+02:00`)}
+          {t("money.today", { day: f.day(`${TODAY}T12:00:00+02:00`) })}
         </h2>
         <div className="ui-stats ui-stats--row">
-          <Stat label="Cash" value={f.money(sum("cash"))} />
-          <Stat label="Card" value={f.money(sum("card"))} />
-          <Stat label="Wallet" value={f.money(sum("wallet"))} />
-          <Stat label="Opening float" value={f.money(FLOAT)} />
+          <Stat label={t("method.cash")} value={f.money(sum("cash"))} />
+          <Stat label={t("method.card")} value={f.money(sum("card"))} />
+          <Stat label={t("method.wallet")} value={f.money(sum("wallet"))} />
+          <Stat label={t("money.float")} value={f.money(FLOAT)} />
         </div>
         <div className="plate">
-          <span>The drawer should hold</span>
+          <span>{t("money.drawerHolds")}</span>
           <strong className="num">{f.money(expected)}</strong>
         </div>
       </section>
       <section className="app-section app-panel" aria-labelledby="count-title">
         <h2 id="count-title" className="app-h2">
-          Count the drawer
+          {t("money.count")}
         </h2>
         <form
           className="ui-form"
@@ -75,18 +78,18 @@ function CashUp() {
             if (countedMinor !== null) setClosed(true);
           }}
         >
-          <Field label="Cash counted" hint="Notes and coins, float included.">
+          <Field label={t("money.counted")} hint={t("money.countedHint")}>
             {(id, hint) => <input id={id} aria-describedby={hint} className="ui-input num" inputMode="decimal" value={counted} onChange={(e) => setCounted(e.target.value)} />}
           </Field>
           {diff !== null && (
             <p className={diff === 0 ? "ui-live" : "ui-error"} aria-live="polite">
-              {diff === 0 ? "The drawer matches." : diff > 0 ? `${f.money(diff)} over.` : `${f.money(-diff)} short.`}
+              {diff === 0 ? t("money.matches") : diff > 0 ? t("money.over", { amount: f.money(diff) }) : t("money.short", { amount: f.money(-diff) })}
             </p>
           )}
           <button type="submit" className="ui-btn ui-btn--primary" disabled={countedMinor === null}>
-            Close the day
+            {t("money.close")}
           </button>
-          {closed && <NotConnected what="the cash-up" />}
+          {closed && <NotConnected what={t("money.cashupThing")} />}
         </form>
       </section>
     </div>
@@ -95,6 +98,7 @@ function CashUp() {
 
 function Receipts() {
   const f = useFormat();
+  const { t } = useT();
   const { sales, refundSale } = useStore();
   const [asking, setAsking] = useState<string | null>(null);
   const [reason, setReason] = useState("Client not happy");
@@ -103,39 +107,37 @@ function Receipts() {
   return (
     <section className="app-section" aria-labelledby="rc-title">
       <h2 id="rc-title" className="app-h2">
-        Latest sales
+        {t("money.latest")}
       </h2>
       {recent.length === 0 ? (
         <div className="ui-note">
-          <p className="ui-note__title">No sales yet</p>
-          <p>Sales show here as you check clients out.</p>
+          <p className="ui-note__title">{t("money.noSales")}</p>
+          <p>{t("money.noSalesBody")}</p>
         </div>
       ) : (
         <div className="ui-tablewrap">
           <table className="ui-table ui-table--stack receipts">
             <thead>
               <tr>
-                <th scope="col">When</th>
-                <th scope="col">What</th>
-                <th scope="col">Paid by</th>
-                <th scope="col" className="r">Amount</th>
+                <th scope="col">{t("common.when")}</th>
+                <th scope="col">{t("money.what")}</th>
+                <th scope="col">{t("money.paidBy")}</th>
+                <th scope="col" className="r">{t("money.amount")}</th>
                 <th scope="col">
-                  <span className="visually-hidden">Refund</span>
+                  <span className="visually-hidden">{t("money.refund")}</span>
                 </th>
               </tr>
             </thead>
             <tbody>
               {recent.map((x) => (
                 <tr key={x.id}>
-                  <td>
-                    {f.day(x.time, "short")}, {f.time(x.time)}
-                  </td>
+                  <td>{t("cp.dateTime", { date: f.day(x.time, "short"), time: f.time(x.time) })}</td>
                   <th scope="row">{x.lines.map((l) => l.label).join(", ")}</th>
-                  <td>{x.method}</td>
+                  <td>{t(`method.${x.method}` as const)}</td>
                   <td className="r num">{x.refunded ? <s>{f.money(sum(x))}</s> : f.money(sum(x))}</td>
                   <td className="r">
                     {x.refunded ? (
-                      <span className="ui-status ui-status--cancelled">Refunded</span>
+                      <span className="ui-status ui-status--cancelled">{t("money.refunded")}</span>
                     ) : asking === x.id ? (
                       <form
                         className="refund"
@@ -146,24 +148,25 @@ function Receipts() {
                         }}
                       >
                         <label className="visually-hidden" htmlFor={`why-${x.id}`}>
-                          Reason for the refund
+                          {t("money.refundWhy")}
                         </label>
                         <select id={`why-${x.id}`} className="ui-input" value={reason} onChange={(e) => setReason(e.target.value)}>
-                          <option>Client not happy</option>
-                          <option>Charged twice</option>
-                          <option>Wrong service rung up</option>
-                          <option>Other</option>
+                          {(["Client not happy", "Charged twice", "Wrong service rung up", "Other"] as const).map((r) => (
+                            <option key={r} value={r}>
+                              {t(`refund.${r}`)}
+                            </option>
+                          ))}
                         </select>
                         <button type="submit" className="ui-btn ui-btn--primary">
-                          Refund {f.money(sum(x))}
+                          {t("money.refundAmount", { amount: f.money(sum(x)) })}
                         </button>
                         <button type="button" className="ui-btn ui-btn--text" onClick={() => setAsking(null)}>
-                          Keep it
+                          {t("money.keepIt")}
                         </button>
                       </form>
                     ) : (
                       <button type="button" className="ui-btn ui-btn--text" onClick={() => setAsking(x.id)}>
-                        Refund
+                        {t("money.refund")}
                       </button>
                     )}
                   </td>
@@ -173,13 +176,14 @@ function Receipts() {
           </table>
         </div>
       )}
-      <p className="app-quiet">Card refunds go back through your payment provider once it is connected; cash refunds come out of the drawer and show in the cash-up.</p>
+      <p className="app-quiet">{t("money.refundNote")}</p>
     </section>
   );
 }
 
 function Sales() {
   const f = useFormat();
+  const { t } = useT();
   const state = useDataState();
   const total = WEEK_SALES.reduce((t, d) => t + d.cash + d.card + d.wallet, 0);
   return (
@@ -187,26 +191,26 @@ function Sales() {
     <Receipts />
     <section className="app-section" aria-labelledby="sales-title">
       <h2 id="sales-title" className="app-h2">
-        This week
+        {t("money.week")}
       </h2>
-      <Region state={state} label="Sales" rows={6} empty={{ title: "No sales this week", body: "Sales appear as you check clients out." }}>
+      <Region state={state} label={t("money.tabSales")} rows={6} empty={{ title: t("money.noWeek"), body: t("money.noWeekBody") }}>
         <div className="ui-tablewrap">
           <table className="ui-table">
             <thead>
               <tr>
-                <th scope="col">Day</th>
-                <th scope="col" className="r">Bookings</th>
-                <th scope="col" className="r">Cash</th>
-                <th scope="col" className="r opt">Card</th>
-                <th scope="col" className="r opt">Wallet</th>
-                <th scope="col" className="r">Total</th>
+                <th scope="col">{t("money.day")}</th>
+                <th scope="col" className="r">{t("money.bookings")}</th>
+                <th scope="col" className="r">{t("method.cash")}</th>
+                <th scope="col" className="r opt">{t("method.card")}</th>
+                <th scope="col" className="r opt">{t("method.wallet")}</th>
+                <th scope="col" className="r">{t("common.total")}</th>
               </tr>
             </thead>
             <tbody>
               {WEEK_SALES.map((d) => (
                 <tr key={d.day}>
                   <th scope="row">{f.day(`${d.day}T12:00:00+02:00`, "short")}</th>
-                  <td className="r num">{d.bookings || "Closed"}</td>
+                  <td className="r num">{d.bookings || t("money.closed")}</td>
                   <td className="r num">{f.money(d.cash, { whole: true })}</td>
                   <td className="r num opt">{f.money(d.card, { whole: true })}</td>
                   <td className="r num opt">{f.money(d.wallet, { whole: true })}</td>
@@ -218,7 +222,7 @@ function Sales() {
             </tbody>
             <tfoot>
               <tr>
-                <th scope="row">Week</th>
+                <th scope="row">{t("money.weekTotal")}</th>
                 <td className="r num">{WEEK_SALES.reduce((t, d) => t + d.bookings, 0)}</td>
                 <td />
                 <td className="opt" />
@@ -238,23 +242,24 @@ function Sales() {
 
 function Expenses() {
   const f = useFormat();
+  const { t, label } = useT();
   const state = useDataState();
   const [added, setAdded] = useState(false);
   return (
     <div className="app-split">
       <section className="app-section" aria-labelledby="exp-title">
         <h2 id="exp-title" className="app-h2">
-          December
+          {f.month(`${TODAY}T12:00:00+02:00`)}
         </h2>
-        <Region state={state} label="Expenses" rows={4} empty={{ title: "No expenses this month", body: "Add rent, products and bills to see your real profit." }}>
+        <Region state={state} label={t("money.expensesLabel")} rows={4} empty={{ title: t("money.noExpenses"), body: t("money.noExpensesBody") }}>
           <div className="ui-tablewrap">
             <table className="ui-table">
               <thead>
                 <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">What</th>
-                  <th scope="col">Type</th>
-                  <th scope="col" className="r">Amount</th>
+                  <th scope="col">{t("common.date")}</th>
+                  <th scope="col">{t("money.what")}</th>
+                  <th scope="col">{t("money.type")}</th>
+                  <th scope="col" className="r">{t("money.amount")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -262,7 +267,7 @@ function Expenses() {
                   <tr key={e.id}>
                     <td>{f.date(`${e.date}T12:00:00Z`)}</td>
                     <th scope="row">{e.label}</th>
-                    <td>{e.category}</td>
+                    <td>{label("expense", e.category)}</td>
                     <td className="r num">{f.money(e.minor, { whole: true })}</td>
                   </tr>
                 ))}
@@ -273,7 +278,7 @@ function Expenses() {
       </section>
       <section className="app-section app-panel" aria-labelledby="addexp-title">
         <h2 id="addexp-title" className="app-h2">
-          Add an expense
+          {t("money.addExpense")}
         </h2>
         <form
           className="ui-form"
@@ -282,26 +287,26 @@ function Expenses() {
             setAdded(true);
           }}
         >
-          <Field label="What">{(id) => <input id={id} className="ui-input" required />}</Field>
-          <Field label="Amount">{(id) => <input id={id} className="ui-input num" inputMode="decimal" required />}</Field>
-          <Field label="Type">
+          <Field label={t("money.what")}>{(id) => <input id={id} className="ui-input" required />}</Field>
+          <Field label={t("money.amount")}>{(id) => <input id={id} className="ui-input num" inputMode="decimal" required />}</Field>
+          <Field label={t("money.type")}>
             {(id) => (
               <select id={id} className="ui-input">
-                <option>Products</option>
-                <option>Rent</option>
-                <option>Bills</option>
-                <option>Equipment</option>
-                <option>Other</option>
+                {(["Products", "Rent", "Bills", "Equipment", "Other"] as const).map((c) => (
+                  <option key={c} value={c}>
+                    {t(`expense.${c}`)}
+                  </option>
+                ))}
               </select>
             )}
           </Field>
-          <Field label="Receipt photo" hint="Optional. Your accountant will thank you.">
+          <Field label={t("money.receipt")} hint={t("money.receiptHint")}>
             {(id, hint) => <input id={id} aria-describedby={hint} className="ui-file" type="file" accept="image/*" />}
           </Field>
           <button type="submit" className="ui-btn ui-btn--quiet">
-            Add expense
+            {t("money.addExpenseBtn")}
           </button>
-          {added && <NotConnected what="expenses" />}
+          {added && <NotConnected what={t("money.expensesThing")} />}
         </form>
       </section>
     </div>
@@ -310,33 +315,34 @@ function Expenses() {
 
 function Report() {
   const f = useFormat();
+  const { t } = useT();
   const income = WEEK_SALES.reduce((t, d) => t + d.cash + d.card + d.wallet, 0);
   const costs = EXPENSES.reduce((t, e) => t + e.minor, 0);
   const commission = Math.round(income * 0.18);
   return (
     <section className="app-section" aria-labelledby="pl-title">
       <h2 id="pl-title" className="app-h2">
-        December so far
+        {t("money.soFar", { month: f.month(`${TODAY}T12:00:00+02:00`) })}
       </h2>
       <div className="ui-tablewrap app-narrow">
         <table className="ui-table">
           <tbody>
             <tr>
-              <th scope="row">Takings</th>
+              <th scope="row">{t("money.takings")}</th>
               <td className="r num">{f.money(income, { whole: true })}</td>
             </tr>
             <tr>
-              <th scope="row">Commission to barbers</th>
+              <th scope="row">{t("money.commission")}</th>
               <td className="r num">−{f.money(commission, { whole: true })}</td>
             </tr>
             <tr>
-              <th scope="row">Expenses</th>
+              <th scope="row">{t("money.expensesLabel")}</th>
               <td className="r num">−{f.money(costs, { whole: true })}</td>
             </tr>
           </tbody>
           <tfoot>
             <tr>
-              <th scope="row">Profit</th>
+              <th scope="row">{t("money.profit")}</th>
               <td className="r num">
                 <strong>{f.money(income - commission - costs, { whole: true })}</strong>
               </td>
@@ -346,7 +352,7 @@ function Report() {
       </div>
       <div className="rebook">
         <button type="button" className="ui-btn ui-btn--quiet">
-          Export as CSV
+          {t("money.export")}
         </button>
       </div>
     </section>
@@ -355,7 +361,9 @@ function Report() {
 
 function Products() {
   const f = useFormat();
+  const { t } = useT();
   const { products, adjustStock, addProduct } = useStore();
+  const { currency } = f;
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [cost, setCost] = useState("");
@@ -364,23 +372,23 @@ function Products() {
     <div className="app-split">
       <section className="app-section" aria-labelledby="pr-title">
         <h2 id="pr-title" className="app-h2">
-          On the shelf
+          {t("money.shelf")}
         </h2>
         {low.length > 0 && (
           <p className="ui-live" role="status">
-            Running low: {low.map((p) => p.name).join(", ")}.
+            {t("money.low", { names: low.map((p) => p.name).join(", ") })}
           </p>
         )}
         <div className="ui-tablewrap">
           <table className="ui-table">
             <thead>
               <tr>
-                <th scope="col">Product</th>
-                <th scope="col" className="r">Price</th>
-                <th scope="col" className="r">Margin</th>
-                <th scope="col" className="r">In stock</th>
+                <th scope="col">{t("money.product")}</th>
+                <th scope="col" className="r">{t("common.price")}</th>
+                <th scope="col" className="r">{t("money.margin")}</th>
+                <th scope="col" className="r">{t("money.inStock")}</th>
                 <th scope="col">
-                  <span className="visually-hidden">Adjust</span>
+                  <span className="visually-hidden">{t("money.adjust")}</span>
                 </th>
               </tr>
             </thead>
@@ -395,10 +403,10 @@ function Products() {
                   </td>
                   <td className="r">
                     <span className="row-actions">
-                      <button type="button" className="ui-btn ui-btn--quiet" onClick={() => adjustStock(p.id, -1)} aria-label={`One less ${p.name}`}>
+                      <button type="button" className="ui-btn ui-btn--quiet" onClick={() => adjustStock(p.id, -1)} aria-label={t("money.oneLess", { name: p.name })}>
                         −1
                       </button>
-                      <button type="button" className="ui-btn ui-btn--quiet" onClick={() => adjustStock(p.id, 6)} aria-label={`Six more ${p.name}`}>
+                      <button type="button" className="ui-btn ui-btn--quiet" onClick={() => adjustStock(p.id, 6)} aria-label={t("money.sixMore", { name: p.name })}>
                         +6
                       </button>
                     </span>
@@ -408,14 +416,14 @@ function Products() {
             </tbody>
           </table>
         </div>
-        <p className="app-quiet">Stock goes down by itself when a product is sold at checkout.</p>
+        <p className="app-quiet">{t("money.stockNote")}</p>
       </section>
       <form
         className="ui-form app-section app-panel"
         onSubmit={(e) => {
           e.preventDefault();
-          const pm = Math.round(parseFloat(price) * 100);
-          const cm = Math.round(parseFloat(cost) * 100);
+          const pm = toMinor(parseFloat(price.replace(",", ".")), currency);
+          const cm = toMinor(parseFloat(cost.replace(",", ".")), currency);
           if (!name.trim() || !pm) return;
           addProduct({ name: name.trim(), priceMinor: pm, costMinor: cm || 0, stock: 0, low: 3 });
           setName("");
@@ -423,14 +431,14 @@ function Products() {
           setCost("");
         }}
       >
-        <h2 className="app-h2">New product</h2>
-        <Field label="Name">{(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} />}</Field>
+        <h2 className="app-h2">{t("money.newProduct")}</h2>
+        <Field label={t("common.name")}>{(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} />}</Field>
         <div className="setup__row">
-          <Field label="Sells for">{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} />}</Field>
-          <Field label="Costs you">{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} />}</Field>
+          <Field label={t("money.sellsFor")}>{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} />}</Field>
+          <Field label={t("money.costs")}>{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} />}</Field>
         </div>
         <button type="submit" className="ui-btn ui-btn--quiet">
-          Add product
+          {t("money.addProduct")}
         </button>
       </form>
     </div>
@@ -439,6 +447,7 @@ function Products() {
 
 function Reports() {
   const f = useFormat();
+  const { t } = useT();
   const today = BOOKINGS.filter((b) => b.start.startsWith(TODAY) && b.status !== "cancelled");
   const open = SCHEDULE_HOURS.close - SCHEDULE_HOURS.open;
   const minutes = (staffId: string) => today.filter((b) => b.staffId === staffId).reduce((m, b) => m + (new Date(b.end).getTime() - new Date(b.start).getTime()) / 60000, 0);
@@ -449,29 +458,29 @@ function Reports() {
   return (
     <>
       <div className="ui-stats ui-stats--row">
-        <Stat label="Returning clients" value={f.pct(returning / CLIENTS.length)} sub={`${returning} of ${CLIENTS.length} have come back`} />
-        <Stat label="No-show rate" value={f.pct(noShows / visits)} sub={`${noShows} of ${visits} visits`} />
-        <Stat label="Bookings today" value={`${today.length}`} />
+        <Stat label={t("money.returning")} value={f.pct(returning / CLIENTS.length)} sub={t("money.returningSub", { a: f.num(returning), b: f.num(CLIENTS.length) })} />
+        <Stat label={t("money.noShowRate")} value={f.pct(noShows / visits)} sub={t("money.noShowSub", { a: f.num(noShows), b: f.num(visits) })} />
+        <Stat label={t("money.bookingsToday")} value={f.num(today.length)} />
       </div>
       <div className="app-split app-split--checkout">
         <section className="app-section" aria-labelledby="ut-title">
           <h2 id="ut-title" className="app-h2">
-            How full each chair is today
+            {t("money.chairs")}
           </h2>
           <div className="ui-tablewrap">
             <table className="ui-table">
               <thead>
                 <tr>
-                  <th scope="col">Barber</th>
-                  <th scope="col" className="r">Booked</th>
-                  <th scope="col" className="r">Of the day</th>
+                  <th scope="col">{t("common.barber")}</th>
+                  <th scope="col" className="r">{t("money.booked")}</th>
+                  <th scope="col" className="r">{t("money.ofDay")}</th>
                 </tr>
               </thead>
               <tbody>
                 {BOOKABLE.map((s) => (
                   <tr key={s.id}>
                     <th scope="row">{s.name}</th>
-                    <td className="r num">{Math.round(minutes(s.id))} min</td>
+                    <td className="r num">{t("common.minutes", { n: Math.round(minutes(s.id)) })}</td>
                     <td className="r num">{f.pct(minutes(s.id) / open)}</td>
                   </tr>
                 ))}
@@ -481,15 +490,15 @@ function Reports() {
         </section>
         <section className="app-section" aria-labelledby="sv-title">
           <h2 id="sv-title" className="app-h2">
-            Most booked today
+            {t("money.most")}
           </h2>
           <div className="ui-tablewrap">
             <table className="ui-table">
               <thead>
                 <tr>
-                  <th scope="col">Service</th>
-                  <th scope="col" className="r">Bookings</th>
-                  <th scope="col" className="r">Worth</th>
+                  <th scope="col">{t("common.service")}</th>
+                  <th scope="col" className="r">{t("money.bookings")}</th>
+                  <th scope="col" className="r">{t("money.worth")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -507,17 +516,17 @@ function Reports() {
       </div>
       <section className="app-section" aria-labelledby="perf-title">
         <h2 id="perf-title" className="app-h2">
-          Each barber today
+          {t("money.eachBarber")}
         </h2>
         <div className="ui-tablewrap">
           <table className="ui-table">
             <thead>
               <tr>
-                <th scope="col">Barber</th>
-                <th scope="col" className="r">Clients</th>
-                <th scope="col" className="r">Worth</th>
-                <th scope="col" className="r opt">Average ticket</th>
-                <th scope="col" className="r opt">Regulars who prefer them</th>
+                <th scope="col">{t("common.barber")}</th>
+                <th scope="col" className="r">{t("money.clients")}</th>
+                <th scope="col" className="r">{t("money.worth")}</th>
+                <th scope="col" className="r opt">{t("money.avg")}</th>
+                <th scope="col" className="r opt">{t("money.regulars")}</th>
               </tr>
             </thead>
             <tbody>
@@ -529,7 +538,7 @@ function Reports() {
                     <th scope="row">{s.name}</th>
                     <td className="r num">{mine.length}</td>
                     <td className="r num">{f.money(worth, { whole: true })}</td>
-                    <td className="r num opt">{mine.length ? f.money(Math.round(worth / mine.length), { whole: true }) : "None yet"}</td>
+                    <td className="r num opt">{mine.length ? f.money(Math.round(worth / mine.length), { whole: true }) : t("money.noneYet")}</td>
                     <td className="r num opt">{CLIENTS.filter((c) => c.favourite === s.id).length}</td>
                   </tr>
                 );
@@ -538,7 +547,7 @@ function Reports() {
           </table>
         </div>
       </section>
-      <p className="app-quiet">Figures come from the sample data in this preview.</p>
+      <p className="app-quiet">{t("money.sample")}</p>
     </>
   );
 }

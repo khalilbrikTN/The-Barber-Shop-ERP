@@ -2,31 +2,33 @@ import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { useSettings } from "../lib/settings";
 import { resetSampleData } from "../lib/store";
+import { TextKey, useT } from "./i18n";
 import { QuickFind } from "./QuickFind";
 
-const NAV = [
-  { to: "/app", label: "Today", end: true },
-  { to: "/app/calendar", label: "Calendar" },
-  { to: "/app/queue", label: "Queue" },
-  { to: "/app/clients", label: "Clients" },
-  { to: "/app/checkout", label: "Checkout" },
-  { to: "/app/money", label: "Money" },
-  { to: "/app/team", label: "Team" },
-  { to: "/app/marketing", label: "Marketing" },
-  { to: "/app/website", label: "Website" },
-  { to: "/app/settings", label: "Settings" },
+const NAV: { to: string; label: TextKey; end?: boolean }[] = [
+  { to: "/app", label: "nav.today", end: true },
+  { to: "/app/calendar", label: "nav.calendar" },
+  { to: "/app/queue", label: "nav.queue" },
+  { to: "/app/clients", label: "nav.clients" },
+  { to: "/app/checkout", label: "nav.checkout" },
+  { to: "/app/money", label: "nav.money" },
+  { to: "/app/team", label: "nav.team" },
+  { to: "/app/marketing", label: "nav.marketing" },
+  { to: "/app/website", label: "nav.website" },
+  { to: "/app/settings", label: "nav.settings" },
 ];
 
-const MODES = [
-  { to: "/me", label: "Barber mode" },
-  { to: "/kiosk", label: "Kiosk" },
-  { to: "/tv", label: "TV board" },
-  { to: "/s/example-barbers", label: "Shop website" },
-  { to: "/admin", label: "Platform admin" },
+const MODES: { to: string; label: TextKey }[] = [
+  { to: "/me", label: "nav.barberMode" },
+  { to: "/kiosk", label: "nav.kiosk" },
+  { to: "/tv", label: "nav.tv" },
+  { to: "/s/example-barbers", label: "nav.shopSite" },
+  { to: "/admin", label: "nav.admin" },
 ];
 
 export function AppShell() {
   const { settings } = useSettings();
+  const { t } = useT();
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
@@ -35,7 +37,7 @@ export function AppShell() {
   return (
     <div className="app-root app-shell">
       <a className="skip" href="#app-main">
-        Skip to content
+        {t("shell.skip")}
       </a>
       <aside className="app-side" data-open={open || undefined}>
         <div className="app-side__top">
@@ -43,40 +45,40 @@ export function AppShell() {
             {settings.shopName}
           </Link>
           <button type="button" className="ui-btn ui-btn--quiet app-side__menu" aria-expanded={open} aria-controls="app-nav" onClick={() => setOpen((o) => !o)}>
-            {open ? "Close" : "Menu"}
+            {open ? t("common.close") : t("shell.menu")}
           </button>
         </div>
-        <nav id="app-nav" className="app-side__nav" aria-label="App">
+        <nav id="app-nav" className="app-side__nav" aria-label={t("shell.nav")}>
           <QuickFind />
           <ul>
             {NAV.map((n) => (
               <li key={n.to}>
                 <NavLink to={n.to} end={n.end} className="app-side__link">
-                  {n.label}
+                  {t(n.label)}
                 </NavLink>
               </li>
             ))}
           </ul>
-          <p className="app-side__group">Other screens</p>
+          <p className="app-side__group">{t("nav.other")}</p>
           <ul>
             {MODES.map((n) => (
               <li key={n.to}>
                 <Link to={n.to} className="app-side__link app-side__link--quiet">
-                  {n.label}
+                  {t(n.label)}
                 </Link>
               </li>
             ))}
           </ul>
           <div className="app-side__foot">
-            <p>Sample data. Preview a screen’s data states:</p>
+            <p>{t("shell.sample")}</p>
             <p className="app-side__states">
-              <Link to="?">Full</Link>
-              <Link to="?state=loading">Loading</Link>
-              <Link to="?state=empty">Empty</Link>
-              <Link to="?state=error">Error</Link>
+              <Link to="?">{t("shell.full")}</Link>
+              <Link to="?state=loading">{t("shell.loading")}</Link>
+              <Link to="?state=empty">{t("shell.empty")}</Link>
+              <Link to="?state=error">{t("shell.error")}</Link>
             </p>
             <button type="button" className="app-side__reset" onClick={resetSampleData}>
-              Reset sample data
+              {t("shell.reset")}
             </button>
           </div>
         </nav>

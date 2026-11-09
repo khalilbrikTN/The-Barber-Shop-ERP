@@ -1,16 +1,18 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { SERVICES, STAFF, TODAY } from "../../lib/data";
-import { useFormat } from "../../lib/format";
+import { minorDigits, useFormat } from "../../lib/format";
 import { useStore } from "../../lib/store";
 import { Field, NotConnected, PageHead, Stat } from "../../ui/kit";
+import { useT } from "../i18n";
 
 export function StaffProfile() {
   const { id } = useParams();
   const f = useFormat();
+  const { t } = useT();
   const { bookings } = useStore();
   const s = STAFF.find((x) => x.id === id);
-  const [bio, setBio] = useState(s ? `${s.name} has cut at the shop since it opened.` : "");
+  const [bio, setBio] = useState(s ? t("sp.bio", { name: s.name }) : "");
   const [does, setDoes] = useState<string[]>(s?.services ?? []);
   const [overrides, setOverrides] = useState<Record<string, { price?: string; minutes?: string }>>({});
   const [copied, setCopied] = useState(false);
@@ -19,9 +21,9 @@ export function StaffProfile() {
   if (!s)
     return (
       <div className="ui-note">
-        <p className="ui-note__title">No one on the team has that link</p>
+        <p className="ui-note__title">{t("sp.missing")}</p>
         <Link className="ui-btn ui-btn--quiet" to="/app/team">
-          Back to Team
+          {t("sp.back")}
         </Link>
       </div>
     );
@@ -34,18 +36,18 @@ export function StaffProfile() {
     <>
       <PageHead
         title={s.name}
-        sub={`${s.role}. ${s.hours}.`}
+        sub={t("sp.sub", { role: t(`role.${s.role}`), hours: s.hours })}
         actions={
           <Link className="ui-btn ui-btn--quiet" to="/app/team">
-            All of the team
+            {t("sp.all")}
           </Link>
         }
       />
 
       <div className="ui-stats ui-stats--row">
-        <Stat label="Booked today" value={`${today.length}`} />
-        <Stat label="Chair time booked" value={`${Math.floor(bookedMin / 60)} h ${Math.round(bookedMin % 60)} min`} />
-        <Stat label="Pay" value={s.pay === "commission" ? f.pct(s.commission ?? 0) : s.pay === "booth rent" ? "Chair rent" : s.pay === "salary" ? "Salary" : "Owner"} />
+        <Stat label={t("sp.bookedToday")} value={f.num(today.length)} />
+        <Stat label={t("sp.chairTime")} value={t("sp.hm", { h: Math.floor(bookedMin / 60), m: Math.round(bookedMin % 60) })} />
+        <Stat label={t("sp.pay")} value={s.pay === "commission" ? f.pct(s.commission ?? 0) : s.pay === "booth rent" ? t("sp.chairRent") : s.pay === "salary" ? t("sp.salary") : t("role.Owner")} />
       </div>
 
       <div className="app-split">
@@ -56,17 +58,17 @@ export function StaffProfile() {
             setSaved(true);
           }}
         >
-          <h2 className="app-h2">What {s.name} does, and at what price</h2>
-          <p className="app-quiet">Leave a price or time empty to use the shop’s. A senior barber can charge more for the same cut.</p>
+          <h2 className="app-h2">{t("sp.does", { name: s.name })}</h2>
+          <p className="app-quiet">{t("sp.doesHint")}</p>
           <div className="ui-tablewrap">
             <table className="ui-table ui-table--form">
               <thead>
                 <tr>
-                  <th scope="col">Does it</th>
-                  <th scope="col">Service</th>
-                  <th scope="col" className="r">Shop price</th>
-                  <th scope="col" className="r">{s.name}'s price</th>
-                  <th scope="col" className="r">{s.name}'s minutes</th>
+                  <th scope="col">{t("sp.doesIt")}</th>
+                  <th scope="col">{t("common.service")}</th>
+                  <th scope="col" className="r">{t("sp.shopPrice")}</th>
+                  <th scope="col" className="r">{t("sp.theirPrice", { name: s.name })}</th>
+                  <th scope="col" className="r">{t("sp.theirMinutes", { name: s.name })}</th>
                 </tr>
               </thead>
               <tbody>
@@ -75,22 +77,22 @@ export function StaffProfile() {
                   return (
                     <tr key={sv.id}>
                       <td>
-                        <input type="checkbox" checked={on} onChange={(e) => setDoes((d) => (e.target.checked ? [...d, sv.id] : d.filter((x) => x !== sv.id)))} aria-label={`${s.name} does ${sv.name}`} />
+                        <input type="checkbox" checked={on} onChange={(e) => setDoes((d) => (e.target.checked ? [...d, sv.id] : d.filter((x) => x !== sv.id)))} aria-label={t("sp.doesLabel", { name: s.name, service: sv.name })} />
                       </td>
                       <th scope="row">{sv.name}</th>
-                      <td className="r num" data-label="Shop price">{f.money(sv.priceMinor, { whole: true })}</td>
-                      <td className="r" data-label={`${s.name}’s price`}>
+                      <td className="r num" data-label={t("sp.shopPrice")}>{f.money(sv.priceMinor, { whole: true })}</td>
+                      <td className="r" data-label={t("sp.theirPrice", { name: s.name })}>
                         <input
                           className="ui-input ui-input--short num"
                           inputMode="decimal"
                           disabled={!on}
-                          placeholder={String(sv.priceMinor / 100)}
+                          placeholder={String(sv.priceMinor / 10 ** minorDigits(f.currency))}
                           value={overrides[sv.id]?.price ?? ""}
                           onChange={(e) => setOverrides((o) => ({ ...o, [sv.id]: { ...o[sv.id], price: e.target.value } }))}
-                          aria-label={`${s.name}'s price for ${sv.name}`}
+                          aria-label={t("sp.priceFor", { name: s.name, service: sv.name })}
                         />
                       </td>
-                      <td className="r" data-label={`${s.name}’s minutes`}>
+                      <td className="r" data-label={t("sp.theirMinutes", { name: s.name })}>
                         <input
                           className="ui-input ui-input--short num"
                           type="number"
@@ -100,7 +102,7 @@ export function StaffProfile() {
                           placeholder={String(sv.minutes)}
                           value={overrides[sv.id]?.minutes ?? ""}
                           onChange={(e) => setOverrides((o) => ({ ...o, [sv.id]: { ...o[sv.id], minutes: e.target.value } }))}
-                          aria-label={`${s.name}'s minutes for ${sv.name}`}
+                          aria-label={t("sp.minutesFor", { name: s.name, service: sv.name })}
                         />
                       </td>
                     </tr>
@@ -111,20 +113,20 @@ export function StaffProfile() {
           </div>
           <div className="rebook">
             <button type="submit" className="ui-btn ui-btn--primary">
-              Save
+              {t("common.save")}
             </button>
           </div>
-          {saved && <NotConnected what="the team member" />}
+          {saved && <NotConnected what={t("sp.thing")} />}
         </form>
 
         <section className="app-section app-panel" aria-labelledby="pub-title">
           <h2 id="pub-title" className="app-h2">
-            On the website
+            {t("sp.site")}
           </h2>
-          <Field label="A line about them">{(fid) => <textarea id={fid} className="ui-input ui-textarea" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} />}</Field>
-          <p className="app-quiet">Their photo is added here once you upload one.</p>
+          <Field label={t("sp.line")}>{(fid) => <textarea id={fid} className="ui-input ui-textarea" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} />}</Field>
+          <p className="app-quiet">{t("sp.photo")}</p>
           <div className="ui-field">
-            <span className="ui-field__label">Personal booking link, for their Instagram bio</span>
+            <span className="ui-field__label">{t("sp.link")}</span>
             <p className="plate plate--link">
               <strong>chairside.app/b/{s.slug}</strong>
             </p>
@@ -140,10 +142,10 @@ export function StaffProfile() {
                 );
               }}
             >
-              {copied ? "Copied" : "Copy the link"}
+              {copied ? t("sp.copied") : t("sp.copy")}
             </button>
             <a className="ui-btn ui-btn--text" href={`/b/${s.slug}`}>
-              Open it
+              {t("sp.open")}
             </a>
           </div>
         </section>

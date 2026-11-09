@@ -384,7 +384,11 @@
 
 /* ---------- Kiosk ---------- */
 .kiosk { min-block-size: 100dvh; display: grid; grid-template-rows: auto 1fr; background: var(--color-paper); --control: 64px; --text-md: 1.25rem; }
-.kiosk__top { display: flex; justify-content: space-between; padding: var(--space-md) var(--space-xl); background: var(--color-ink); color: var(--color-paper); font-size: var(--text-lg); }
+.kiosk__top { display: flex; justify-content: space-between; align-items: center; gap: var(--space-md); flex-wrap: wrap; padding: var(--space-md) var(--space-xl); background: var(--color-ink); color: var(--color-paper); font-size: var(--text-lg); }
+/* the language switch sits on the ink header, so it inverts */
+.kiosk__top .ui-segbtn { border-color: var(--color-paper); color: var(--color-paper); }
+.kiosk__top .ui-segbtn:hover { background: transparent; text-decoration: underline; }
+.kiosk__top .ui-segbtn[aria-checked="true"] { background: var(--color-paper); color: var(--color-ink); }
 .kiosk__form, .kiosk__done { inline-size: 100%; max-inline-size: 48rem; margin-inline: auto; padding: var(--space-2xl) var(--space-lg); display: grid; gap: var(--space-xl); align-content: start; }
 .kiosk__form h1 { font-size: var(--text-display); max-width: none; }
 .kiosk__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: var(--space-sm); }

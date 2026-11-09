@@ -2,11 +2,13 @@ import { Link } from "react-router-dom";
 import { BOOKABLE, clientById, NOW, serviceById, TODAY } from "../../lib/data";
 import { useFormat } from "../../lib/format";
 import { useStore } from "../../lib/store";
-import { PageHead, Region, Stat, Status, useDataState } from "../../ui/kit";
+import { PageHead, Region, Rich, Stat, Status, useDataState } from "../../ui/kit";
+import { useT } from "../i18n";
 import { waitFor } from "./Queue";
 
 export function Today() {
   const f = useFormat();
+  const { t, tp } = useT();
   const state = useDataState();
   const { bookings, queue, sales } = useStore();
   const today = bookings.filter((b) => b.start.startsWith(TODAY) && b.status !== "blocked").sort((a, b) => a.start.localeCompare(b.start));
@@ -18,15 +20,15 @@ export function Today() {
   return (
     <>
       <PageHead
-        title="Today"
+        title={t("nav.today")}
         sub={`${f.day(NOW)}, ${f.time(NOW)}`}
         actions={
           <>
             <Link className="ui-btn ui-btn--quiet" to="/app/queue">
-              Add a walk-in
+              {t("today.addWalkIn")}
             </Link>
             <Link className="ui-btn ui-btn--primary" to="/app/calendar?new=1">
-              New booking
+              {t("today.newBooking")}
             </Link>
           </>
         }
@@ -34,11 +36,11 @@ export function Today() {
 
       <section aria-labelledby="chairs-title" className="app-section">
         <h2 id="chairs-title" className="app-h2">
-          Chairs now
+          {t("today.chairs")}
         </h2>
         <Region
           state={state}
-          label="Chairs"
+          label={t("today.chairsLabel")}
           skeleton={
             <div className="chairs">
               {BOOKABLE.map((s) => (
@@ -49,7 +51,7 @@ export function Today() {
               ))}
             </div>
           }
-          empty={{ title: "No one is working today", body: "Add working hours in Team to open the chairs.", action: <Link className="ui-btn ui-btn--quiet" to="/app/team">Open Team</Link> }}>
+          empty={{ title: t("today.noOne"), body: t("today.noOneBody"), action: <Link className="ui-btn ui-btn--quiet" to="/app/team">{t("today.openTeam")}</Link> }}>
           <div className="chairs">
             {BOOKABLE.map((s, i) => {
               const mine = today.filter((b) => b.staffId === s.id);
@@ -58,31 +60,25 @@ export function Today() {
               return (
                 <article key={s.id} className="chair">
                   <header className="chair__head">
-                    <span>Chair {i + 1}</span>
+                    <span>{t("today.chair", { n: i + 1 })}</span>
                     <strong>{s.name}</strong>
                   </header>
                   {current ? (
                     <div className="chair__now">
-                      <span className="chair__label">In the chair</span>
+                      <span className="chair__label">{t("today.inChair")}</span>
                       <span className="chair__client">{clientById(current.clientId)?.name}</span>
                       <span>
-                        {current.serviceIds.map((id) => serviceById(id).name).join(", ")}, done at {f.time(current.end)}
+                        {t("today.doneAt", { services: current.serviceIds.map((id) => serviceById(id).name).join(", "), time: f.time(current.end) })}
                       </span>
                     </div>
                   ) : (
                     <div className="chair__now chair__now--free">
-                      <span className="chair__label">Free now</span>
-                      <span className="chair__client">Open chair</span>
+                      <span className="chair__label">{t("today.freeNow")}</span>
+                      <span className="chair__client">{t("today.openChair")}</span>
                     </div>
                   )}
                   <p className="chair__next">
-                    {next ? (
-                      <>
-                        Next: <strong>{clientById(next.clientId)?.name}</strong> at {f.time(next.start)}
-                      </>
-                    ) : (
-                      "Nothing else booked today"
-                    )}
+                    {next ? <Rich text={t("today.next", { name: clientById(next.clientId)?.name ?? "", time: f.time(next.start) })} /> : t("today.nothingElse")}
                   </p>
                 </article>
               );
@@ -94,18 +90,18 @@ export function Today() {
       <div className="app-split">
         <section aria-labelledby="day-title" className="app-section">
           <h2 id="day-title" className="app-h2">
-            Bookings today
+            {t("today.bookings")}
           </h2>
-          <Region state={state} label="Bookings" rows={6} empty={{ title: "No bookings today", body: "Share your booking link so clients can book themselves.", action: <Link className="ui-btn ui-btn--quiet" to="/app/website">Get the link</Link> }}>
+          <Region state={state} label={t("today.bookingsLabel")} rows={6} empty={{ title: t("today.noBookings"), body: t("today.noBookingsBody"), action: <Link className="ui-btn ui-btn--quiet" to="/app/website">{t("today.getLink")}</Link> }}>
             <div className="ui-tablewrap">
               <table className="ui-table ui-table--stack">
                 <thead>
                   <tr>
-                    <th scope="col">Time</th>
-                    <th scope="col">Client</th>
-                    <th scope="col">Service</th>
-                    <th scope="col">With</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">{t("common.time")}</th>
+                    <th scope="col">{t("common.client")}</th>
+                    <th scope="col">{t("common.service")}</th>
+                    <th scope="col">{t("common.with")}</th>
+                    <th scope="col">{t("common.status")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -131,9 +127,9 @@ export function Today() {
         <div className="app-stack">
           <section aria-labelledby="queue-title" className="app-section">
             <h2 id="queue-title" className="app-h2">
-              Walk-in queue
+              {t("today.queue")}
             </h2>
-            <Region state={state} label="Queue" rows={3} empty={{ title: "No one waiting", body: "Walk-ins join from the QR code on your window or the kiosk." }}>
+            <Region state={state} label={t("today.queueLabel")} rows={3} empty={{ title: t("today.noWaiting"), body: t("today.noWaitingBody") }}>
               <ol className="mini-queue">
                 {queue.map((q, i) => (
                   <li key={q.id}>
@@ -141,28 +137,28 @@ export function Today() {
                     <span>
                       <strong>{q.name}</strong> {serviceById(q.serviceId).name}
                     </span>
-                    <span className="mini-queue__wait num">{waitFor(i, queue, bookings)} min</span>
+                    <span className="mini-queue__wait num">{t("common.minutes", { n: waitFor(i, queue, bookings) })}</span>
                   </li>
                 ))}
               </ol>
               <Link to="/app/queue" className="app-more">
-                Open the queue
+                {t("today.openQueue")}
               </Link>
             </Region>
           </section>
 
           <section aria-labelledby="money-title" className="app-section">
             <h2 id="money-title" className="app-h2">
-              Taken so far
+              {t("today.taken")}
             </h2>
-            <Region state={state} label="Takings" rows={2} empty={{ title: "Nothing taken yet", body: "Sales show here as you check clients out." }}>
+            <Region state={state} label={t("today.takenLabel")} rows={2} empty={{ title: t("today.nothingTaken"), body: t("today.nothingTakenBody") }}>
               <div className="ui-stats ui-stats--3">
-                <Stat label="Cash" value={f.money(byMethod("cash"), { whole: true })} />
-                <Stat label="Card" value={f.money(byMethod("card"), { whole: true })} />
-                <Stat label="Wallet" value={f.money(byMethod("wallet"), { whole: true })} />
+                <Stat label={t("method.cash")} value={f.money(byMethod("cash"), { whole: true })} />
+                <Stat label={t("method.card")} value={f.money(byMethod("card"), { whole: true })} />
+                <Stat label={t("method.wallet")} value={f.money(byMethod("wallet"), { whole: true })} />
               </div>
               <p className="app-quiet">
-                {done} of {today.length} bookings done.
+                {done === 0 ? tp("today.doneOf", 0) : tp("today.doneOf", today.length, { done })}
               </p>
             </Region>
           </section>

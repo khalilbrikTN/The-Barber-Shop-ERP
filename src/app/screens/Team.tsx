@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { STAFF } from "../../lib/data";
+import { STAFF, TODAY } from "../../lib/data";
 import { useFormat } from "../../lib/format";
 import { Link } from "react-router-dom";
 import { NotConnected, PageHead, Tabs, Toggle, useTab } from "../../ui/kit";
+import { TextKey, useT } from "../i18n";
 
-const DAYS = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
-const PERMS = ["See all calendars", "Take payments", "Give refunds", "See money reports", "Edit prices", "Export clients", "Change settings"];
+/** The shop's week, from its first day; the sample's TODAY is a Saturday. */
+const DAYS = Array.from({ length: 7 }, (_, i) => new Date(new Date(`${TODAY}T12:00:00Z`).getTime() + i * 86400000).toISOString());
+const PERMS: TextKey[] = ["perm.calendars", "perm.payments", "perm.refunds", "perm.reports", "perm.prices", "perm.export", "perm.settings"];
 const ROLES: Record<string, boolean[]> = {
   Owner: [true, true, true, true, true, true, true],
   Manager: [true, true, true, true, true, false, false],
@@ -15,16 +17,17 @@ const ROLES: Record<string, boolean[]> = {
 
 export function Team() {
   const tab = useTab("tab", "staff");
+  const { t } = useT();
   return (
     <>
-      <PageHead title="Team" sub="Who works when, and how they are paid." actions={<button type="button" className="ui-btn ui-btn--primary">Add a team member</button>} />
+      <PageHead title={t("nav.team")} sub={t("team.sub")} actions={<button type="button" className="ui-btn ui-btn--primary">{t("team.add")}</button>} />
       <Tabs
         tabs={[
-          { id: "staff", label: "Staff" },
-          { id: "hours", label: "Hours" },
-          { id: "pay", label: "Pay" },
-          { id: "timeoff", label: "Time off" },
-          { id: "roles", label: "Roles" },
+          { id: "staff", label: t("team.tabStaff") },
+          { id: "hours", label: t("team.tabHours") },
+          { id: "pay", label: t("team.tabPay") },
+          { id: "timeoff", label: t("team.tabTimeOff") },
+          { id: "roles", label: t("team.tabRoles") },
         ]}
       />
       <div className="app-tabpanel" role="tabpanel">
@@ -39,15 +42,16 @@ export function Team() {
 }
 
 function StaffList() {
+  const { t } = useT();
   return (
     <div className="ui-tablewrap">
       <table className="ui-table ui-table--stack">
         <thead>
           <tr>
-            <th scope="col">Name</th>
-            <th scope="col">Role</th>
-            <th scope="col">Hours</th>
-            <th scope="col">Booking link</th>
+            <th scope="col">{t("common.name")}</th>
+            <th scope="col">{t("team.role")}</th>
+            <th scope="col">{t("team.hours")}</th>
+            <th scope="col">{t("team.link")}</th>
           </tr>
         </thead>
         <tbody>
@@ -56,9 +60,9 @@ function StaffList() {
               <th scope="row">
                 <Link to={`/app/team/${s.id}`}>{s.name}</Link>
               </th>
-              <td>{s.role}</td>
+              <td>{t(`role.${s.role}`)}</td>
               <td>{s.hours}</td>
-              <td>{s.services.length ? <a href={`/b/${s.slug}`}>chairside.app/b/{s.slug}</a> : <span className="app-quiet">Not bookable</span>}</td>
+              <td>{s.services.length ? <a href={`/b/${s.slug}`}>chairside.app/b/{s.slug}</a> : <span className="app-quiet">{t("team.notBookable")}</span>}</td>
             </tr>
           ))}
         </tbody>
@@ -68,6 +72,8 @@ function StaffList() {
 }
 
 function Hours() {
+  const f = useFormat();
+  const { t } = useT();
   const [who, setWho] = useState(STAFF[0].id);
   const [season, setSeason] = useState("normal");
   const [saved, setSaved] = useState(false);
@@ -76,7 +82,7 @@ function Hours() {
     <section className="app-section" aria-labelledby="hours-title">
       <div className="cal-toolbar">
         <label className="cal-pick">
-          <span>Team member</span>
+          <span>{t("team.member")}</span>
           <select className="ui-input" value={who} onChange={(e) => setWho(e.target.value)}>
             {STAFF.map((s) => (
               <option key={s.id} value={s.id}>
@@ -85,11 +91,11 @@ function Hours() {
             ))}
           </select>
         </label>
-        <div className="ui-seg" role="radiogroup" aria-label="Schedule">
+        <div className="ui-seg" role="radiogroup" aria-label={t("team.schedule")}>
           {[
-            { id: "normal", label: "Normal hours" },
-            { id: "ramadan", label: "Ramadan hours" },
-            { id: "summer", label: "Summer hours" },
+            { id: "normal", label: t("team.normal") },
+            { id: "ramadan", label: t("team.ramadan") },
+            { id: "summer", label: t("team.summer") },
           ].map((s) => (
             <button key={s.id} type="button" role="radio" aria-checked={season === s.id} className="ui-segbtn" onClick={() => setSeason(s.id)}>
               {s.label}
@@ -98,7 +104,7 @@ function Hours() {
         </div>
       </div>
       <h2 id="hours-title" className="visually-hidden">
-        Weekly hours
+        {t("team.weekly")}
       </h2>
       <form
         onSubmit={(e) => {
@@ -110,26 +116,27 @@ function Hours() {
           <table className="ui-table hours">
             <thead>
               <tr>
-                <th scope="col">Day</th>
-                <th scope="col">Works</th>
-                <th scope="col">From</th>
-                <th scope="col">To</th>
-                <th scope="col">Second shift from</th>
-                <th scope="col">To</th>
+                <th scope="col">{t("money.day")}</th>
+                <th scope="col">{t("team.works")}</th>
+                <th scope="col">{t("team.from")}</th>
+                <th scope="col">{t("team.to")}</th>
+                <th scope="col">{t("team.second")}</th>
+                <th scope="col">{t("team.to")}</th>
               </tr>
             </thead>
             <tbody>
-              {DAYS.map((d) => {
-                const off = d === "Fri";
+              {DAYS.map((iso, n) => {
+                const off = n === 6; // the sample shop closes on Fridays
+                const d = f.weekday(iso);
                 return (
-                  <tr key={`${who}-${season}-${d}`}>
+                  <tr key={`${who}-${season}-${n}`}>
                     <th scope="row">{d}</th>
                     <td>
-                      <input type="checkbox" defaultChecked={!off} aria-label={`Works on ${d}`} />
+                      <input type="checkbox" defaultChecked={!off} aria-label={t("team.worksOn", { day: f.weekday(iso, "long") })} />
                     </td>
                     {base.map((v, i) => (
                       <td key={i}>
-                        <input type="time" className="ui-input ui-input--time" defaultValue={off ? "" : v} aria-label={`${d} ${i % 2 ? "to" : "from"}`} />
+                        <input type="time" className="ui-input ui-input--time" defaultValue={off ? "" : v} aria-label={t(i % 2 ? "team.dayTo" : "team.dayFrom", { day: f.weekday(iso, "long") })} />
                       </td>
                     ))}
                   </tr>
@@ -138,11 +145,11 @@ function Hours() {
             </tbody>
           </table>
         </div>
-        <p className="app-quiet">{season === "ramadan" ? "Ramadan hours run from the dates set in Settings, then normal hours come back on their own." : "Public holidays for your country close the calendar automatically."}</p>
+        <p className="app-quiet">{season === "ramadan" ? t("team.ramadanNote") : t("team.holidayNote")}</p>
         <button type="submit" className="ui-btn ui-btn--quiet">
-          Save hours
+          {t("team.saveHours")}
         </button>
-        {saved && <NotConnected what="hours" />}
+        {saved && <NotConnected what={t("team.hoursThing")} />}
       </form>
     </section>
   );
@@ -150,36 +157,37 @@ function Hours() {
 
 function Pay() {
   const f = useFormat();
+  const { t } = useT();
   const takings: Record<string, number> = { karim: 1850000, marco: 1240000, hana: 960000 };
   const tips: Record<string, number> = { karim: 90000, marco: 65000, hana: 40000 };
   return (
     <section className="app-section" aria-labelledby="pay-title">
       <h2 id="pay-title" className="app-h2">
-        December 1 to 11
+        {t("team.payPeriod", { from: f.date("2026-12-01T12:00:00Z"), to: f.date("2026-12-11T12:00:00Z") })}
       </h2>
       <div className="ui-tablewrap">
         <table className="ui-table">
           <thead>
             <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Arrangement</th>
-              <th scope="col" className="r">Services taken</th>
-              <th scope="col" className="r">Tips</th>
-              <th scope="col" className="r">They get</th>
-              <th scope="col" className="r">Shop gets</th>
+              <th scope="col">{t("common.name")}</th>
+              <th scope="col">{t("team.arrangement")}</th>
+              <th scope="col" className="r">{t("team.taken")}</th>
+              <th scope="col" className="r">{t("team.tips")}</th>
+              <th scope="col" className="r">{t("team.theyGet")}</th>
+              <th scope="col" className="r">{t("team.shopGets")}</th>
             </tr>
           </thead>
           <tbody>
             {STAFF.filter((s) => s.services.length).map((s) => {
-              const t = takings[s.id] ?? 0;
+              const taken = takings[s.id] ?? 0;
               const tip = tips[s.id] ?? 0;
-              const theirs = s.pay === "commission" ? Math.round(t * (s.commission ?? 0)) + tip : s.pay === "booth rent" ? t + tip : 0;
-              const shop = s.pay === "commission" ? t - Math.round(t * (s.commission ?? 0)) : s.pay === "booth rent" ? s.rentMinor ?? 0 : t;
+              const theirs = s.pay === "commission" ? Math.round(taken * (s.commission ?? 0)) + tip : s.pay === "booth rent" ? taken + tip : 0;
+              const shop = s.pay === "commission" ? taken - Math.round(taken * (s.commission ?? 0)) : s.pay === "booth rent" ? s.rentMinor ?? 0 : taken;
               return (
                 <tr key={s.id}>
                   <th scope="row">{s.name}</th>
-                  <td>{s.pay === "commission" ? `${f.pct(s.commission ?? 0)} commission` : s.pay === "booth rent" ? `Chair rent, ${f.money(s.rentMinor ?? 0, { whole: true })} a month` : "Owner"}</td>
-                  <td className="r num">{f.money(t, { whole: true })}</td>
+                  <td>{s.pay === "commission" ? t("team.commission", { pct: f.pct(s.commission ?? 0) }) : s.pay === "booth rent" ? t("team.rent", { amount: f.money(s.rentMinor ?? 0, { whole: true }) }) : t("role.Owner")}</td>
+                  <td className="r num">{f.money(taken, { whole: true })}</td>
                   <td className="r num">{f.money(tip, { whole: true })}</td>
                   <td className="r num">
                     <strong>{f.money(theirs, { whole: true })}</strong>
@@ -191,12 +199,13 @@ function Pay() {
           </tbody>
         </table>
       </div>
-      <p className="app-quiet">Tips go to the barber in full. Chair rent is invoiced on the 1st.</p>
+      <p className="app-quiet">{t("team.tipsNote")}</p>
     </section>
   );
 }
 
 function TimeOff() {
+  const { t, label } = useT();
   const [requests, setRequests] = useState([
     { id: "t1", who: "Marco", when: "24 to 26 December", why: "Family", status: "waiting" },
     { id: "t2", who: "Hana", when: "2 January", why: "Course", status: "approved" },
@@ -206,12 +215,12 @@ function TimeOff() {
       <table className="ui-table">
         <thead>
           <tr>
-            <th scope="col">Who</th>
-            <th scope="col">When</th>
-            <th scope="col">Why</th>
-            <th scope="col">Status</th>
+            <th scope="col">{t("cal.who")}</th>
+            <th scope="col">{t("common.when")}</th>
+            <th scope="col">{t("team.why")}</th>
+            <th scope="col">{t("common.status")}</th>
             <th scope="col">
-              <span className="visually-hidden">Actions</span>
+              <span className="visually-hidden">{t("team.actions")}</span>
             </th>
           </tr>
         </thead>
@@ -221,15 +230,15 @@ function TimeOff() {
               <th scope="row">{r.who}</th>
               <td>{r.when}</td>
               <td>{r.why}</td>
-              <td>{r.status}</td>
+              <td>{label("leave", r.status)}</td>
               <td className="r">
                 {r.status === "waiting" && (
                   <span className="row-actions">
                     <button type="button" className="ui-btn ui-btn--quiet" onClick={() => setRequests((rs) => rs.map((x) => (x.id === r.id ? { ...x, status: "approved" } : x)))}>
-                      Approve
+                      {t("team.approve")}
                     </button>
                     <button type="button" className="ui-btn ui-btn--text" onClick={() => setRequests((rs) => rs.map((x) => (x.id === r.id ? { ...x, status: "declined" } : x)))}>
-                      Decline
+                      {t("team.decline")}
                     </button>
                   </span>
                 )}
@@ -243,21 +252,22 @@ function TimeOff() {
 }
 
 function Roles() {
+  const { t, label } = useT();
   const [roles, setRoles] = useState(ROLES);
   const [custom, setCustom] = useState(false);
   return (
     <section className="app-section" aria-labelledby="roles-title">
       <h2 id="roles-title" className="app-h2">
-        What each role can do
+        {t("team.rolesTitle")}
       </h2>
       <div className="ui-tablewrap">
         <table className="ui-table roles">
           <thead>
             <tr>
-              <th scope="col">Permission</th>
+              <th scope="col">{t("team.permission")}</th>
               {Object.keys(roles).map((r) => (
                 <th key={r} scope="col" className="c">
-                  {r}
+                  {label("role", r)}
                 </th>
               ))}
             </tr>
@@ -265,14 +275,14 @@ function Roles() {
           <tbody>
             {PERMS.map((p, i) => (
               <tr key={p}>
-                <th scope="row">{p}</th>
+                <th scope="row">{t(p)}</th>
                 {Object.entries(roles).map(([r, v]) => (
                   <td key={r} className="c">
                     <input
                       type="checkbox"
                       checked={v[i]}
                       disabled={r === "Owner"}
-                      aria-label={`${r} can ${p.toLowerCase()}`}
+                      aria-label={t("team.can", { role: label("role", r), perm: t(p) })}
                       onChange={(e) => setRoles((rs) => ({ ...rs, [r]: rs[r].map((x, j) => (j === i ? e.target.checked : x)) }))}
                     />
                   </td>
@@ -282,7 +292,7 @@ function Roles() {
           </tbody>
         </table>
       </div>
-      <Toggle checked={custom} onChange={setCustom} label="Barbers can see each other's calendars" />
+      <Toggle checked={custom} onChange={setCustom} label={t("team.seeEachOther")} />
     </section>
   );
 }

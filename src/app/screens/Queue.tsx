@@ -4,6 +4,7 @@ import { Booking, BOOKABLE, clientById, NOW, QueueEntry, serviceById, SERVICES, 
 import { useFormat } from "../../lib/format";
 import { useStore } from "../../lib/store";
 import { Field, PageHead, Region, useDataState } from "../../ui/kit";
+import { useT } from "../i18n";
 
 /** Rough wait: minutes of work ahead, shared across the barbers, rounded up to 5. */
 export function waitFor(index: number, queue: QueueEntry[], _bookings: Booking[]) {
@@ -14,6 +15,7 @@ export function waitFor(index: number, queue: QueueEntry[], _bookings: Booking[]
 
 export function Queue() {
   const f = useFormat();
+  const { t } = useT();
   const state = useDataState();
   const { queue, bookings, addToQueue, callFromQueue, removeFromQueue, restoreQueue, waitlist, removeWaitlist } = useStore();
   const [left, setLeft] = useState<{ entry: QueueEntry; index: number } | null>(null);
@@ -27,7 +29,7 @@ export function Queue() {
   function add(e: FormEvent) {
     e.preventDefault();
     if (!name.trim()) {
-      setError("Add a name so the board can call them.");
+      setError(t("queue.errName"));
       return;
     }
     setError("");
@@ -38,15 +40,15 @@ export function Queue() {
   return (
     <>
       <PageHead
-        title="Queue"
-        sub="Walk-ins in the order they will be called. Bookings keep their times."
+        title={t("nav.queue")}
+        sub={t("queue.sub")}
         actions={
           <>
             <Link className="ui-btn ui-btn--quiet" to="/tv">
-              Open the TV board
+              {t("queue.tv")}
             </Link>
             <Link className="ui-btn ui-btn--quiet" to="/kiosk">
-              Open the kiosk
+              {t("queue.kiosk")}
             </Link>
           </>
         }
@@ -55,16 +57,16 @@ export function Queue() {
       <div className="app-split app-split--wide">
         <section className="app-section" aria-labelledby="line-title">
           <h2 id="line-title" className="app-h2">
-            In line
+            {t("queue.inLine")}
           </h2>
           {called && (
             <p className="ui-live" role="status">
-              {called} called to a chair. The “your turn” message waits for WhatsApp to be connected.
+              {t("queue.called", { name: called })}
             </p>
           )}
           {left && (
             <p className="ui-live cal-panel__undo" role="status">
-              <span>{left.entry.name} left the queue.</span>
+              <span>{t("queue.left", { name: left.entry.name })}</span>
               <button
                 type="button"
                 className="ui-btn ui-btn--text"
@@ -73,11 +75,11 @@ export function Queue() {
                   setLeft(null);
                 }}
               >
-                Undo
+                {t("common.undo")}
               </button>
             </p>
           )}
-          <Region state={state} label="Queue" rows={4} empty={{ title: "No one waiting", body: "Add a walk-in here, or let clients join from the QR code on your window." }}>
+          <Region state={state} label={t("nav.queue")} rows={4} empty={{ title: t("queue.empty"), body: t("queue.emptyBody") }}>
             <ol className="queue">
               {queue.map((q, i) => (
                 <li key={q.id} className="queue__row" data-first={i === 0 || undefined}>
@@ -85,15 +87,15 @@ export function Queue() {
                   <div className="queue__who">
                     <strong>{q.name}</strong>
                     <span>
-                      {serviceById(q.serviceId).name}, {q.staffId ? `wants ${staffById(q.staffId).name}` : "anyone"}
+                      {t("common.list", { a: serviceById(q.serviceId).name, b: q.staffId ? t("queue.wants", { name: staffById(q.staffId).name }) : t("common.anyone") })}
                     </span>
                     <span className="app-quiet">
-                      Joined {f.time(q.joined)} by {q.via}
+                      {t("queue.joined", { time: f.time(q.joined), via: t(`via.${q.via}` as const) })}
                     </span>
                   </div>
                   <span className="queue__wait num">
                     {waitFor(i, queue, bookings)}
-                    <small>min</small>
+                    <small>{t("common.min")}</small>
                   </span>
                   <div className="queue__actions">
                     <button
@@ -104,7 +106,7 @@ export function Queue() {
                         setCalled(q.name);
                       }}
                     >
-                      Call
+                      {t("queue.call")}
                     </button>
                     <button
                       type="button"
@@ -114,7 +116,7 @@ export function Queue() {
                         removeFromQueue(q.id);
                       }}
                     >
-                      Left
+                      {t("queue.leftBtn")}
                     </button>
                   </div>
                 </li>
@@ -124,17 +126,17 @@ export function Queue() {
 
           <section className="app-section waitlist" id="waitlist" aria-labelledby="wait-title">
             <h2 id="wait-title" className="app-h2">
-              Waitlist for later today
+              {t("queue.waitlist")}
             </h2>
             {offered && (
               <p className="ui-live" role="status">
-                Offer ready for {offered}: “A time opened up today. Reply 1 to take it.” WhatsApp is not connected yet, so nothing was sent.
+                {t("queue.offerReady", { name: offered })}
               </p>
             )}
             {waitlist.length === 0 ? (
               <div className="ui-note">
-                <p className="ui-note__title">Nobody is waiting for a time</p>
-                <p>Clients join the waitlist when the day they want is full.</p>
+                <p className="ui-note__title">{t("queue.noWaitlist")}</p>
+                <p>{t("queue.noWaitlistBody")}</p>
               </div>
             ) : (
               <ul className="rules">
@@ -143,15 +145,15 @@ export function Queue() {
                     <div>
                       <strong>{clientById(w.clientId)?.name}</strong>
                       <span className="app-quiet">
-                        {serviceById(w.serviceId).name}, {w.window}
+                        {t("common.list", { a: serviceById(w.serviceId).name, b: w.window })}
                       </span>
                     </div>
                     <span className="row-actions">
                       <button type="button" className="ui-btn ui-btn--quiet" onClick={() => setOffered(clientById(w.clientId)?.name ?? "")}>
-                        Offer a time
+                        {t("queue.offer")}
                       </button>
                       <button type="button" className="ui-btn ui-btn--text" onClick={() => removeWaitlist(w.id)}>
-                        Remove
+                        {t("common.remove")}
                       </button>
                     </span>
                   </li>
@@ -164,27 +166,27 @@ export function Queue() {
         <div className="app-stack">
           <section className="app-section app-panel" aria-labelledby="add-title">
             <h2 id="add-title" className="app-h2">
-              Add a walk-in
+              {t("queue.add")}
             </h2>
             <form className="ui-form" onSubmit={add} noValidate>
-              <Field label="Name">
+              <Field label={t("common.name")}>
                 {(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" aria-invalid={!!error || undefined} />}
               </Field>
-              <Field label="Service">
+              <Field label={t("common.service")}>
                 {(id) => (
                   <select id={id} className="ui-input" value={service} onChange={(e) => setService(e.target.value)}>
                     {SERVICES.map((s) => (
                       <option key={s.id} value={s.id}>
-                        {s.name}, {s.minutes} min
+                        {t("common.serviceMin", { name: s.name, n: s.minutes })}
                       </option>
                     ))}
                   </select>
                 )}
               </Field>
-              <Field label="Barber">
+              <Field label={t("common.barber")}>
                 {(id) => (
                   <select id={id} className="ui-input" value={staff} onChange={(e) => setStaff(e.target.value)}>
-                    <option value="">Anyone free</option>
+                    <option value="">{t("common.anyoneFree")}</option>
                     {BOOKABLE.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.name}
@@ -199,30 +201,30 @@ export function Queue() {
                 </p>
               )}
               <button type="submit" className="ui-btn ui-btn--quiet">
-                Add to the queue
+                {t("queue.addBtn")}
               </button>
             </form>
           </section>
 
           <section className="app-section app-panel" aria-labelledby="join-title">
             <h2 id="join-title" className="app-h2">
-              How clients join
+              {t("queue.how")}
             </h2>
             <dl className="ui-dl">
               <div>
-                <dt>From the window</dt>
-                <dd>Print the QR code from Settings. It opens the join page.</dd>
+                <dt>{t("queue.window")}</dt>
+                <dd>{t("queue.windowBody")}</dd>
               </div>
               <div>
-                <dt>From home</dt>
+                <dt>{t("queue.home")}</dt>
                 <dd>
-                  <Link to="/s/example-barbers/queue">The join page</Link> on your website.
+                  <Link to="/s/example-barbers/queue">{t("queue.joinPage")}</Link> {t("queue.onSite")}
                 </dd>
               </div>
               <div>
-                <dt>At the door</dt>
+                <dt>{t("queue.door")}</dt>
                 <dd>
-                  <Link to="/kiosk">Kiosk mode</Link> on a tablet.
+                  <Link to="/kiosk">{t("queue.kioskMode")}</Link> {t("queue.onTablet")}
                 </dd>
               </div>
             </dl>

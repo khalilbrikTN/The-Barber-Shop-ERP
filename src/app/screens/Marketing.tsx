@@ -1,24 +1,26 @@
 import { useState } from "react";
 import { OFFERS, PACKAGES, PROMO_CODES, REVIEWS, serviceById, SERVICES } from "../../lib/data";
 import { useStore } from "../../lib/store";
-import { useFormat } from "../../lib/format";
+import { toMinor, useFormat } from "../../lib/format";
 import { Field, NotConnected, PageHead, Region, Stat, Tabs, Toggle, useDataState, useTab } from "../../ui/kit";
+import { TextKey, useT } from "../i18n";
 
 export function Marketing() {
   const tab = useTab("tab", "offers");
+  const { t } = useT();
   return (
     <>
-      <PageHead title="Marketing" sub="Offers, loyalty and the messages that bring clients back." />
+      <PageHead title={t("nav.marketing")} sub={t("mk.sub")} />
       <Tabs
         tabs={[
-          { id: "offers", label: "Offers" },
-          { id: "codes", label: "Promo codes" },
-          { id: "gifts", label: "Gift cards and packages" },
-          { id: "loyalty", label: "Loyalty" },
-          { id: "messages", label: "Messages" },
-          { id: "campaigns", label: "Campaigns" },
-          { id: "memberships", label: "Memberships" },
-          { id: "reviews", label: "Reviews" },
+          { id: "offers", label: t("mk.tabOffers") },
+          { id: "codes", label: t("mk.tabCodes") },
+          { id: "gifts", label: t("mk.tabGifts") },
+          { id: "loyalty", label: t("mk.tabLoyalty") },
+          { id: "messages", label: t("mk.tabMessages") },
+          { id: "campaigns", label: t("mk.tabCampaigns") },
+          { id: "memberships", label: t("mk.tabMemberships") },
+          { id: "reviews", label: t("mk.tabReviews") },
         ]}
       />
       <div className="app-tabpanel" role="tabpanel">
@@ -37,6 +39,7 @@ export function Marketing() {
 
 function Offers() {
   const f = useFormat();
+  const { t } = useT();
   const state = useDataState();
   const [offers, setOffers] = useState(OFFERS);
   const [title, setTitle] = useState("");
@@ -45,9 +48,9 @@ function Offers() {
     <div className="app-split">
       <section className="app-section" aria-labelledby="offers-title">
         <h2 id="offers-title" className="app-h2">
-          On your website and client accounts
+          {t("mk.onSite")}
         </h2>
-        <Region state={state} label="Offers" rows={3} empty={{ title: "No offers yet", body: "An offer shows on your website and in every client's account." }}>
+        <Region state={state} label={t("mk.tabOffers")} rows={3} empty={{ title: t("mk.noOffers"), body: t("mk.noOffersBody") }}>
           <ul className="offers">
             {offers.map((o) => (
               <li key={o.id} className="offer" data-live={o.live || undefined}>
@@ -55,11 +58,10 @@ function Offers() {
                   <strong>{o.title}</strong>
                   <p>{o.body}</p>
                   <p className="app-quiet">
-                    Until {f.date(`${o.until}T12:00:00Z`)}
-                    {o.code ? `, code ${o.code}` : ""}
+                    {o.code ? t("mk.untilCode", { date: f.date(`${o.until}T12:00:00Z`), code: o.code }) : t("mk.until", { date: f.date(`${o.until}T12:00:00Z`) })}
                   </p>
                 </div>
-                <Toggle checked={o.live} onChange={(v) => setOffers((os) => os.map((x) => (x.id === o.id ? { ...x, live: v } : x)))} label={o.live ? "Showing" : "Hidden"} />
+                <Toggle checked={o.live} onChange={(v) => setOffers((os) => os.map((x) => (x.id === o.id ? { ...x, live: v } : x)))} label={o.live ? t("mk.showing") : t("mk.hidden")} />
               </li>
             ))}
           </ul>
@@ -67,7 +69,7 @@ function Offers() {
       </section>
       <section className="app-section app-panel" aria-labelledby="newoffer-title">
         <h2 id="newoffer-title" className="app-h2">
-          New offer
+          {t("mk.newOffer")}
         </h2>
         <form
           className="ui-form"
@@ -79,11 +81,11 @@ function Offers() {
             setBody("");
           }}
         >
-          <Field label="Title">{(id) => <input id={id} className="ui-input" value={title} onChange={(e) => setTitle(e.target.value)} required />}</Field>
-          <Field label="What clients get">{(id) => <textarea id={id} className="ui-input ui-textarea" rows={3} value={body} onChange={(e) => setBody(e.target.value)} />}</Field>
-          <Field label="Ends on">{(id) => <input id={id} type="date" className="ui-input" defaultValue="2027-01-31" />}</Field>
+          <Field label={t("mk.title")}>{(id) => <input id={id} className="ui-input" value={title} onChange={(e) => setTitle(e.target.value)} required />}</Field>
+          <Field label={t("mk.clientsGet")}>{(id) => <textarea id={id} className="ui-input ui-textarea" rows={3} value={body} onChange={(e) => setBody(e.target.value)} />}</Field>
+          <Field label={t("mk.ends")}>{(id) => <input id={id} type="date" className="ui-input" defaultValue="2027-01-31" />}</Field>
           <button type="submit" className="ui-btn ui-btn--quiet">
-            Publish offer
+            {t("mk.publish")}
           </button>
         </form>
       </section>
@@ -92,6 +94,7 @@ function Offers() {
 }
 
 function Codes() {
+  const { t } = useT();
   const [codes, setCodes] = useState(PROMO_CODES);
   const [code, setCode] = useState("");
   const [pct, setPct] = useState(10);
@@ -103,10 +106,10 @@ function Codes() {
       <table className="ui-table">
         <thead>
           <tr>
-            <th scope="col">Code</th>
-            <th scope="col">Rule</th>
-            <th scope="col" className="r">Used</th>
-            <th scope="col" className="r">Limit</th>
+            <th scope="col">{t("mk.code")}</th>
+            <th scope="col">{t("mk.rule")}</th>
+            <th scope="col" className="r">{t("mk.used")}</th>
+            <th scope="col" className="r">{t("mk.limit")}</th>
           </tr>
         </thead>
         <tbody>
@@ -129,29 +132,29 @@ function Codes() {
           e.preventDefault();
           const c = code.trim().toUpperCase();
           if (!/^[A-Z0-9]{4,16}$/.test(c)) {
-            setError("Use 4 to 16 letters or numbers, no spaces.");
+            setError(t("mk.errCodeShape"));
             return;
           }
           if (codes.some((x) => x.code === c)) {
-            setError("That code already exists.");
+            setError(t("mk.errCodeTaken"));
             return;
           }
           setError("");
-          setCodes((cs) => [{ code: c, rule: `${pct}% off any service`, uses: 0, max }, ...cs]);
+          setCodes((cs) => [{ code: c, rule: t("mk.pctOff", { n: pct }), uses: 0, max }, ...cs]);
           setCode("");
         }}
       >
-        <h2 className="app-h2">New promo code</h2>
-        <Field label="Code">{(id) => <input id={id} className="ui-input num" value={code} onChange={(e) => setCode(e.target.value)} placeholder="SUMMER15" aria-invalid={!!error || undefined} />}</Field>
-        <Field label="Discount, percent">{(id) => <input id={id} type="number" min={5} max={50} step={5} className="ui-input num" value={pct} onChange={(e) => setPct(Number(e.target.value))} />}</Field>
-        <Field label="How many times it can be used">{(id) => <input id={id} type="number" min={1} className="ui-input num" value={max} onChange={(e) => setMax(Number(e.target.value))} />}</Field>
+        <h2 className="app-h2">{t("mk.newCode")}</h2>
+        <Field label={t("mk.code")}>{(id) => <input id={id} className="ui-input num" value={code} onChange={(e) => setCode(e.target.value)} placeholder="SUMMER15" aria-invalid={!!error || undefined} />}</Field>
+        <Field label={t("mk.discount")}>{(id) => <input id={id} type="number" min={5} max={50} step={5} className="ui-input num" value={pct} onChange={(e) => setPct(Number(e.target.value))} />}</Field>
+        <Field label={t("mk.maxUses")}>{(id) => <input id={id} type="number" min={1} className="ui-input num" value={max} onChange={(e) => setMax(Number(e.target.value))} />}</Field>
         {error && (
           <p className="ui-error" role="alert">
             {error}
           </p>
         )}
         <button type="submit" className="ui-btn ui-btn--quiet">
-          Create code
+          {t("mk.createCode")}
         </button>
       </form>
     </div>
@@ -160,6 +163,7 @@ function Codes() {
 
 function Gifts() {
   const f = useFormat();
+  const { t } = useT();
   const { giftCards, addGiftCard } = useStore();
   const [amount, setAmount] = useState("500");
   const [buyer, setBuyer] = useState("");
@@ -174,17 +178,17 @@ function Gifts() {
       <div className="app-split">
         <section className="app-section" aria-labelledby="gc-title">
           <h2 id="gc-title" className="app-h2">
-            Gift cards
+            {t("mk.giftCards")}
           </h2>
           <div className="ui-tablewrap">
             <table className="ui-table">
               <thead>
                 <tr>
-                  <th scope="col">Code</th>
-                  <th scope="col">Bought by</th>
-                  <th scope="col">For</th>
-                  <th scope="col" className="r">Left</th>
-                  <th scope="col">Until</th>
+                  <th scope="col">{t("mk.code")}</th>
+                  <th scope="col">{t("mk.boughtBy")}</th>
+                  <th scope="col">{t("mk.for")}</th>
+                  <th scope="col" className="r">{t("mk.left")}</th>
+                  <th scope="col">{t("mk.untilCol")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -196,7 +200,7 @@ function Gifts() {
                     <td>{g.buyer}</td>
                     <td>{g.to}</td>
                     <td className="r num">
-                      {f.money(g.balanceMinor, { whole: true })} of {f.money(g.initialMinor, { whole: true })}
+                      {t("mk.balance", { left: f.money(g.balanceMinor, { whole: true }), total: f.money(g.initialMinor, { whole: true }) })}
                     </td>
                     <td>{f.date(`${g.expires}T12:00:00Z`)}</td>
                   </tr>
@@ -209,31 +213,31 @@ function Gifts() {
           className="ui-form app-section app-panel"
           onSubmit={(e) => {
             e.preventDefault();
-            const minor = Math.round(parseFloat(amount) * 100);
+            const minor = toMinor(parseFloat(amount.replace(",", ".")), f.currency);
             if (!minor || !buyer.trim()) return;
-            const card = addGiftCard({ initialMinor: minor, balanceMinor: minor, buyer: buyer.trim(), to: to.trim() || "Not said", expires: "2027-12-31" });
+            const card = addGiftCard({ initialMinor: minor, balanceMinor: minor, buyer: buyer.trim(), to: to.trim() || t("co.notSaid"), expires: "2027-12-31" });
             setLast(card.code);
             setBuyer("");
             setTo("");
           }}
         >
-          <h2 className="app-h2">Sell a gift card</h2>
-          <div className="ui-seg ui-seg--fill" role="group" aria-label="Amount">
+          <h2 className="app-h2">{t("mk.sellGift")}</h2>
+          <div className="ui-seg ui-seg--fill" role="group" aria-label={t("mk.amount")}>
             {["250", "500", "1000"].map((a) => (
               <button key={a} type="button" className="ui-segbtn" aria-pressed={amount === a} onClick={() => setAmount(a)}>
-                {f.money(Number(a) * 100, { whole: true })}
+                {f.money(toMinor(Number(a), f.currency), { whole: true })}
               </button>
             ))}
           </div>
-          <Field label="Amount">{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />}</Field>
-          <Field label="Bought by">{(id) => <input id={id} className="ui-input" value={buyer} onChange={(e) => setBuyer(e.target.value)} required />}</Field>
-          <Field label="A gift for">{(id) => <input id={id} className="ui-input" value={to} onChange={(e) => setTo(e.target.value)} />}</Field>
+          <Field label={t("mk.amount")}>{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />}</Field>
+          <Field label={t("mk.boughtBy")}>{(id) => <input id={id} className="ui-input" value={buyer} onChange={(e) => setBuyer(e.target.value)} required />}</Field>
+          <Field label={t("mk.giftFor")}>{(id) => <input id={id} className="ui-input" value={to} onChange={(e) => setTo(e.target.value)} />}</Field>
           <button type="submit" className="ui-btn ui-btn--quiet">
-            Create the card
+            {t("mk.createCard")}
           </button>
           {last && (
             <p className="ui-live" role="status">
-              Card {last} created. Take payment at checkout; nothing is charged here.
+              {t("mk.cardCreated", { code: last })}
             </p>
           )}
         </form>
@@ -242,16 +246,16 @@ function Gifts() {
       <div className="app-split">
         <section className="app-section" aria-labelledby="pk-title">
           <h2 id="pk-title" className="app-h2">
-            Packages
+            {t("mk.packages")}
           </h2>
           <div className="ui-tablewrap">
             <table className="ui-table">
               <thead>
                 <tr>
-                  <th scope="col">Package</th>
-                  <th scope="col" className="r">Visits</th>
-                  <th scope="col" className="r">Price</th>
-                  <th scope="col" className="r">Instead of</th>
+                  <th scope="col">{t("mk.package")}</th>
+                  <th scope="col" className="r">{t("mk.visits")}</th>
+                  <th scope="col" className="r">{t("common.price")}</th>
+                  <th scope="col" className="r">{t("mk.insteadOf")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -266,18 +270,18 @@ function Gifts() {
               </tbody>
             </table>
           </div>
-          <p className="app-quiet">Clients see their visits left in their account. Memberships with a monthly charge come later.</p>
+          <p className="app-quiet">{t("mk.packagesNote")}</p>
         </section>
         <form
           className="ui-form app-section app-panel"
           onSubmit={(e) => {
             e.preventDefault();
             const sv = serviceById(pkService);
-            setPackages((ps) => [...ps, { id: `pk${Date.now()}`, name: `${pkVisits} × ${sv.name.toLowerCase()}`, serviceId: sv.id, visits: pkVisits, priceMinor: sv.priceMinor * pkPay, sold: 0 }]);
+            setPackages((ps) => [...ps, { id: `pk${Date.now()}`, name: t("mk.pkName", { n: pkVisits, service: sv.name.toLowerCase() }), serviceId: sv.id, visits: pkVisits, priceMinor: sv.priceMinor * pkPay, sold: 0 }]);
           }}
         >
-          <h2 className="app-h2">New package</h2>
-          <Field label="Service">
+          <h2 className="app-h2">{t("mk.newPackage")}</h2>
+          <Field label={t("common.service")}>
             {(id) => (
               <select id={id} className="ui-input" value={pkService} onChange={(e) => setPkService(e.target.value)}>
                 {SERVICES.map((s) => (
@@ -289,14 +293,14 @@ function Gifts() {
             )}
           </Field>
           <div className="setup__row">
-            <Field label="Visits">{(id) => <input id={id} type="number" min={2} max={20} className="ui-input num" value={pkVisits} onChange={(e) => setPkVisits(Number(e.target.value))} />}</Field>
-            <Field label="Priced as">{(id) => <input id={id} type="number" min={1} max={pkVisits} className="ui-input num" value={pkPay} onChange={(e) => setPkPay(Number(e.target.value))} />}</Field>
+            <Field label={t("mk.visits")}>{(id) => <input id={id} type="number" min={2} max={20} className="ui-input num" value={pkVisits} onChange={(e) => setPkVisits(Number(e.target.value))} />}</Field>
+            <Field label={t("mk.pricedAs")}>{(id) => <input id={id} type="number" min={1} max={pkVisits} className="ui-input num" value={pkPay} onChange={(e) => setPkPay(Number(e.target.value))} />}</Field>
           </div>
           <p className="app-quiet num">
-            {pkVisits} visits for the price of {pkPay}: {f.money(serviceById(pkService).priceMinor * pkPay, { whole: true })}
+            {t("mk.pkSummary", { visits: pkVisits, pay: pkPay, amount: f.money(serviceById(pkService).priceMinor * pkPay, { whole: true }) })}
           </p>
           <button type="submit" className="ui-btn ui-btn--quiet">
-            Add package
+            {t("mk.addPackage")}
           </button>
         </form>
       </div>
@@ -305,6 +309,7 @@ function Gifts() {
 }
 
 function Loyalty() {
+  const { t, tp } = useT();
   const [on, setOn] = useState(true);
   const [goal, setGoal] = useState(10);
   const [saved, setSaved] = useState(false);
@@ -312,7 +317,7 @@ function Loyalty() {
     <div className="app-split">
       <section className="app-section app-panel" aria-labelledby="loy-title">
         <h2 id="loy-title" className="app-h2">
-          Digital punch card
+          {t("mk.punchCard")}
         </h2>
         <form
           className="ui-form"
@@ -321,35 +326,35 @@ function Loyalty() {
             setSaved(true);
           }}
         >
-          <Toggle checked={on} onChange={setOn} label="Clients collect a punch on every paid visit" />
-          <Field label="Visits for a free cut">{(id) => <input id={id} type="number" min={3} max={20} className="ui-input num" value={goal} onChange={(e) => setGoal(Number(e.target.value))} />}</Field>
-          <Field label="The free reward">
+          <Toggle checked={on} onChange={setOn} label={t("mk.punchOn")} />
+          <Field label={t("mk.goal")}>{(id) => <input id={id} type="number" min={3} max={20} className="ui-input num" value={goal} onChange={(e) => setGoal(Number(e.target.value))} />}</Field>
+          <Field label={t("mk.reward")}>
             {(id) => (
               <select id={id} className="ui-input">
-                <option>Any haircut</option>
-                <option>Beard trim</option>
-                <option>Half price on any service</option>
+                <option>{t("mk.rewardCut")}</option>
+                <option>{t("mk.rewardBeard")}</option>
+                <option>{t("mk.rewardHalf")}</option>
               </select>
             )}
           </Field>
           <button type="submit" className="ui-btn ui-btn--quiet">
-            Save
+            {t("common.save")}
           </button>
-          {saved && <NotConnected what="loyalty settings" />}
+          {saved && <NotConnected what={t("mk.loyaltyThing")} />}
         </form>
       </section>
       <section className="app-section" aria-labelledby="card-title">
         <h2 id="card-title" className="app-h2">
-          What the client sees
+          {t("mk.clientSees")}
         </h2>
-        <div className="punch" aria-label={`Punch card, 4 of ${goal}`}>
+        <div className="punch" aria-label={t("mk.punchLabel", { n: 4, goal })}>
           {Array.from({ length: goal }, (_, i) => (
             <span key={i} className="punch__cell num" data-on={i < 4 || undefined}>
               {i + 1}
             </span>
           ))}
         </div>
-        <p className="app-quiet">{goal - 4} more visits to a free cut.</p>
+        <p className="app-quiet">{tp("mk.toFree", goal - 4)}</p>
       </section>
     </div>
   );
@@ -357,45 +362,46 @@ function Loyalty() {
 
 function Messages() {
   const f = useFormat();
-  const [rules, setRules] = useState([
-    { id: "confirm", label: "Booking confirmation", when: "Right after booking", on: true },
-    { id: "r24", label: "Reminder", when: "24 hours before", on: true },
-    { id: "r2", label: "Reminder", when: "2 hours before", on: true },
-    { id: "review", label: "Review request", when: "3 hours after the visit", on: false },
-    { id: "rebook", label: "Time for a fresh cut", when: "When a client is a week past their usual gap", on: true },
-    { id: "birthday", label: "Birthday", when: "On the morning of", on: false },
+  const { t } = useT();
+  const [rules, setRules] = useState<{ id: string; label: TextKey; when: TextKey; on: boolean }[]>([
+    { id: "confirm", label: "mk.msgConfirm", when: "mk.whenBooked", on: true },
+    { id: "r24", label: "mk.msgReminder", when: "mk.when24", on: true },
+    { id: "r2", label: "mk.msgReminder", when: "mk.when2", on: true },
+    { id: "review", label: "mk.msgReview", when: "mk.whenAfter", on: false },
+    { id: "rebook", label: "mk.msgRebook", when: "mk.whenGap", on: true },
+    { id: "birthday", label: "mk.msgBirthday", when: "mk.whenMorning", on: false },
   ]);
   return (
     <div className="app-split">
       <section className="app-section" aria-labelledby="auto-title">
         <h2 id="auto-title" className="app-h2">
-          Sent for you
+          {t("mk.sentForYou")}
         </h2>
         <ul className="rules">
           {rules.map((r) => (
             <li key={r.id}>
               <div>
-                <strong>{r.label}</strong>
-                <span className="app-quiet">{r.when}. WhatsApp first, then SMS, then email.</span>
+                <strong>{t(r.label)}</strong>
+                <span className="app-quiet">{t("mk.channels", { when: t(r.when) })}</span>
               </div>
-              <Toggle checked={r.on} onChange={(v) => setRules((rs) => rs.map((x) => (x.id === r.id ? { ...x, on: v } : x)))} label={r.on ? "On" : "Off"} />
+              <Toggle checked={r.on} onChange={(v) => setRules((rs) => rs.map((x) => (x.id === r.id ? { ...x, on: v } : x)))} label={r.on ? t("common.on") : t("common.off")} />
             </li>
           ))}
         </ul>
-        <p className="app-quiet">Offers and birthday messages only go to clients who agreed to them.</p>
+        <p className="app-quiet">{t("mk.consentNote")}</p>
       </section>
       <section className="app-section app-panel" aria-labelledby="credits-title">
         <h2 id="credits-title" className="app-h2">
-          Message credits
+          {t("mk.credits")}
         </h2>
         <div className="ui-stats">
-          <Stat label="Used this month" value={`${f.num(412)} of ${f.num(1500)}`} sub="Shop plan allowance" />
+          <Stat label={t("mk.usedMonth")} value={t("mk.usedOf", { a: f.num(412), b: f.num(1500) })} sub={t("mk.allowance")} />
         </div>
-        <div className="meter" role="meter" aria-valuemin={0} aria-valuemax={1500} aria-valuenow={412} aria-label="Messages used">
+        <div className="meter" role="meter" aria-valuemin={0} aria-valuemax={1500} aria-valuenow={412} aria-label={t("mk.messagesUsed")}>
           <span style={{ inlineSize: `${(412 / 1500) * 100}%` }} />
         </div>
         <button type="button" className="ui-btn ui-btn--quiet">
-          Buy more credits
+          {t("mk.buy")}
         </button>
       </section>
     </div>
@@ -403,41 +409,43 @@ function Messages() {
 }
 
 function Reviews() {
+  const { t } = useT();
   const [ask, setAsk] = useState(true);
   return (
     <section className="app-section" aria-labelledby="rev-title">
       <h2 id="rev-title" className="app-h2">
-        Reviews
+        {t("mk.tabReviews")}
       </h2>
       {REVIEWS.length === 0 && (
         <div className="ui-note">
-          <p className="ui-note__title">No reviews yet</p>
-          <p>Turn on review requests and clients get a short link after their visit. Five-star reviews can go on to your Google profile.</p>
-          <Toggle checked={ask} onChange={setAsk} label="Ask clients for a review after each visit" />
+          <p className="ui-note__title">{t("mk.noReviews")}</p>
+          <p>{t("mk.noReviewsBody")}</p>
+          <Toggle checked={ask} onChange={setAsk} label={t("mk.askReview")} />
         </div>
       )}
     </section>
   );
 }
 
-const SEGMENTS: { id: string; label: string; match: (c: { tags: string[]; lastVisit?: string }) => boolean }[] = [
-  { id: "all", label: "Everyone", match: () => true },
-  { id: "lapsed", label: "Not seen for 6 weeks", match: (c) => !!c.lastVisit && c.lastVisit < "2026-10-31" },
-  { id: "vip", label: "VIP", match: (c) => c.tags.includes("VIP") },
-  { id: "new", label: "New this month", match: (c) => c.tags.includes("New") },
-  { id: "colour", label: "Colour clients", match: (c) => c.tags.includes("Colour") },
+const SEGMENTS: { id: string; label: TextKey; match: (c: { tags: string[]; lastVisit?: string }) => boolean }[] = [
+  { id: "all", label: "mk.segAll", match: () => true },
+  { id: "lapsed", label: "mk.segLapsed", match: (c) => !!c.lastVisit && c.lastVisit < "2026-10-31" },
+  { id: "vip", label: "mk.segVip", match: (c) => c.tags.includes("VIP") },
+  { id: "new", label: "mk.segNew", match: (c) => c.tags.includes("New") },
+  { id: "colour", label: "mk.segColour", match: (c) => c.tags.includes("Colour") },
 ];
 
 function Campaigns() {
   const { clients } = useStore();
+  const { t, tp } = useT();
   const [seg, setSeg] = useState("lapsed");
-  const [text, setText] = useState("Hi {name}, it has been a while. Book this week and get 10% off with code MORNING10. Reply STOP to opt out.");
+  const [text, setText] = useState(() => t("mk.sampleText", { name: "{name}" }));
   const [channel, setChannel] = useState("WhatsApp");
   const [queued, setQueued] = useState(false);
   const group = clients.filter(SEGMENTS.find((x) => x.id === seg)!.match);
   const allowed = group.filter((c) => c.marketing);
   const sample = allowed[0] ?? group[0];
-  const preview = text.replace(/\{name\}/g, sample?.name ?? "there");
+  const preview = text.replace(/\{name\}/g, sample?.name ?? t("mk.there"));
   const tooLong = text.length > 600;
   const noOptOut = !/stop/i.test(text);
 
@@ -450,8 +458,8 @@ function Campaigns() {
           if (allowed.length && !tooLong && !noOptOut) setQueued(true);
         }}
       >
-        <h2 className="app-h2">New campaign</h2>
-        <Field label="Who gets it">
+        <h2 className="app-h2">{t("mk.newCampaign")}</h2>
+        <Field label={t("mk.who")}>
           {(id) => (
             <select
               id={id}
@@ -464,51 +472,51 @@ function Campaigns() {
             >
               {SEGMENTS.map((x) => (
                 <option key={x.id} value={x.id}>
-                  {x.label}
+                  {t(x.label)}
                 </option>
               ))}
             </select>
           )}
         </Field>
-        <Field label="Send by">
+        <Field label={t("mk.sendBy")}>
           {(id) => (
             <select id={id} className="ui-input" value={channel} onChange={(e) => setChannel(e.target.value)}>
               <option>WhatsApp</option>
               <option>SMS</option>
-              <option>Email</option>
+              <option value="Email">{t("common.email")}</option>
             </select>
           )}
         </Field>
-        <Field label="Message" hint="{name} becomes each client’s first name.">
+        <Field label={t("mk.message")} hint={t("mk.messageHint", { name: "{name}" })}>
           {(id, hint) => <textarea id={id} aria-describedby={hint} className="ui-input ui-textarea" rows={5} value={text} onChange={(e) => setText(e.target.value)} aria-invalid={tooLong || noOptOut || undefined} />}
         </Field>
-        {noOptOut && <p className="ui-error">Add a way to stop these messages, such as “Reply STOP to opt out”. Offers need one by law in most countries.</p>}
-        {tooLong && <p className="ui-error">Keep it under 600 characters so it arrives as one message.</p>}
+        {noOptOut && <p className="ui-error">{t("mk.errOptOut")}</p>}
+        {tooLong && <p className="ui-error">{t("mk.errLong")}</p>}
         <button type="submit" className="ui-btn ui-btn--primary" disabled={!allowed.length || tooLong || noOptOut}>
-          Send to {allowed.length} {allowed.length === 1 ? "client" : "clients"}
+          {tp("mk.send", allowed.length)}
         </button>
-        {queued && <NotConnected what={`the ${channel} campaign`} />}
+        {queued && <NotConnected what={t("mk.campaignThing", { channel })} />}
       </form>
       <section className="app-section app-panel" aria-labelledby="camp-prev">
         <h2 id="camp-prev" className="app-h2">
-          What {sample?.name ?? "a client"} sees
+          {t("mk.sees", { name: sample?.name ?? t("mk.aClient") })}
         </h2>
         <p className="campaign__bubble">{preview}</p>
         <dl className="ui-dl">
           <div>
-            <dt>In this group</dt>
+            <dt>{t("mk.inGroup")}</dt>
             <dd className="num">{group.length}</dd>
           </div>
           <div>
-            <dt>Agreed to offers</dt>
+            <dt>{t("mk.agreed")}</dt>
             <dd className="num">{allowed.length}</dd>
           </div>
           <div>
-            <dt>Left out, no consent</dt>
+            <dt>{t("mk.leftOut")}</dt>
             <dd className="num">{group.length - allowed.length}</dd>
           </div>
         </dl>
-        <p className="app-quiet">Clients who never agreed to offers are left out by themselves. Each message uses one credit.</p>
+        <p className="app-quiet">{t("mk.campaignNote")}</p>
       </section>
     </div>
   );
@@ -516,6 +524,7 @@ function Campaigns() {
 
 function Memberships() {
   const f = useFormat();
+  const { t } = useT();
   const [plans, setPlans] = useState([
     { id: "m1", name: "Unlimited cuts", priceMinor: 120000, what: "Any haircut, as often as you like", members: 0 },
     { id: "m2", name: "Cut and beard club", priceMinor: 90000, what: "Two cuts and two beard trims a month", members: 0 },
@@ -527,16 +536,16 @@ function Memberships() {
     <div className="app-split">
       <section className="app-section" aria-labelledby="mem-title">
         <h2 id="mem-title" className="app-h2">
-          Monthly memberships
+          {t("mk.monthly")}
         </h2>
         <div className="ui-tablewrap">
           <table className="ui-table">
             <thead>
               <tr>
-                <th scope="col">Membership</th>
-                <th scope="col">What it covers</th>
-                <th scope="col" className="r">Each month</th>
-                <th scope="col" className="r">Members</th>
+                <th scope="col">{t("mk.membership")}</th>
+                <th scope="col">{t("mk.covers")}</th>
+                <th scope="col" className="r">{t("mk.eachMonth")}</th>
+                <th scope="col" className="r">{t("mk.members")}</th>
               </tr>
             </thead>
             <tbody>
@@ -551,26 +560,26 @@ function Memberships() {
             </tbody>
           </table>
         </div>
-        <p className="app-quiet">Members are charged on the same day each month through your payment provider, once payments are connected.</p>
+        <p className="app-quiet">{t("mk.memberNote")}</p>
       </section>
       <form
         className="ui-form app-section app-panel"
         onSubmit={(e) => {
           e.preventDefault();
-          const minor = Math.round(parseFloat(price.replace(",", ".")) * 100);
+          const minor = toMinor(parseFloat(price.replace(",", ".")), f.currency);
           if (!name.trim() || !minor) return;
-          setPlans((ps) => [...ps, { id: `m${Date.now()}`, name: name.trim(), priceMinor: minor, what: what.trim() || "Set what it covers", members: 0 }]);
+          setPlans((ps) => [...ps, { id: `m${Date.now()}`, name: name.trim(), priceMinor: minor, what: what.trim() || t("mk.setCovers"), members: 0 }]);
           setName("");
           setPrice("");
           setWhat("");
         }}
       >
-        <h2 className="app-h2">New membership</h2>
-        <Field label="Name">{(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} />}</Field>
-        <Field label="Each month">{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} />}</Field>
-        <Field label="What it covers">{(id) => <input id={id} className="ui-input" value={what} onChange={(e) => setWhat(e.target.value)} />}</Field>
+        <h2 className="app-h2">{t("mk.newMembership")}</h2>
+        <Field label={t("common.name")}>{(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} />}</Field>
+        <Field label={t("mk.eachMonth")}>{(id) => <input id={id} className="ui-input num" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} />}</Field>
+        <Field label={t("mk.covers")}>{(id) => <input id={id} className="ui-input" value={what} onChange={(e) => setWhat(e.target.value)} />}</Field>
         <button type="submit" className="ui-btn ui-btn--quiet">
-          Add membership
+          {t("mk.addMembership")}
         </button>
       </form>
     </div>

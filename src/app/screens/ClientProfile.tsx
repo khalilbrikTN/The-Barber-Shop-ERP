@@ -4,12 +4,14 @@ import { serviceById, staffById } from "../../lib/data";
 import { useFormat } from "../../lib/format";
 import { useStore } from "../../lib/store";
 import { Field, NotConnected, PageHead, Stat, Status, Toggle } from "../../ui/kit";
+import { useT } from "../i18n";
 
 const PUNCH_GOAL = 10;
 
 export function ClientProfile() {
   const { id } = useParams();
   const f = useFormat();
+  const { t, tp, label } = useT();
   const { clients, bookings, updateClient } = useStore();
   const c = clients.find((x) => x.id === id);
   const [notes, setNotes] = useState(c?.notes ?? "");
@@ -21,10 +23,10 @@ export function ClientProfile() {
   if (!c)
     return (
       <div className="ui-note">
-        <p className="ui-note__title">That client does not exist</p>
-        <p>They may have been merged with another profile.</p>
+        <p className="ui-note__title">{t("cp.missing")}</p>
+        <p>{t("cp.missingBody")}</p>
         <Link className="ui-btn ui-btn--quiet" to="/app/clients">
-          Back to clients
+          {t("cp.back")}
         </Link>
       </div>
     );
@@ -40,49 +42,47 @@ export function ClientProfile() {
         actions={
           <>
             <Link className="ui-btn ui-btn--quiet" to="/app/clients">
-              All clients
+              {t("cp.all")}
             </Link>
             <Link className="ui-btn ui-btn--primary" to={`/app/calendar?new=1`}>
-              Book again
+              {t("cp.again")}
             </Link>
           </>
         }
       />
 
       <div className="ui-stats ui-stats--row">
-        <Stat label="Visits" value={f.num(c.visits)} />
-        <Stat label="Spent" value={f.money(c.spentMinor, { whole: true })} />
-        <Stat label="No-shows" value={f.num(c.noShows)} sub={deposit ? "Deposit asked on every booking" : undefined} />
-        <Stat label="Loyalty card" value={`${c.punches} of ${PUNCH_GOAL}`} sub={`${PUNCH_GOAL - c.punches} visits to a free cut`} />
+        <Stat label={t("cl.visits")} value={f.num(c.visits)} />
+        <Stat label={t("cl.spent")} value={f.money(c.spentMinor, { whole: true })} />
+        <Stat label={t("cl.noShows")} value={f.num(c.noShows)} sub={deposit ? t("cp.depositRule") : undefined} />
+        <Stat label={t("cp.loyalty")} value={t("cp.punches", { n: f.num(c.punches), goal: f.num(PUNCH_GOAL) })} sub={tp("cp.toFree", PUNCH_GOAL - c.punches)} />
       </div>
 
       <div className="app-split">
         <section className="app-section" aria-labelledby="hist-title">
           <h2 id="hist-title" className="app-h2">
-            Visits
+            {t("cl.visits")}
           </h2>
           {history.length === 0 ? (
             <div className="ui-note">
-              <p className="ui-note__title">No visits in this sample</p>
-              <p>Past visits from before the switch arrive with the CSV import.</p>
+              <p className="ui-note__title">{t("cp.noVisits")}</p>
+              <p>{t("cp.noVisitsBody")}</p>
             </div>
           ) : (
             <div className="ui-tablewrap">
               <table className="ui-table">
                 <thead>
                   <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Service</th>
-                    <th scope="col">With</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">{t("common.date")}</th>
+                    <th scope="col">{t("common.service")}</th>
+                    <th scope="col">{t("common.with")}</th>
+                    <th scope="col">{t("common.status")}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((b) => (
                     <tr key={b.id}>
-                      <td>
-                        {f.date(b.start)}, {f.time(b.start)}
-                      </td>
+                      <td>{t("cp.dateTime", { date: f.date(b.start), time: f.time(b.start) })}</td>
                       <td>{b.serviceIds.map((s) => serviceById(s).name).join(", ")}</td>
                       <td>{staffById(b.staffId).name}</td>
                       <td>
@@ -98,7 +98,7 @@ export function ClientProfile() {
 
         <section className="app-section app-panel" aria-labelledby="notes-title">
           <h2 id="notes-title" className="app-h2">
-            Haircut notes
+            {t("cp.notes")}
           </h2>
           <form
             className="ui-form"
@@ -108,40 +108,42 @@ export function ClientProfile() {
               setSaved(true);
             }}
           >
-            <Field label="What the barber should know" hint="Shown on the barber's phone when the client checks in.">
+            <Field label={t("cp.notesLabel")} hint={t("cp.notesHint")}>
               {(id, hint) => <textarea id={id} aria-describedby={hint} className="ui-input ui-textarea" value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} />}
             </Field>
             <div className="setup__row">
-              <Field label="Birthday">{(id) => <input id={id} type="date" className="ui-input" value={birthday} onChange={(e) => setBirthday(e.target.value)} />}</Field>
-              <Field label="Messages in">
+              <Field label={t("cp.birthday")}>{(id) => <input id={id} type="date" className="ui-input" value={birthday} onChange={(e) => setBirthday(e.target.value)} />}</Field>
+              <Field label={t("cp.messagesIn")}>
                 {(id) => (
                   <select id={id} className="ui-input" value={language} onChange={(e) => setLanguage(e.target.value)}>
-                    {["English", "Arabic", "French", "Italian", "German"].map((l) => (
-                      <option key={l}>{l}</option>
+                    {(["English", "Arabic", "French", "Italian", "German"] as const).map((l) => (
+                      <option key={l} value={l}>
+                        {t(`lang.${l}`)}
+                      </option>
                     ))}
                   </select>
                 )}
               </Field>
             </div>
-            <Toggle checked={marketing} onChange={setMarketing} label="Agrees to offers by WhatsApp" />
-            <p className="app-quiet">Before and after photos are added here once the client gives consent.</p>
+            <Toggle checked={marketing} onChange={setMarketing} label={t("cp.consent")} />
+            <p className="app-quiet">{t("cp.photos")}</p>
             <button type="submit" className="ui-btn ui-btn--quiet">
-              Save notes
+              {t("cp.save")}
             </button>
-            {saved && <NotConnected what="client notes" />}
+            {saved && <NotConnected what={t("cp.thing")} />}
           </form>
           <div className="blocklist">
-            <Toggle checked={!!c.blocked} onChange={(v) => updateClient(c.id, { blocked: v })} label="Block from online booking" />
-            <p className="app-quiet">{c.blocked ? "They can still walk in; online bookings from this number are refused." : "Use for repeated no-shows or abuse."}</p>
+            <Toggle checked={!!c.blocked} onChange={(v) => updateClient(c.id, { blocked: v })} label={t("cp.block")} />
+            <p className="app-quiet">{c.blocked ? t("cp.blockedNote") : t("cp.blockHint")}</p>
           </div>
           <dl className="ui-dl">
             <div>
-              <dt>Usual barber</dt>
-              <dd>{c.favourite ? staffById(c.favourite).name : "Anyone"}</dd>
+              <dt>{t("cl.usual")}</dt>
+              <dd>{c.favourite ? staffById(c.favourite).name : t("cl.anyone")}</dd>
             </div>
             <div>
-              <dt>Tags</dt>
-              <dd>{c.tags.length ? c.tags.join(", ") : "None"}</dd>
+              <dt>{t("cp.tags")}</dt>
+              <dd>{c.tags.length ? c.tags.map((x) => label("tag", x)).join(", ") : t("common.none")}</dd>
             </div>
           </dl>
         </section>
