@@ -48,13 +48,29 @@ describe("findSlots", () => {
     expect(slots).toEqual([]);
   });
 
-  it("treats a colour's processing time as free and its work as busy", () => {
+  it("treats a colour's processing time as free and its work, plus mixing time, as busy", () => {
     const colour: Booking = { id: "y", clientId: "c5", staffId: "hana", serviceIds: ["colour"], start: at("12:00"), end: at("13:30"), status: "confirmed", source: "online" };
     const t = (hhmm: string) => new Date(at(hhmm)).getTime();
     expect(busyIntervals(colour)).toEqual([
-      [t("12:00"), t("12:30")],
+      [t("11:50"), t("12:30")], // 10 minutes to mix the colour first
       [t("13:10"), t("13:30")],
     ]);
+  });
+
+  it("keeps the clean-up after a shave free of other clients", () => {
+    const shave: Booking = { id: "z", clientId: "c11", staffId: "karim", serviceIds: ["shave"], start: at("12:00", "2026-12-13"), end: at("12:30", "2026-12-13"), status: "confirmed", source: "phone" };
+    const starts = findSlots({ date: "2026-12-13", serviceIds: ["beard"], staffId: "karim", bookings: [shave] }).map((s) => s.start);
+    const iso = (hhmm: string) => new Date(at(hhmm, "2026-12-13")).toISOString();
+    expect(starts).not.toContain(iso("12:30")); // towels still being changed
+    expect(starts).toContain(iso("12:45"));
+  });
+
+  it("needs room for the mixing time before a colour", () => {
+    const fade: Booking = { id: "f", clientId: "c1", staffId: "hana", serviceIds: ["fringe"], start: at("11:45", "2026-12-13"), end: at("12:00", "2026-12-13"), status: "confirmed", source: "online" };
+    const starts = findSlots({ date: "2026-12-13", serviceIds: ["colour"], staffId: "hana", bookings: [fade] }).map((s) => s.start);
+    const iso = (hhmm: string) => new Date(at(hhmm, "2026-12-13")).toISOString();
+    expect(starts).not.toContain(iso("12:00")); // mixing would start at 11:50, during the fringe
+    expect(starts).toContain(iso("12:15"));
   });
 
   it("blocked time keeps the slot off the booking page", () => {

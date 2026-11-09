@@ -148,6 +148,7 @@ export function Book() {
                       setServiceIds((ids) => (e.target.checked ? [...ids, x.id] : ids.filter((v) => v !== x.id)));
                     }}
                   />
+                  {x.photo && <img className="book__thumb" src={x.photo} alt="" loading="lazy" />}
                   <span className="book__option-text">
                     <strong>{s(x.name)}</strong>
                     <small>

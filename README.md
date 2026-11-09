@@ -9,7 +9,7 @@ Node 18 or later.
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm test           # slot finder, money, time zones, CSV reader
+npm test           # slot finder (with buffers), money, time zones, CSV reader, translation catalogues
 npm run build      # type-check, then a production build in dist/
 npm run preview    # serve the production build
 ```
@@ -30,11 +30,12 @@ The scripts call `node` directly, so they work even though the folder path conta
 | `/account` | The client's account (one-time-code sign-in) | `src/account/` |
 | `/admin` | Platform admin for the Chairside team | `src/admin/Admin.tsx` |
 
-Client-facing pages (`/s/...`, `/account`) switch between **English, Arabic and French** from the shop footer; Arabic lays out right to left. The business app is in English at launch.
+Client-facing pages (`/s/...`, `/account`, `/kiosk`, `/tv` and the error pages) switch between **English, Arabic and French**; Arabic lays out right to left. The business app is in English at launch, but every screen already reads its text from one catalogue, so adding a language means adding a file, not rewriting screens.
 
 ## How the preview behaves
 
 - **Sample data** lives in `src/lib/data.ts` (Example Barbers, Cairo, EGP). Changes you make are kept in this browser (`localStorage`); **Reset sample data** at the foot of the app sidebar puts everything back.
+- **Sample photos** are Unsplash pictures in `public/sample/` (sources in `public/sample/CREDITS.md`). Photos you add in the app are shrunk in the browser and kept in `localStorage` until file storage exists.
 - **Nothing is sent anywhere.** Messages, payments, fiscal receipts and sign-in codes are not connected; every screen that would send something says so.
 - **Data states:** add `?state=loading`, `?state=empty` or `?state=error` to any app screen (links at the foot of the sidebar) to see those states.
 - **Settings › Language and region** changes currency, time zone and formats everywhere, with country presets for Egypt, Tunisia, Italy, France and Germany.
@@ -44,7 +45,11 @@ Client-facing pages (`/s/...`, `/account`) switch between **English, Arabic and 
 - `src/lib/store.tsx`: the in-browser store (bookings, clients, queue, sales, stock, gift cards). The backend replaces it.
 - `src/lib/availability.ts`: the frontend stand-in for the booking engine (PLAN.md section 15): free slots, minimum notice, processing time.
 - `src/lib/format.ts`: money from minor units with each currency's decimals (TND has 3), times in the shop's time zone.
-- `src/lib/i18n.tsx`: client-facing translations and the shop's own translated text.
+- `src/lib/i18n.tsx`: client-facing translations (English, Arabic, French) and the shop's own translated text.
+- `src/app/i18n.ts` and `src/app/locales/en.ts`: the staff interface catalogue (`useT()`: `t`, `tp` for counts, `label` for stored values). New text goes here first; `src/lib/i18n.test.ts` fails on missing, extra or unused keys and on missing plural forms.
+- `src/lib/plural.ts`: plural forms through `Intl.PluralRules` (Arabic has six), shared by both catalogues.
+- `src/lib/photo.ts`: reads and scales down uploaded photos.
+- `src/site/prices.tsx`: our prices by region. Egypt and Tunisia are not set yet; fill them in there and both pricing tables update.
 - `src/ui/kit.tsx`: shared controls, tabs, fields and the four data states.
 - Styles: `src/styles/tokens.css` (design tokens), `page.css` and `pages.css` (marketing), `src/app/styles/app.css` (app, shop and modes).
 

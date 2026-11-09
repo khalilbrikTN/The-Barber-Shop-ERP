@@ -214,3 +214,11 @@ a:hover { color: var(--color-accent); }
   .start__form { grid-template-columns: minmax(0, 1fr); }
   .start__form .btn { justify-self: stretch; }
 }
+
+/* Region switch on the pricing tables */
+.region { display: inline-flex; flex-wrap: wrap; margin-top: var(--space-md); }
+.region__btn { min-height: 44px; padding: 0 var(--space-md); border: var(--rule-bar) solid var(--color-ink); margin-inline-start: calc(-1 * var(--rule-bar)); background: transparent; color: var(--color-ink); font: 800 var(--text-sm)/1 var(--font-body); cursor: pointer; transition: background-color var(--dur-micro) steps(1); }
+.region__btn:first-child { margin-inline-start: 0; }
+.region__btn[aria-checked="true"] { background: var(--color-ink); color: var(--color-paper); }
+.region__btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; position: relative; }
+@media (prefers-reduced-motion: reduce) { .region__btn { transition: none; } }

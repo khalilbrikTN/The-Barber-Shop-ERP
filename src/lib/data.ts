@@ -15,12 +15,13 @@ export type Staff = {
   rentMinor?: number;
   hours: string;
   services: string[];
+  photo?: string;
 };
 
 export const STAFF: Staff[] = [
-  { id: "karim", name: "Karim", slug: "karim", role: "Owner", pay: "owner", hours: "Sat to Thu, 10:00 to 20:00", services: ["fade", "fadebeard", "beard", "kids", "shave", "buzz"] },
-  { id: "marco", name: "Marco", slug: "marco", role: "Barber", pay: "commission", commission: 0.5, hours: "Sat to Wed, 11:00 to 21:00", services: ["fade", "fadebeard", "beard", "kids", "buzz"] },
-  { id: "hana", name: "Hana", slug: "hana", role: "Stylist", pay: "booth rent", rentMinor: 300000, hours: "Sat to Tue, 10:00 to 18:00", services: ["cutdry", "colour", "fringe", "kids"] },
+  { id: "karim", name: "Karim", slug: "karim", role: "Owner", pay: "owner", hours: "Sat to Thu, 10:00 to 20:00", services: ["fade", "fadebeard", "beard", "kids", "shave", "buzz"], photo: "/sample/haircut.jpg" },
+  { id: "marco", name: "Marco", slug: "marco", role: "Barber", pay: "commission", commission: 0.5, hours: "Sat to Wed, 11:00 to 21:00", services: ["fade", "fadebeard", "beard", "kids", "buzz"], photo: "/sample/razor-trim.jpg" },
+  { id: "hana", name: "Hana", slug: "hana", role: "Stylist", pay: "booth rent", rentMinor: 300000, hours: "Sat to Tue, 10:00 to 18:00", services: ["cutdry", "colour", "fringe", "kids"], photo: "/sample/stylist-at-work.jpg" },
   { id: "salma", name: "Salma", slug: "salma", role: "Front desk", pay: "salary", hours: "Sat to Thu, 10:00 to 19:00", services: [] },
 ];
 export const BOOKABLE = STAFF.filter((s) => s.services.length > 0);
@@ -35,17 +36,22 @@ export type Service = {
   /** work / wait segments: the stylist is free during wait */
   segments?: { kind: "work" | "wait"; minutes: number }[];
   deposit?: boolean;
+  /** minutes the chair is busy before and after, without the client: mixing colour, changing towels */
+  bufferBefore?: number;
+  bufferAfter?: number;
+  /** a photo for the booking page; the samples are Unsplash pictures in public/sample */
+  photo?: string;
 };
 
 export const SERVICES: Service[] = [
-  { id: "fade", name: "Skin fade", category: "Hair", minutes: 30, priceMinor: 25000, description: "Clippers to the skin, scissors on top." },
-  { id: "fadebeard", name: "Fade and beard", category: "Hair", minutes: 45, priceMinor: 35000, description: "Skin fade with a beard shape and line-up." },
-  { id: "buzz", name: "Buzz cut", category: "Hair", minutes: 15, priceMinor: 15000, description: "One guard all over." },
-  { id: "beard", name: "Beard trim", category: "Beard", minutes: 20, priceMinor: 12000, description: "Shape, line-up and hot towel." },
-  { id: "shave", name: "Hot towel shave", category: "Beard", minutes: 30, priceMinor: 20000, description: "Straight razor, two hot towels." },
-  { id: "kids", name: "Kids cut", category: "Kids", minutes: 20, priceMinor: 15000, description: "Under 12." },
-  { id: "cutdry", name: "Cut and blow-dry", category: "Hair", minutes: 60, priceMinor: 45000, description: "Wash, cut and blow-dry." },
-  { id: "fringe", name: "Fringe trim", category: "Hair", minutes: 15, priceMinor: 8000, description: "Between full cuts." },
+  { id: "fade", name: "Skin fade", category: "Hair", minutes: 30, priceMinor: 25000, description: "Clippers to the skin, scissors on top.", photo: "/sample/thinning-shears.jpg" },
+  { id: "fadebeard", name: "Fade and beard", category: "Hair", minutes: 45, priceMinor: 35000, description: "Skin fade with a beard shape and line-up.", photo: "/sample/beard-scissors.jpg" },
+  { id: "buzz", name: "Buzz cut", category: "Hair", minutes: 15, priceMinor: 15000, description: "One guard all over.", photo: "/sample/haircut.jpg" },
+  { id: "beard", name: "Beard trim", category: "Beard", minutes: 20, priceMinor: 12000, description: "Shape, line-up and hot towel.", photo: "/sample/beard-scissors.jpg" },
+  { id: "shave", name: "Hot towel shave", category: "Beard", minutes: 30, priceMinor: 20000, description: "Straight razor, two hot towels.", bufferAfter: 10, photo: "/sample/razor-trim.jpg" },
+  { id: "kids", name: "Kids cut", category: "Kids", minutes: 20, priceMinor: 15000, description: "Under 12.", photo: "/sample/barber-chair-client.jpg" },
+  { id: "cutdry", name: "Cut and blow-dry", category: "Hair", minutes: 60, priceMinor: 45000, description: "Wash, cut and blow-dry.", photo: "/sample/blow-dry.jpg" },
+  { id: "fringe", name: "Fringe trim", category: "Hair", minutes: 15, priceMinor: 8000, description: "Between full cuts.", photo: "/sample/hair-styling.jpg" },
   {
     id: "colour",
     name: "Colour, roots",
@@ -59,6 +65,8 @@ export const SERVICES: Service[] = [
       { kind: "work", minutes: 20 },
     ],
     deposit: true,
+    bufferBefore: 10,
+    photo: "/sample/salon-chair-mirror.jpg",
   },
 ];
 export const serviceById = (id: string) => SERVICES.find((s) => s.id === id)!;
@@ -81,6 +89,8 @@ export type Client = {
   birthday?: string;
   language?: string;
   blocked?: boolean;
+  /** before and after photos, kept only with the client's agreement */
+  photos?: { src: string; kind: "before" | "after"; date: string }[];
 };
 
 export const CLIENTS: Client[] = [

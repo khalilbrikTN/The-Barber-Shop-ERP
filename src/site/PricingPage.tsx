@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SiteFooter, SiteNav } from "./Chrome";
+import { RegionSwitch, useRegion } from "./prices";
 import { Start } from "./sections/Start";
 
 const PLANS = ["Free", "Solo", "Shop", "Pro"];
 const ROWS: { label: string; values: string[]; figure?: boolean }[] = [
-  { label: "Each month, per location", values: ["€0", "€15", "€39", "€79"], figure: true },
   { label: "Bookable staff", values: ["1", "1", "Up to 6", "Up to 15"] },
   { label: "Messages a month", values: ["50", "300", "1,500", "4,000"] },
   { label: "Walk-in queue, deposits, loyalty", values: ["No", "No", "Yes", "Yes"] },
@@ -23,6 +23,8 @@ const NEVER = [
 ];
 
 export function PricingPage() {
+  const { region, setRegion, meta, prices, money, multi } = useRegion();
+  const rows = [{ label: "Each month, per location", values: prices.plans.map(money), figure: true }, ...ROWS];
   useEffect(() => {
     document.title = "Pricing, Chairside";
   }, []);
@@ -33,7 +35,8 @@ export function PricingPage() {
         <section className="page-hero" aria-labelledby="pp-title">
           <div className="container">
             <h1 id="pp-title">One price a month. No cut.</h1>
-            <p className="lead">Per location, in euros. Local prices in Egypt and Tunisia at launch.</p>
+            <p className="lead">Per location, in {meta.currencyName}. Pick where your shop is.</p>
+            <RegionSwitch region={region} setRegion={setRegion} />
             <div className="hero__actions">
               <a className="btn btn--primary" href="#start">
                 Start free trial
@@ -57,7 +60,7 @@ export function PricingPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {ROWS.map((r) => (
+                  {rows.map((r) => (
                     <tr key={r.label} className={r.figure ? "pricing__price" : undefined}>
                       <th scope="row">{r.label}</th>
                       {r.values.map((v, i) => (
@@ -70,7 +73,7 @@ export function PricingPage() {
                 </tbody>
               </table>
             </div>
-            <p className="pricing__note">Several locations: from €69 each, with reports across all of them.</p>
+            <p className="pricing__note">{multi} Reports cover all of them.</p>
           </div>
         </section>
 

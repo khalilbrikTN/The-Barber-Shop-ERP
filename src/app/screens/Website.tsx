@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
+import { PHOTO_TYPES, readPhoto } from "../../lib/photo";
 import { loadSite, saveSite, SiteConfig } from "../../lib/site";
+import { photoMessage } from "../photoError";
 import { useSettings } from "../../lib/settings";
 import { Field, PageHead, Toggle } from "../../ui/kit";
 import { TextKey, useT } from "../i18n";
@@ -19,12 +21,27 @@ export function Website() {
   const [logoError, setLogoError] = useState("");
   const [domain, setDomain] = useState("");
   const [copied, setCopied] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [photoError, setPhotoError] = useState("");
   const embedCode = `<iframe id="chairside-book" src="${window.location.origin}/s/example-barbers/book?embed=1" title="${t("web.iframeTitle", { shop: settings.shopName }).replace(/"/g, "&quot;")}" style="width:100%;height:760px;border:0"></iframe>\n<script>addEventListener("message",function(e){if(e.data&&e.data.chairside==="height"){document.getElementById("chairside-book").style.height=e.data.height+"px"}})</script>`;
 
   useEffect(() => {
-    saveSite(site);
+    if (!saveSite(site)) setPhotoError(t("web.storageFull"));
     setVersion((v) => v + 1);
   }, [site]);
+
+  function addPhoto(e: ChangeEvent<HTMLInputElement>, use: (src: string) => void) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    readPhoto(file).then(
+      (src) => {
+        setPhotoError("");
+        use(src);
+      },
+      (err) => setPhotoError(t(photoMessage(err))),
+    );
+  }
 
   const set = (p: Partial<SiteConfig>) => setSite((s) => ({ ...s, ...p }));
   const sec = (k: keyof SiteConfig["sections"], v: boolean) => setSite((s) => ({ ...s, sections: { ...s.sections, [k]: v } }));
@@ -106,10 +123,60 @@ export function Website() {
           <Field label={t("web.whatsapp")}>{(id) => <input id={id} className="ui-input" type="tel" value={site.whatsapp} onChange={(e) => set({ whatsapp: e.target.value })} />}</Field>
           <Field label={t("web.instagram")}>{(id) => <input id={id} className="ui-input" value={site.instagram} onChange={(e) => set({ instagram: e.target.value })} />}</Field>
           <fieldset className="ui-fieldset">
+            <legend>{t("web.photosTitle")}</legend>
+            <p className="ui-field__label">{t("web.hero")}</p>
+            {site.hero ? <img className="photo-hero" src={site.hero} alt="" /> : <p className="app-quiet">{t("web.noHero")}</p>}
+            <Field label={t("web.heroUpload")} hint={t("web.heroHint")}>
+              {(id, hint) => <input id={id} aria-describedby={hint} className="ui-file" type="file" accept={PHOTO_TYPES} onChange={(e) => addPhoto(e, (src) => set({ hero: src }))} />}
+            </Field>
+            {site.hero && (
+              <button type="button" className="ui-btn ui-btn--text" onClick={() => set({ hero: undefined })}>
+                {t("web.removeHero")}
+              </button>
+            )}
+            <p className="ui-field__label">{t("web.gallery")}</p>
+            <p className="app-quiet">{t("web.galleryHint")}</p>
+            {site.gallery.length === 0 ? (
+              <p className="app-quiet">{t("web.galleryEmpty")}</p>
+            ) : (
+              <ul className="photo-list">
+                {site.gallery.map((p, i) => (
+                  <li key={`${i}-${p.src.slice(-24)}`} className="photo-row">
+                    <img src={p.src} alt="" />
+                    <div className="photo-row__body">
+                      <label className="visually-hidden" htmlFor={`alt-${i}`}>
+                        {t("web.altFor", { n: i + 1 })}
+                      </label>
+                      <input id={`alt-${i}`} className="ui-input" value={p.alt} placeholder={t("web.altLabel")} onChange={(e) => set({ gallery: site.gallery.map((g, j) => (j === i ? { ...g, alt: e.target.value } : g)) })} />
+                      <span className="row-actions">
+                        <button type="button" className="ui-btn ui-btn--text" disabled={site.hero === p.src} onClick={() => set({ hero: p.src })}>
+                          {t("web.makeHero")}
+                        </button>
+                        <button type="button" className="ui-btn ui-btn--text" aria-label={t("web.removePhoto", { n: i + 1 })} onClick={() => set({ gallery: site.gallery.filter((_, j) => j !== i) })}>
+                          {t("common.remove")}
+                        </button>
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <Toggle checked={consent} onChange={setConsent} label={t("web.consent")} />
+            <Field label={t("web.addPhoto")}>
+              {(id) => <input id={id} className="ui-file" type="file" accept={PHOTO_TYPES} disabled={!consent} onChange={(e) => addPhoto(e, (src) => set({ gallery: [...site.gallery, { src, alt: "" }] }))} />}
+            </Field>
+            {photoError && (
+              <p className="ui-error" role="alert">
+                {photoError}
+              </p>
+            )}
+          </fieldset>
+          <fieldset className="ui-fieldset">
             <legend>{t("web.sections")}</legend>
             <Toggle checked={site.sections.services} onChange={(v) => sec("services", v)} label={t("web.secServices")} />
             <Toggle checked={site.sections.team} onChange={(v) => sec("team", v)} label={t("web.secTeam")} />
             <Toggle checked={site.sections.offers} onChange={(v) => sec("offers", v)} label={t("web.secOffers")} />
+            <Toggle checked={site.sections.gallery} onChange={(v) => sec("gallery", v)} label={t("web.secGallery")} />
             <Toggle checked={site.sections.hours} onChange={(v) => sec("hours", v)} label={t("web.secHours")} />
             <Toggle checked={site.sections.find} onChange={(v) => sec("find", v)} label={t("web.secFind")} />
           </fieldset>
@@ -166,7 +233,6 @@ export function Website() {
               </a>
             </div>
           </fieldset>
-          <p className="app-quiet">{t("web.photos")}</p>
         </form>
         <div className="site-editor__preview">
           <p className="ui-field__label">{t("web.live")}</p>

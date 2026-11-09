@@ -181,6 +181,80 @@ function Receipts() {
   );
 }
 
+function Breakdown() {
+  const f = useFormat();
+  const { t } = useT();
+  const { sales } = useStore();
+  const kept = sales.filter((x) => !x.refunded);
+  const byLabel = new Map<string, { n: number; minor: number }>();
+  kept.forEach((x) => x.lines.forEach((l) => byLabel.set(l.label, { n: (byLabel.get(l.label)?.n ?? 0) + 1, minor: (byLabel.get(l.label)?.minor ?? 0) + l.minor })));
+  const lines = [...byLabel.entries()].sort((a, b) => b[1].minor - a[1].minor);
+  const staff = BOOKABLE.map((s) => {
+    const mine = kept.filter((x) => x.staffId === s.id);
+    return { s, n: mine.length, minor: mine.reduce((m, x) => m + x.lines.reduce((a, l) => a + l.minor, 0), 0), tips: mine.reduce((m, x) => m + x.tipMinor, 0) };
+  });
+  if (kept.length === 0) return <p className="app-quiet">{t("money.noLines")}</p>;
+  return (
+    <>
+    <div className="app-split app-split--checkout">
+      <section className="app-section" aria-labelledby="bys-title">
+        <h2 id="bys-title" className="app-h2">
+          {t("money.byService")}
+        </h2>
+        <div className="ui-tablewrap">
+          <table className="ui-table">
+            <thead>
+              <tr>
+                <th scope="col">{t("money.what")}</th>
+                <th scope="col" className="r">{t("money.sold")}</th>
+                <th scope="col" className="r">{t("money.amount")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lines.map(([label, v]) => (
+                <tr key={label}>
+                  <th scope="row">{label}</th>
+                  <td className="r num">{f.num(v.n)}</td>
+                  <td className="r num">{f.money(v.minor, { whole: true })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section className="app-section" aria-labelledby="byb-title">
+        <h2 id="byb-title" className="app-h2">
+          {t("money.byStaff")}
+        </h2>
+        <div className="ui-tablewrap">
+          <table className="ui-table">
+            <thead>
+              <tr>
+                <th scope="col">{t("common.barber")}</th>
+                <th scope="col" className="r">{t("money.clients")}</th>
+                <th scope="col" className="r">{t("money.amount")}</th>
+                <th scope="col" className="r">{t("money.tipsCol")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {staff.map(({ s, n, minor, tips }) => (
+                <tr key={s.id}>
+                  <th scope="row">{s.name}</th>
+                  <td className="r num">{f.num(n)}</td>
+                  <td className="r num">{f.money(minor, { whole: true })}</td>
+                  <td className="r num">{f.money(tips, { whole: true })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    <p className="app-quiet">{t("money.allSales")}</p>
+    </>
+  );
+}
+
 function Sales() {
   const f = useFormat();
   const { t } = useT();
@@ -189,6 +263,7 @@ function Sales() {
   return (
     <>
     <Receipts />
+    <Breakdown />
     <section className="app-section" aria-labelledby="sales-title">
       <h2 id="sales-title" className="app-h2">
         {t("money.week")}

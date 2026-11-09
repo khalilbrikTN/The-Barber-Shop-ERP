@@ -179,6 +179,8 @@ const en = {
   "err.offlineBody": "Screens you have opened before still work. Reconnect to load this one.",
   "err.stoppedBody": "Nothing you saved is lost. Reload the page; if it happens again, tell us what you clicked.",
   "err.reload": "Reload",
+  "site.gallery": "Our work",
+  "site.heroAlt": "Inside {shop}",
 } satisfies Record<string, Entry>;
 export type Key = keyof typeof en;
 export type TextKey = { [K in Key]: (typeof en)[K] extends string ? K : never }[Key];
@@ -352,6 +354,8 @@ const ar: Catalogue = {
   "err.offlineBody": "الشاشات التي فتحتها من قبل ما زالت تعمل. أعد الاتصال لتحميل هذه الشاشة.",
   "err.stoppedBody": "لم يضع شيء مما حفظته. أعد تحميل الصفحة؛ وإن تكرر ذلك، أخبرنا بما ضغطت عليه.",
   "err.reload": "إعادة التحميل",
+  "site.gallery": "من أعمالنا",
+  "site.heroAlt": "داخل {shop}",
 };
 
 const fr: Catalogue = {
@@ -521,6 +525,8 @@ const fr: Catalogue = {
   "err.offlineBody": "Les écrans déjà ouverts fonctionnent toujours. Reconnectez-vous pour charger celui-ci.",
   "err.stoppedBody": "Rien de ce que vous avez enregistré n’est perdu. Rechargez la page ; si cela se reproduit, dites-nous sur quoi vous avez cliqué.",
   "err.reload": "Recharger",
+  "site.gallery": "Nos réalisations",
+  "site.heroAlt": "À l’intérieur de {shop}",
 };
 
 /** Exported for the catalogue test only. */

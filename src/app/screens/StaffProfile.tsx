@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { SERVICES, STAFF, TODAY } from "../../lib/data";
 import { minorDigits, useFormat } from "../../lib/format";
+import { PHOTO_TYPES, readPhoto } from "../../lib/photo";
 import { useStore } from "../../lib/store";
+import { photoMessage } from "../photoError";
 import { Field, NotConnected, PageHead, Stat } from "../../ui/kit";
 import { useT } from "../i18n";
 
@@ -17,6 +19,23 @@ export function StaffProfile() {
   const [overrides, setOverrides] = useState<Record<string, { price?: string; minutes?: string }>>({});
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [photo, setPhoto] = useState(s?.photo);
+  const [photoError, setPhotoError] = useState("");
+  const [photoChanged, setPhotoChanged] = useState(false);
+
+  function changePhoto(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    readPhoto(file, 800).then(
+      (src) => {
+        setPhoto(src);
+        setPhotoError("");
+        setPhotoChanged(true);
+      },
+      (err) => setPhotoError(t(photoMessage(err))),
+    );
+  }
 
   if (!s)
     return (
@@ -124,7 +143,16 @@ export function StaffProfile() {
             {t("sp.site")}
           </h2>
           <Field label={t("sp.line")}>{(fid) => <textarea id={fid} className="ui-input ui-textarea" rows={3} value={bio} onChange={(e) => setBio(e.target.value)} />}</Field>
-          <p className="app-quiet">{t("sp.photo")}</p>
+          {photo && <img className="staff-photo" src={photo} alt={s.name} />}
+          <Field label={t("sp.changePhoto")} hint={t("sp.photo")}>
+            {(fid, hint) => <input id={fid} aria-describedby={hint} className="ui-file" type="file" accept={PHOTO_TYPES} onChange={changePhoto} />}
+          </Field>
+          {photoError && (
+            <p className="ui-error" role="alert">
+              {photoError}
+            </p>
+          )}
+          {photoChanged && <NotConnected what={t("sp.photoThing")} />}
           <div className="ui-field">
             <span className="ui-field__label">{t("sp.link")}</span>
             <p className="plate plate--link">

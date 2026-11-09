@@ -90,6 +90,12 @@ export function ShopSite() {
         </div>
       </section>
 
+      {site.hero && (
+        <figure className="shop-photo">
+          <img src={site.hero} alt={t("site.heroAlt", { shop: settings.shopName })} />
+        </figure>
+      )}
+
       {site.sections.services && (
         <section className="shop-sec" aria-labelledby="svc-title">
           <div className="shop__container">
@@ -145,9 +151,25 @@ export function ShopSite() {
             <ul className="shop-team">
               {BOOKABLE.map((x) => (
                 <li key={x.id}>
+                  {x.photo && <img className="shop-team__photo" src={x.photo} alt="" loading="lazy" />}
                   <strong>{x.name}</strong>
                   <span>{s(x.role)}</span>
                   <Link to={`${SHOP}/book?staff=${x.id}`}>{t("site.bookWith", { name: x.name })}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {site.sections.gallery && site.gallery.length > 0 && (
+        <section className="shop-sec" aria-labelledby="gal-title">
+          <div className="shop__container">
+            <h2 id="gal-title">{t("site.gallery")}</h2>
+            <ul className="shop-gallery">
+              {site.gallery.map((p, i) => (
+                <li key={i}>
+                  <img src={p.src} alt={p.alt} loading="lazy" />
                 </li>
               ))}
             </ul>

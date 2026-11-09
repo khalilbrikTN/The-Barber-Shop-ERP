@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { HOLIDAYS_EG_2027, NOW, SERVICES } from "../../lib/data";
 import { minorDigits, toMinor, useFormat } from "../../lib/format";
+import { PHOTO_TYPES, readPhoto } from "../../lib/photo";
 import { COUNTRY_PRESETS, useSettings } from "../../lib/settings";
+import { photoMessage } from "../photoError";
 import { Field, NotConnected, PageHead, Tabs, Toggle, useTab } from "../../ui/kit";
 import { useT } from "../i18n";
 
@@ -20,6 +22,7 @@ export function SettingsScreen() {
         tabs={[
           { id: "region", label: t("set.tabRegion") },
           { id: "business", label: t("set.tabBusiness") },
+          { id: "locations", label: t("set.tabLocations") },
           { id: "services", label: t("set.tabServices") },
           { id: "booking", label: t("set.tabBooking") },
           { id: "holidays", label: t("set.tabHolidays") },
@@ -30,6 +33,7 @@ export function SettingsScreen() {
       <div className="app-tabpanel" role="tabpanel">
         {tab === "region" && <Region />}
         {tab === "business" && <Business />}
+        {tab === "locations" && <Locations />}
         {tab === "services" && <Services />}
         {tab === "booking" && <BookingRules />}
         {tab === "holidays" && <Holidays />}
@@ -144,6 +148,80 @@ function Business() {
   );
 }
 
+function Locations() {
+  const { t } = useT();
+  const { settings } = useSettings();
+  const [list, setList] = useState([{ id: "l1", name: settings.shopName, address: "Example Street, Cairo", chairs: 3, timeZone: settings.timeZone }]);
+  const [name, setName] = useState("");
+  const [address, setAddress] = useState("");
+  const [chairs, setChairs] = useState(2);
+  const [error, setError] = useState("");
+  const [added, setAdded] = useState(false);
+  return (
+    <div className="app-split">
+      <section className="app-section" aria-labelledby="loc-title">
+        <h2 id="loc-title" className="app-h2">
+          {t("set.locations")}
+        </h2>
+        <div className="ui-tablewrap">
+          <table className="ui-table">
+            <thead>
+              <tr>
+                <th scope="col">{t("set.locationName")}</th>
+                <th scope="col">{t("set.locationAddress")}</th>
+                <th scope="col" className="r">{t("set.locationChairs")}</th>
+                <th scope="col">{t("set.locationZone")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.map((l, i) => (
+                <tr key={l.id}>
+                  <th scope="row">
+                    {l.name}
+                    {i === 0 && <span className="ui-tags">{t("set.locationMain")}</span>}
+                  </th>
+                  <td>{l.address}</td>
+                  <td className="r num">{l.chairs}</td>
+                  <td>{l.timeZone}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="app-quiet">{t("set.locationHint")}</p>
+      </section>
+      <form
+        className="ui-form app-section app-panel"
+        noValidate
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!name.trim() || !address.trim()) return setError(t("set.locationErr"));
+          setError("");
+          setList((ls) => [...ls, { id: `l${Date.now()}`, name: name.trim(), address: address.trim(), chairs, timeZone: settings.timeZone }]);
+          setName("");
+          setAddress("");
+          setAdded(true);
+        }}
+      >
+        <h2 className="app-h2">{t("set.addLocation")}</h2>
+        <Field label={t("set.locationName")}>{(id) => <input id={id} className="ui-input" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={(!!error && !name.trim()) || undefined} />}</Field>
+        <Field label={t("set.locationAddress")}>{(id) => <input id={id} className="ui-input" value={address} onChange={(e) => setAddress(e.target.value)} aria-invalid={(!!error && !address.trim()) || undefined} />}</Field>
+        <Field label={t("set.locationChairs")}>{(id) => <input id={id} type="number" min={1} max={30} className="ui-input num" value={chairs} onChange={(e) => setChairs(Number(e.target.value))} />}</Field>
+        {error && (
+          <p className="ui-error" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="ui-btn ui-btn--quiet">
+          {t("set.addLocationBtn")}
+        </button>
+        <p className="app-quiet">{t("set.locationsPlan")}</p>
+        {added && <NotConnected what={t("set.locationsThing")} />}
+      </form>
+    </div>
+  );
+}
+
 function Services() {
   const f = useFormat();
   const { t, label } = useT();
@@ -151,6 +229,19 @@ function Services() {
   const [rows, setRows] = useState(SERVICES.map((s) => ({ ...s })));
   const [saved, setSaved] = useState(false);
   const edit = (id: string, patch: Partial<(typeof rows)[number]>) => setRows((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  const [photoError, setPhotoError] = useState("");
+  function photo(id: string, e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    readPhoto(file, 600).then(
+      (src) => {
+        setPhotoError("");
+        edit(id, { photo: src });
+      },
+      (err) => setPhotoError(t(photoMessage(err))),
+    );
+  }
   return (
     <form
       className="app-section"
@@ -163,10 +254,12 @@ function Services() {
         <table className="ui-table ui-table--form">
           <thead>
             <tr>
+              <th scope="col">{t("set.photo")}</th>
               <th scope="col">{t("common.service")}</th>
               <th scope="col">{t("money.type")}</th>
               <th scope="col" className="r">{t("set.minutes")}</th>
               <th scope="col" className="r">{t("common.price")}</th>
+              <th scope="col" className="r">{t("set.buffer")}</th>
               <th scope="col">{t("set.processing")}</th>
               <th scope="col" className="c">{t("set.deposit")}</th>
             </tr>
@@ -174,6 +267,13 @@ function Services() {
           <tbody>
             {rows.map((r) => (
               <tr key={r.id}>
+                <td data-label={t("set.photo")}>
+                  <label className="photo-pick">
+                    {r.photo ? <img className="thumb" src={r.photo} alt="" /> : <span className="thumb thumb--empty" aria-hidden="true" />}
+                    <span className="visually-hidden">{t("set.changePhoto", { name: r.name })}</span>
+                    <input type="file" accept={PHOTO_TYPES} className="visually-hidden" onChange={(e) => photo(r.id, e)} />
+                  </label>
+                </td>
                 <th scope="row">
                   <input className="ui-input ui-input--name" value={r.name} onChange={(e) => edit(r.id, { name: e.target.value })} aria-label={t("set.serviceName")} />
                 </th>
@@ -184,6 +284,12 @@ function Services() {
                 <td className="r" data-label={t("common.price")}>
                   <input className="ui-input ui-input--short num" inputMode="decimal" value={r.priceMinor / unit} onChange={(e) => edit(r.id, { priceMinor: toMinor(parseFloat(e.target.value.replace(",", ".")) || 0, f.currency) })} aria-label={t("set.servicePrice", { name: r.name })} />
                 </td>
+                <td className="r" data-label={t("set.buffer")}>
+                  <span className="buffer-pair">
+                    <input className="ui-input ui-input--short num" type="number" min={0} step={5} value={r.bufferBefore ?? 0} onChange={(e) => edit(r.id, { bufferBefore: Number(e.target.value) })} aria-label={t("set.bufferBefore", { name: r.name })} />
+                    <input className="ui-input ui-input--short num" type="number" min={0} step={5} value={r.bufferAfter ?? 0} onChange={(e) => edit(r.id, { bufferAfter: Number(e.target.value) })} aria-label={t("set.bufferAfter", { name: r.name })} />
+                  </span>
+                </td>
                 <td data-label={t("set.processingShort")}>{r.segments ? r.segments.map((g) => t(g.kind === "work" ? "set.segWork" : "set.segWait", { n: g.minutes })).join(", ") : t("common.none")}</td>
                 <td className="c" data-label={t("set.deposit")}>
                   <input type="checkbox" checked={!!r.deposit} onChange={(e) => edit(r.id, { deposit: e.target.checked })} aria-label={t("set.depositFor", { name: r.name })} />
@@ -193,7 +299,13 @@ function Services() {
           </tbody>
         </table>
       </div>
+      {photoError && (
+        <p className="ui-error" role="alert">
+          {photoError}
+        </p>
+      )}
       <p className="app-quiet">{t("set.processingNote")}</p>
+      <p className="app-quiet">{t("set.bufferNote")}</p>
       <div className="rebook">
         <button type="button" className="ui-btn ui-btn--quiet">
           {t("set.addService")}

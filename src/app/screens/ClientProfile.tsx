@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { serviceById, staffById } from "../../lib/data";
 import { useFormat } from "../../lib/format";
+import { PHOTO_TYPES, readPhoto } from "../../lib/photo";
 import { useStore } from "../../lib/store";
+import { photoMessage } from "../photoError";
 import { Field, NotConnected, PageHead, Stat, Status, Toggle } from "../../ui/kit";
 import { useT } from "../i18n";
 
@@ -19,6 +21,9 @@ export function ClientProfile() {
   const [saved, setSaved] = useState(false);
   const [birthday, setBirthday] = useState(c?.birthday ?? "");
   const [language, setLanguage] = useState(c?.language ?? "English");
+  const [kind, setKind] = useState<"before" | "after">("before");
+  const [consent, setConsent] = useState(false);
+  const [photoError, setPhotoError] = useState("");
 
   if (!c)
     return (
@@ -30,6 +35,23 @@ export function ClientProfile() {
         </Link>
       </div>
     );
+
+  const photos = c.photos ?? [];
+  const kindLabel = (k: "before" | "after") => t(k === "before" ? "cp.before" : "cp.after");
+
+  function addPhoto(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !c) return;
+    const id = c.id;
+    readPhoto(file, 900).then(
+      (src) => {
+        setPhotoError("");
+        updateClient(id, { photos: [...photos, { src, kind, date: new Date().toISOString() }] });
+      },
+      (err) => setPhotoError(t(photoMessage(err))),
+    );
+  }
 
   const history = bookings.filter((b) => b.clientId === c.id).sort((a, b) => b.start.localeCompare(a.start));
   const deposit = c.noShows >= 2;
@@ -59,6 +81,7 @@ export function ClientProfile() {
       </div>
 
       <div className="app-split">
+        <div className="app-stack">
         <section className="app-section" aria-labelledby="hist-title">
           <h2 id="hist-title" className="app-h2">
             {t("cl.visits")}
@@ -96,6 +119,47 @@ export function ClientProfile() {
           )}
         </section>
 
+        <section className="app-section" aria-labelledby="ba-title">
+          <h2 id="ba-title" className="app-h2">
+            {t("cp.photosTitle")}
+          </h2>
+          {photos.length === 0 ? (
+            <p className="app-quiet">{t("cp.noPhotos")}</p>
+          ) : (
+            <ul className="before-after">
+              {photos.map((p, i) => (
+                <li key={`${p.date}-${i}`}>
+                  <figure>
+                    <img src={p.src} alt={t("cp.photoAlt", { kind: kindLabel(p.kind), name: c.name, date: f.date(p.date) })} />
+                    <figcaption>{t("cp.caption", { kind: kindLabel(p.kind), date: f.date(p.date) })}</figcaption>
+                  </figure>
+                  <button type="button" className="ui-btn ui-btn--text" aria-label={t("cp.removePhoto", { kind: kindLabel(p.kind), date: f.date(p.date) })} onClick={() => updateClient(c.id, { photos: photos.filter((_, j) => j !== i) })}>
+                    {t("common.remove")}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          <Toggle checked={consent} onChange={setConsent} label={t("cp.photoConsent", { name: c.name })} />
+          <div className="setup__row">
+            <Field label={t("cp.photoKind")}>
+              {(id) => (
+                <select id={id} className="ui-input" value={kind} onChange={(e) => setKind(e.target.value as "before" | "after")}>
+                  <option value="before">{t("cp.before")}</option>
+                  <option value="after">{t("cp.after")}</option>
+                </select>
+              )}
+            </Field>
+            <Field label={t("cp.addPhoto")}>{(id) => <input id={id} className="ui-file" type="file" accept={PHOTO_TYPES} disabled={!consent} onChange={addPhoto} />}</Field>
+          </div>
+          {photoError && (
+            <p className="ui-error" role="alert">
+              {photoError}
+            </p>
+          )}
+        </section>
+        </div>
+
         <section className="app-section app-panel" aria-labelledby="notes-title">
           <h2 id="notes-title" className="app-h2">
             {t("cp.notes")}
@@ -126,7 +190,6 @@ export function ClientProfile() {
               </Field>
             </div>
             <Toggle checked={marketing} onChange={setMarketing} label={t("cp.consent")} />
-            <p className="app-quiet">{t("cp.photos")}</p>
             <button type="submit" className="ui-btn ui-btn--quiet">
               {t("cp.save")}
             </button>
