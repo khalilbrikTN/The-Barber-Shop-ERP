@@ -51,6 +51,7 @@
 
 @media (max-width: 60rem) {
   .never__grid, .help__group { grid-template-columns: minmax(0, 1fr); }
+  .never__link { grid-column: auto; }
   .steps__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 40rem) {

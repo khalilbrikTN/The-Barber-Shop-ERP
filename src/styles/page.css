@@ -201,7 +201,8 @@ a:hover { color: var(--color-accent); }
   .nav__action { display: none; }
   .nav__phone-only { display: list-item; }
   .hero__figure { font-size: 6rem; }
-  .hero__actions { flex-wrap: nowrap; gap: var(--space-xs); margin-top: var(--space-lg); }
+  .hero__actions { gap: var(--space-xs); margin-top: var(--space-lg); }
+  .hero__actions .btn { flex: 1 1 auto; }
   .hero__actions .btn { padding: 0 var(--space-md); }
   .board__service-col, .cities__table .opt { display: none; }
   .cities__table .r { padding-left: var(--space-sm); }
@@ -222,3 +223,6 @@ a:hover { color: var(--color-accent); }
 .region__btn[aria-checked="true"] { background: var(--color-ink); color: var(--color-paper); }
 .region__btn:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; position: relative; }
 @media (prefers-reduced-motion: reduce) { .region__btn { transition: none; } }
+
+/* Logo links are tap targets too */
+.nav__mark, .footer__mark { display: inline-flex; align-items: center; min-block-size: 44px; }

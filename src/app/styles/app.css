@@ -708,3 +708,46 @@
 @media (prefers-reduced-motion: reduce) {
   .auth__demo-btn { transition: none; }
 }
+
+/* ---------- Phones first: most staff and every client use this on a phone ---------- */
+
+/* Grids that hold one column size it to the screen, never to their widest child */
+.mode-barber, .setup, .auth, .kiosk { grid-template-columns: minmax(0, 1fr); }
+.mode-barber__top { flex-wrap: wrap; }
+.mode-barber__top label { flex: 1 1 10rem; }
+.mode-barber__top .ui-input { min-inline-size: 0; }
+.row-actions { flex-wrap: wrap; }
+.photo-row__body, .rules li > div { min-inline-size: 0; }
+.app-more { display: inline-flex; align-items: center; min-block-size: 44px; }
+.app-side__shop, .setup__mark { display: inline-flex; align-items: center; min-block-size: 44px; }
+.ui-file { min-block-size: 44px; padding-block: var(--space-xs); }
+.shop__menu, .shop__bar .shop__btn--primary, .shop__lang .ui-input { min-block-size: 44px; }
+.shop-team li a, .account__list a, .admin__bar a { display: inline-flex; align-items: center; min-block-size: 44px; }
+
+@media (max-width: 40rem), (pointer: coarse) {
+  /* bigger controls for thumbs; the shop pages and barber mode are already at 48px */
+  .app-root { --control: 48px; }
+  /* 16px or more, or iPhones zoom the page when a field is tapped */
+  .ui-input, .ui-textarea, .app-root select, .shop select, .shop input, .shop textarea { font-size: max(16px, 1em); }
+  .ui-input--code { font-size: var(--text-2xl); }
+  /* a name in a table row is how you open that client or barber */
+  .ui-table th a, .ui-table td a { display: inline-flex; align-items: center; min-block-size: 44px; }
+}
+
+@media (max-width: 40rem) {
+  /* long labels wrap inside the button instead of pushing the screen wide */
+  .ui-btn, .shop__btn { white-space: normal; text-align: center; line-height: 1.2; padding-block: var(--space-2xs); }
+  .setup__top { padding: var(--space-sm) var(--space-md); }
+  .setup__steps { gap: var(--space-xs) var(--space-sm); }
+  .setup__main { padding-block: var(--space-xl); }
+  .setup__nav { position: sticky; inset-block-end: 0; padding-block: var(--space-sm); background: var(--color-paper); }
+  .ui-tabs { gap: var(--space-md); margin-inline: calc(-1 * var(--space-md)); padding-inline: var(--space-md); scroll-padding-inline: var(--space-md); }
+  .ui-tab { flex-shrink: 0; }
+  .ui-pagehead__actions { inline-size: 100%; }
+  .ui-pagehead__actions .ui-btn { flex: 1 1 auto; }
+  .auth__main { padding-block: var(--space-lg) var(--space-xl); }
+  .auth__step h1 { font-size: var(--text-display); }
+  .mode-barber { padding-block-end: var(--space-2xl); }
+  .next-card__actions { flex-wrap: wrap; }
+  .next-card__actions .ui-btn { flex: 1 1 auto; }
+}
