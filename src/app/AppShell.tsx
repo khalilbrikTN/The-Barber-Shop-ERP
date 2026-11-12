@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
+import { StaffRole, useSession } from "../lib/session";
 import { useSettings } from "../lib/settings";
 import { resetSampleData } from "../lib/store";
 import { TextKey, useT } from "./i18n";
 import { QuickFind } from "./QuickFind";
+import { Region } from "../ui/kit";
 
 const NAV: { to: string; label: TextKey; end?: boolean }[] = [
   { to: "/app", label: "nav.today", end: true },
@@ -18,6 +20,18 @@ const NAV: { to: string; label: TextKey; end?: boolean }[] = [
   { to: "/app/settings", label: "nav.settings" },
 ];
 
+/** Screens each role opens; the owner opens all of them. Matches the grid in Team, Roles. */
+const ALLOWED: Record<Exclude<StaffRole, "Owner">, string[]> = {
+  "Front desk": ["/app", "/app/calendar", "/app/queue", "/app/clients", "/app/checkout", "/app/money", "/app/compte", "/me", "/kiosk", "/tv", "/s/"],
+  Barber: ["/app", "/app/calendar", "/app/queue", "/app/clients", "/app/checkout", "/app/compte", "/me", "/s/"],
+  Stylist: ["/app", "/app/calendar", "/app/queue", "/app/clients", "/app/checkout", "/app/compte", "/me", "/s/"],
+};
+
+export function canOpen(role: StaffRole, path: string) {
+  if (role === "Owner") return true;
+  return ALLOWED[role].some((p) => (p === "/app" ? path === "/app" || path === "/app/" : path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`)));
+}
+
 const MODES: { to: string; label: TextKey }[] = [
   { to: "/me", label: "nav.barberMode" },
   { to: "/kiosk", label: "nav.kiosk" },
@@ -28,11 +42,16 @@ const MODES: { to: string; label: TextKey }[] = [
 
 export function AppShell() {
   const { settings } = useSettings();
-  const { t } = useT();
+  const { t, label } = useT();
+  const { staff } = useSession();
+  const role = staff?.role ?? "Owner";
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => {
+    document.title = `${settings.shopName}, Chairside`;
+  }, [settings.shopName]);
 
   return (
     <div className="app-root app-shell">
@@ -51,7 +70,7 @@ export function AppShell() {
         <nav id="app-nav" className="app-side__nav" aria-label={t("shell.nav")}>
           <QuickFind />
           <ul>
-            {NAV.map((n) => (
+            {NAV.filter((n) => canOpen(role, n.to)).map((n) => (
               <li key={n.to}>
                 <NavLink to={n.to} end={n.end} className="app-side__link">
                   {t(n.label)}
@@ -61,7 +80,7 @@ export function AppShell() {
           </ul>
           <p className="app-side__group">{t("nav.other")}</p>
           <ul>
-            {MODES.map((n) => (
+            {MODES.filter((n) => canOpen(role, n.to)).map((n) => (
               <li key={n.to}>
                 <Link to={n.to} className="app-side__link app-side__link--quiet">
                   {t(n.label)}
@@ -69,6 +88,16 @@ export function AppShell() {
               </li>
             ))}
           </ul>
+          {staff && (
+            <div className="app-side__me">
+              <strong>{staff.name}</strong>
+              <span>{label("role", staff.role)}</span>
+              <p className="app-side__me-links">
+                <Link to="/app/compte">{t("shell.account")}</Link>
+                <Link to="/deconnexion">{t("shell.signOut")}</Link>
+              </p>
+            </div>
+          )}
           <div className="app-side__foot">
             <p>{t("shell.sample")}</p>
             <p className="app-side__states">
@@ -84,7 +113,13 @@ export function AppShell() {
         </nav>
       </aside>
       <main id="app-main" className="app-main">
-        <Outlet />
+        {canOpen(role, location.pathname) ? (
+          <Outlet />
+        ) : (
+          <Region state="empty" label={t("shell.noAccess")} empty={{ title: t("shell.noAccess"), body: t("shell.noAccessBody"), action: <Link className="ui-btn ui-btn--quiet" to="/app">{t("common.backToday")}</Link> }}>
+            {null}
+          </Region>
+        )}
       </main>
     </div>
   );

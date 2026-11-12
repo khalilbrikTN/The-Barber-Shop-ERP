@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { BOOKABLE, clientById, NOW, serviceById, TODAY } from "../lib/data";
 import { useFormat } from "../lib/format";
+import { useSession } from "../lib/session";
 import { useStore } from "../lib/store";
 import { Status } from "../ui/kit";
 import { useT } from "../app/i18n";
@@ -10,7 +11,11 @@ export function BarberMode() {
   const f = useFormat();
   const { t } = useT();
   const { bookings, setStatus, sales } = useStore();
-  const [me, setMe] = useState("karim");
+  const { staff } = useSession();
+  // a barber sees their own day; the owner and the front desk can look at anyone's
+  const own = BOOKABLE.some((s) => s.id === staff?.userId);
+  const canSwitch = !own || staff?.role === "Owner";
+  const [me, setMe] = useState(own ? staff!.userId : BOOKABLE[0].id);
   const [late, setLate] = useState(false);
   const [clockedIn, setClockedIn] = useState<string | null>(null);
   const mine = bookings.filter((b) => b.staffId === me && b.start.startsWith(TODAY) && b.status !== "cancelled" && b.status !== "blocked").sort((a, b) => a.start.localeCompare(b.start));
@@ -24,16 +29,23 @@ export function BarberMode() {
   return (
     <div className="app-root mode-barber">
       <header className="mode-barber__top">
-        <label>
-          <span className="visually-hidden">{t("common.barber")}</span>
-          <select className="ui-input" value={me} onChange={(e) => setMe(e.target.value)}>
-            {BOOKABLE.map((s) => (
-              <option key={s.id} value={s.id}>
-                {s.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        {canSwitch ? (
+          <label>
+            <span className="visually-hidden">{t("common.barber")}</span>
+            <select className="ui-input" value={me} onChange={(e) => setMe(e.target.value)}>
+              {BOOKABLE.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <strong>{staff?.name}</strong>
+        )}
+        <Link to="/deconnexion" className="mode-barber__out">
+          {t("shell.signOut")}
+        </Link>
         <button type="button" className={clockedIn ? "ui-btn ui-btn--quiet" : "ui-btn ui-btn--primary"} onClick={() => setClockedIn((c) => (c ? null : new Date().toISOString()))}>
           {clockedIn ? t("bm.clockOut") : t("bm.clockIn")}
         </button>

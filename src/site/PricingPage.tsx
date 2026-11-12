@@ -36,7 +36,7 @@ export function PricingPage() {
             <h1 id="pp-title">Un prix par mois. Aucune commission.</h1>
             <p className="lead">Par salon, en dinars tunisiens.</p>
             <div className="hero__actions">
-              <a className="btn btn--primary" href="#start">
+              <a className="btn btn--primary" href="/inscription">
                 Commencer l’essai gratuit
               </a>
             </div>

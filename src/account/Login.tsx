@@ -1,5 +1,9 @@
 import { FormEvent, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
+import { Client } from "../lib/data";
+import { useSession } from "../lib/session";
+import { useStore } from "../lib/store";
+import { samePhone } from "../lib/tunisia";
 import { useLang } from "../lib/i18n";
 import { ShopFrame } from "../shop/ShopFrame";
 
@@ -10,6 +14,11 @@ export function Login() {
   const [who, setWho] = useState("");
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
+  const { clients } = useStore();
+  const { client: signedIn, signInClient } = useSession();
+  const [found, setFound] = useState<Client | null>(null);
+
+  if (signedIn && !found) return <Navigate to="/account" replace />;
 
   function send(e: FormEvent) {
     e.preventDefault();
@@ -18,6 +27,14 @@ export function Login() {
       document.getElementById("login-who")?.focus();
       return;
     }
+    const v = who.trim().toLowerCase();
+    const match = clients.find((c) => (v.includes("@") ? c.email?.toLowerCase() === v : samePhone(c.phone, v)));
+    if (!match) {
+      setError(t("login.errUnknown"));
+      document.getElementById("login-who")?.focus();
+      return;
+    }
+    setFound(match);
     setError("");
     setStep("code");
   }
@@ -29,7 +46,8 @@ export function Login() {
       document.getElementById("login-code")?.focus();
       return;
     }
-    navigate("/account");
+    if (found) signInClient(found.id);
+    navigate("/account", { replace: true });
   }
 
   return (
@@ -39,6 +57,7 @@ export function Login() {
           <form onSubmit={send} noValidate>
             <h1>{t("login.title")}</h1>
             <p>{t("login.how")}</p>
+            <p className="app-quiet">{t("login.preview")}</p>
             <div className="ui-field">
               <label htmlFor="login-who">{t("login.who")}</label>
               <input id="login-who" className="ui-input" autoComplete="username" dir="ltr" value={who} onChange={(e) => setWho(e.target.value)} aria-invalid={!!error || undefined} aria-describedby={error ? "login-err" : undefined} />
@@ -65,6 +84,7 @@ export function Login() {
                 autoComplete="one-time-code"
                 dir="ltr"
                 maxLength={6}
+                autoFocus
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                 aria-invalid={!!error || undefined}

@@ -925,7 +925,7 @@ Plus our own:
 Frontend status as of 9 November 2026 (✅ done, ◐ partial). All run on sample data; see the frontend column in section 6.
 
 **Business app**
-1. Sign up / onboarding wizard (shop type → services template → hours → staff → booking page live) — ✅ `/setup`
+1. Sign up / onboarding wizard (shop type → services template → hours → staff → booking page live) — ✅ `/inscription` (name, Tunisian mobile, salon, city, one-time code) then `/setup`; staff sign in at `/connexion` (mobile or email and a code, or a sample account per role), sign out at `/deconnexion`, and manage their profile, language, notifications and devices at `/app/compte`. Staff screens need a session; each role sees only its screens
 2. Today — ✅ `/app`
 3. Calendar (day by staff columns; week for one staff; drag and drop; colour modes) — ✅ `/app/calendar`
 4. Booking drawer (create / edit / check in / checkout) — ✅ side panel in the calendar
@@ -945,7 +945,7 @@ Frontend status as of 9 November 2026 (✅ done, ◐ partial). All run on sample
 16. Booking confirmation + add to calendar — ✅ with a real .ics calendar file
 17. Manage booking (from link) — ✅
 18. Join the queue (QR / remote) — ✅ `/s/example-barbers/queue`
-19. Client login (one-time code) — ✅ `/account/login` (no code is sent yet)
+19. Client login (one-time code) — ✅ `/account/login`, matched to the client by phone or email, with sign out (no code is sent yet)
 20. Client account: bookings, offers, loyalty, gift cards, receipts, settings — ✅ `/account`, in English, Arabic and French
 
 **Marketing**

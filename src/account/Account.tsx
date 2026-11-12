@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { clientById, NOW, OFFERS, serviceById, staffById } from "../lib/data";
 import { useFormat } from "../lib/format";
 import { useLang } from "../lib/i18n";
+import { useSession } from "../lib/session";
 import { useStore } from "../lib/store";
 import { SHOP, ShopFrame } from "../shop/ShopFrame";
 import { Toggle } from "../ui/kit";
 
-const ME = "c1";
 const GOAL = 10;
 
 export function Account() {
@@ -15,8 +15,12 @@ export function Account() {
   const f = useFormat(locale);
   const sep = lang === "ar" ? "، " : ", ";
   const { bookings, sales, updateClient } = useStore();
-  const me = clientById(ME)!;
-  const [offersOn, setOffersOn] = useState(me.marketing);
+  const { client: session, signOutClient } = useSession();
+  const navigate = useNavigate();
+  const ME = session?.clientId ?? "";
+  const me = clientById(ME);
+  const [offersOn, setOffersOn] = useState(me?.marketing ?? false);
+  if (!me) return <Navigate to="/account/login" replace />;
   const now = new Date(NOW).getTime();
   const mine = bookings.filter((b) => b.clientId === ME);
   const upcoming = mine.filter((b) => new Date(b.end).getTime() > now && b.status !== "cancelled" && b.status !== "done");
@@ -148,9 +152,16 @@ export function Account() {
             label={t("acc.offersToggle")}
           />
           <p className="app-quiet">{t("acc.always")}</p>
-          <Link to="/account/login" className="shop__btn shop__btn--text">
+          <button
+            type="button"
+            className="shop__btn shop__btn--text"
+            onClick={() => {
+              signOutClient();
+              navigate(SHOP, { replace: true });
+            }}
+          >
             {t("acc.signOut")}
-          </Link>
+          </button>
         </section>
       </div>
     </ShopFrame>

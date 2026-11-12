@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Entry, fill, Plural, pluralForm, Vars } from "../lib/plural";
+import { StaffLang, useStaffLang } from "../lib/session";
 import { en } from "./locales/en";
 import { fr } from "./locales/fr";
 
@@ -15,7 +16,6 @@ export type TextKey = { [K in AppKey]: (typeof en)[K] extends string ? K : never
 export type PluralKey = Exclude<AppKey, TextKey>;
 export type Catalogue = { [K in AppKey]: (typeof en)[K] extends string ? string : Plural };
 
-export type StaffLang = "en" | "fr";
 export const STAFF_LANGS: { id: StaffLang; label: string; locale: string; dir: "ltr" | "rtl" }[] = [
   { id: "en", label: "English", locale: "en", dir: "ltr" },
   { id: "fr", label: "Français", locale: "fr", dir: "ltr" },
@@ -41,8 +41,8 @@ export function translator(lang: StaffLang) {
   };
 }
 
-/** The staff member's interface language. One per user once accounts exist; French for every Tunisian shop until then. */
+/** The signed-in staff member's interface language, French unless they chose English in their account. */
 export function useT() {
-  const lang: StaffLang = "fr";
+  const lang = useStaffLang();
   return useMemo(() => translator(lang), [lang]);
 }

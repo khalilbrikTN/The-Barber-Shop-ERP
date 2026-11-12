@@ -20,13 +20,16 @@ export type Staff = {
   hours: string;
   services: string[];
   photo?: string;
+  /** for signing in with a one-time code */
+  phone: string;
+  email: string;
 };
 
 export const STAFF: Staff[] = [
-  { id: "karim", name: "Karim", slug: "karim", role: "Owner", pay: "owner", hours: "Du mardi au dimanche, 10:00 à 20:00", services: ["fade", "fadebeard", "beard", "kids", "shave", "buzz"], photo: "/sample/haircut.jpg" },
-  { id: "mehdi", name: "Mehdi", slug: "mehdi", role: "Barber", pay: "commission", commission: 0.5, hours: "Du mardi au samedi, 11:00 à 21:00", services: ["fade", "fadebeard", "beard", "kids", "buzz"], photo: "/sample/razor-trim.jpg" },
-  { id: "hana", name: "Hana", slug: "hana", role: "Stylist", pay: "booth rent", rentMinor: 300000, hours: "Du mardi au vendredi, 10:00 à 18:00", services: ["cutdry", "colour", "fringe", "kids"], photo: "/sample/stylist-at-work.jpg" },
-  { id: "salma", name: "Salma", slug: "salma", role: "Front desk", pay: "salary", hours: "Du mardi au dimanche, 10:00 à 19:00", services: [] },
+  { id: "karim", name: "Karim", slug: "karim", role: "Owner", pay: "owner", hours: "Du mardi au dimanche, 10:00 à 20:00", services: ["fade", "fadebeard", "beard", "kids", "shave", "buzz"], photo: "/sample/haircut.jpg", phone: "+216 20 000 001", email: "karim@barbier-exemple.tn" },
+  { id: "mehdi", name: "Mehdi", slug: "mehdi", role: "Barber", pay: "commission", commission: 0.5, hours: "Du mardi au samedi, 11:00 à 21:00", services: ["fade", "fadebeard", "beard", "kids", "buzz"], photo: "/sample/razor-trim.jpg", phone: "+216 20 000 002", email: "mehdi@barbier-exemple.tn" },
+  { id: "hana", name: "Hana", slug: "hana", role: "Stylist", pay: "booth rent", rentMinor: 300000, hours: "Du mardi au vendredi, 10:00 à 18:00", services: ["cutdry", "colour", "fringe", "kids"], photo: "/sample/stylist-at-work.jpg", phone: "+216 20 000 003", email: "hana@barbier-exemple.tn" },
+  { id: "salma", name: "Salma", slug: "salma", role: "Front desk", pay: "salary", hours: "Du mardi au dimanche, 10:00 à 19:00", services: [], phone: "+216 20 000 004", email: "salma@barbier-exemple.tn" },
 ];
 export const BOOKABLE = STAFF.filter((s) => s.services.length > 0);
 

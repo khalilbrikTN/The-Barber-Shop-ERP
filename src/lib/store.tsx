@@ -71,13 +71,18 @@ function loadSaved(): Partial<Saved> {
   }
 }
 
-/** Puts every screen back to the original sample. */
-export function resetSampleData() {
+/** Forgets every change made in this browser: bookings, clients, settings and the website. */
+export function clearSampleData() {
   try {
     [DATA_KEY, "chairside.tn.settings", "chairside.tn.site"].forEach((k) => localStorage.removeItem(k));
   } catch {
     /* storage blocked: nothing was saved anyway */
   }
+}
+
+/** Puts every screen back to the original sample. */
+export function resetSampleData() {
+  clearSampleData();
   window.location.assign("/app");
 }
 

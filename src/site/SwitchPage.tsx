@@ -29,7 +29,7 @@ export function SwitchPage() {
             <h1 id="sw-title">Changez d’application en une soirée</h1>
             <p className="lead">Apportez vos clients d’une autre application de réservation avec un seul fichier CSV.</p>
             <div className="hero__actions">
-              <a className="btn btn--primary" href="#start">
+              <a className="btn btn--primary" href="/inscription">
                 Commencer l’essai gratuit
               </a>
               <a className="btn btn--ghost" href="/app/clients/import">

@@ -56,3 +56,6 @@
 @media (max-width: 40rem) {
   .steps__list, .never__rows > div { grid-template-columns: minmax(0, 1fr); }
 }
+/* the same rows on paper, for the privacy half of the terms page */
+.never__rows--paper { border-block-start-color: var(--color-ink); }
+.never__rows--paper > div { border-block-end-color: var(--color-rule); }

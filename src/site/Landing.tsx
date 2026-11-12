@@ -21,7 +21,7 @@ export default function Landing() {
               </h1>
               <p className="lead">Rendez-vous, clients sans rendez-vous et paiements pour les barbiers et les salons, à prix fixe.</p>
               <div className="hero__actions">
-                <a className="btn btn--primary" href="#start">
+                <a className="btn btn--primary" href="/inscription">
                   Commencer l’essai gratuit
                 </a>
                 <a className="btn btn--ghost" href="#day">

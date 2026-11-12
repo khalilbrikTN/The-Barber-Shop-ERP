@@ -32,14 +32,17 @@ export function SiteNav({ home = false }: { home?: boolean }) {
               <li>
                 <a href="/app">Voir l’application</a>
               </li>
+              <li>
+                <Link to="/connexion">Se connecter</Link>
+              </li>
               <li className="nav__phone-only">
-                <a href={a("start")}>Essai gratuit</a>
+                <Link to="/inscription">Essai gratuit</Link>
               </li>
             </ul>
           </nav>
-          <a className="btn btn--on-ink nav__action" href={a("start")}>
+          <Link className="btn btn--on-ink nav__action" to="/inscription">
             Essai gratuit
-          </a>
+          </Link>
         </div>
       </header>
     </>
@@ -78,7 +81,13 @@ export function SiteFooter({ home = false }: { home?: boolean }) {
               <Link to="/help">Centre d’aide</Link>
             </li>
             <li>
-              <a href={a("start")}>Commencer un essai</a>
+              <Link to="/inscription">Commencer un essai</Link>
+            </li>
+            <li>
+              <Link to="/connexion">Se connecter</Link>
+            </li>
+            <li>
+              <Link to="/conditions">Conditions et confidentialité</Link>
             </li>
             <li>
               <span className="fill" data-fill="contact">Adresse de contact à venir</span>

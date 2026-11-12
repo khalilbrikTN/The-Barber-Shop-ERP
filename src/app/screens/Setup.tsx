@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
+import { slugify, useSession } from "../../lib/session";
 import { COUNTRY_PRESETS, useSettings } from "../../lib/settings";
 import { Field } from "../../ui/kit";
 import { TextKey, useT } from "../i18n";
@@ -36,6 +37,13 @@ export function Setup() {
   const [picked, setPicked] = useState<string[]>([]);
   const [team, setTeam] = useState(["", ""]);
   const chosen = picked.length ? picked : services.map((s) => s.name as string);
+  const { staff, updateStaff } = useSession();
+  const last = STEPS.length - 1;
+
+  // reaching the last step opens the app; going back to change something does not close it again
+  useEffect(() => {
+    if (step === last && staff && !staff.shopReady) updateStaff({ shopReady: true });
+  }, [step, last, staff, updateStaff]);
 
   return (
     <div className="app-root setup">
@@ -160,7 +168,7 @@ export function Setup() {
             <h1 id="s4">{t("setup.live", { shop: settings.shopName })}</h1>
             <p>{t("setup.share")}</p>
             <p className="plate plate--link">
-              <strong>barbier-exemple.chairside.app</strong>
+              <strong>{slugify(settings.shopName)}.chairside.app</strong>
             </p>
             <p className="app-quiet">{t("setup.preview")}</p>
             <div className="rebook">
