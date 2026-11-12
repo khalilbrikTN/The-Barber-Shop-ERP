@@ -15,9 +15,9 @@ import {
   SALES,
   serviceById,
   WAITLIST,
+  WaitEntry,
 } from "./data";
 
-type WaitEntry = (typeof WAITLIST)[number];
 type NewClient = { name: string; phone: string; email?: string; notes?: string };
 
 type Store = {
@@ -58,7 +58,8 @@ const uid = (p: string) => `${p}${Date.now().toString(36)}${(seq++).toString(36)
 
 /* The preview keeps what you change in this browser, so a reload does not throw your edits away.
    The server replaces all of this later. */
-const DATA_KEY = "chairside.data.v1";
+// ".tn" keys: the Tunisian sample never reads data saved by another edition of the preview
+const DATA_KEY = "chairside.tn.data.v1";
 type Saved = { bookings: Booking[]; queue: QueueEntry[]; sales: Sale[]; clients: Client[]; waitlist: WaitEntry[]; products: Product[]; giftCards: GiftCard[] };
 
 function loadSaved(): Partial<Saved> {
@@ -73,7 +74,7 @@ function loadSaved(): Partial<Saved> {
 /** Puts every screen back to the original sample. */
 export function resetSampleData() {
   try {
-    ["chairside.data.v1", "chairside.settings", "chairside.site"].forEach((k) => localStorage.removeItem(k));
+    [DATA_KEY, "chairside.tn.settings", "chairside.tn.site"].forEach((k) => localStorage.removeItem(k));
   } catch {
     /* storage blocked: nothing was saved anyway */
   }

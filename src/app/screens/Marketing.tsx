@@ -526,8 +526,8 @@ function Memberships() {
   const f = useFormat();
   const { t } = useT();
   const [plans, setPlans] = useState([
-    { id: "m1", name: "Unlimited cuts", priceMinor: 120000, what: "Any haircut, as often as you like", members: 0 },
-    { id: "m2", name: "Cut and beard club", priceMinor: 90000, what: "Two cuts and two beard trims a month", members: 0 },
+    { id: "m1", name: "Coupes illimitées", priceMinor: 80000, what: "Toutes les coupes, aussi souvent que vous voulez", members: 0 },
+    { id: "m2", name: "Club coupe et barbe", priceMinor: 50000, what: "Deux coupes et deux tailles de barbe par mois", members: 0 },
   ]);
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");

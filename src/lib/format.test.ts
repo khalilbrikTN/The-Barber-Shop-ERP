@@ -31,11 +31,11 @@ describe("time zones", () => {
 
 describe("parseCsv", () => {
   it("reads quoted fields, commas inside quotes and doubled quotes", () => {
-    const rows = parseCsv('Name,Phone,Notes\n"Fathy, Karim",+20 100,"Says ""short"""\nMona,+20 200,\n');
+    const rows = parseCsv('Name,Phone,Notes\n"Fathy, Karim",+216 20 000 100,"Says ""short"""\nMona,+216 20 000 200,\n');
     expect(rows).toEqual([
       ["Name", "Phone", "Notes"],
-      ["Fathy, Karim", "+20 100", 'Says "short"'],
-      ["Mona", "+20 200", ""],
+      ["Fathy, Karim", "+216 20 000 100", 'Says "short"'],
+      ["Mona", "+216 20 000 200", ""],
     ]);
   });
 

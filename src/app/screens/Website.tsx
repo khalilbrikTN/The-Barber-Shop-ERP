@@ -23,7 +23,7 @@ export function Website() {
   const [copied, setCopied] = useState(false);
   const [consent, setConsent] = useState(false);
   const [photoError, setPhotoError] = useState("");
-  const embedCode = `<iframe id="chairside-book" src="${window.location.origin}/s/example-barbers/book?embed=1" title="${t("web.iframeTitle", { shop: settings.shopName }).replace(/"/g, "&quot;")}" style="width:100%;height:760px;border:0"></iframe>\n<script>addEventListener("message",function(e){if(e.data&&e.data.chairside==="height"){document.getElementById("chairside-book").style.height=e.data.height+"px"}})</script>`;
+  const embedCode = `<iframe id="chairside-book" src="${window.location.origin}/s/barbier-exemple/book?embed=1" title="${t("web.iframeTitle", { shop: settings.shopName }).replace(/"/g, "&quot;")}" style="width:100%;height:760px;border:0"></iframe>\n<script>addEventListener("message",function(e){if(e.data&&e.data.chairside==="height"){document.getElementById("chairside-book").style.height=e.data.height+"px"}})</script>`;
 
   useEffect(() => {
     if (!saveSite(site)) setPhotoError(t("web.storageFull"));
@@ -52,7 +52,7 @@ export function Website() {
         title={t("nav.website")}
         sub={t("web.sub")}
         actions={
-          <a className="ui-btn ui-btn--quiet" href="/s/example-barbers" target="_blank" rel="noreferrer">
+          <a className="ui-btn ui-btn--quiet" href="/s/barbier-exemple" target="_blank" rel="noreferrer">
             {t("web.open")}
           </a>
         }
@@ -183,7 +183,7 @@ export function Website() {
           <fieldset className="ui-fieldset">
             <legend>{t("web.address2")}</legend>
             <p>
-              <strong>example-barbers.chairside.app</strong>
+              <strong>barbier-exemple.chairside.app</strong>
             </p>
             <Field label={t("web.domain")} hint={t("web.domainHint")}>
               {(id, hint) => <input id={id} aria-describedby={hint} className="ui-input" value={domain} onChange={(e) => setDomain(e.target.value.trim().toLowerCase())} placeholder="book.yourshop.com" dir="ltr" />}
@@ -228,7 +228,7 @@ export function Website() {
               >
                 {copied ? t("sp.copied") : t("web.copyCode")}
               </button>
-              <a className="ui-btn ui-btn--text" href="/s/example-barbers/book?embed=1" target="_blank" rel="noreferrer">
+              <a className="ui-btn ui-btn--text" href="/s/barbier-exemple/book?embed=1" target="_blank" rel="noreferrer">
                 {t("web.preview")}
               </a>
             </div>
@@ -236,7 +236,7 @@ export function Website() {
         </form>
         <div className="site-editor__preview">
           <p className="ui-field__label">{t("web.live")}</p>
-          <iframe key={version} title={t("web.frame")} src="/s/example-barbers?preview=1" className="site-frame" />
+          <iframe key={version} title={t("web.frame")} src="/s/barbier-exemple?preview=1" className="site-frame" />
         </div>
       </div>
     </>

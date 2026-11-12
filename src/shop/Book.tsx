@@ -45,7 +45,7 @@ export function Book() {
   };
 
   const eligible = BOOKABLE.filter((b) => serviceIds.every((id) => b.services.includes(id)));
-  const slots = serviceIds.length ? findSlots({ date, serviceIds, staffId: staffId || undefined, bookings }) : [];
+  const slots = serviceIds.length ? findSlots({ date, serviceIds, staffId: staffId || undefined, bookings, timeZone: f.timeZone }) : [];
   const chosen = slots.find((x) => `${x.start}|${x.staffId}` === slot);
   const total = serviceIds.reduce((sum, id) => sum + serviceById(id).priceMinor, 0);
   const minutes = serviceIds.reduce((sum, id) => sum + serviceById(id).minutes, 0);
@@ -77,7 +77,7 @@ export function Book() {
     const groupId = extra ? `g${Date.now()}` : undefined;
     const b = addBooking({ clientId: client.id, serviceIds, staffId: chosen.staffId, start: chosen.start, status: "confirmed", source: "online", deposit: deposit || undefined, groupId });
     if (extra && extra.name.trim()) {
-      const options = findSlots({ date, serviceIds: [extra.serviceId], bookings: [...bookings, b] });
+      const options = findSlots({ date, serviceIds: [extra.serviceId], bookings: [...bookings, b], timeZone: f.timeZone });
       const firstEnd = new Date(b.end).getTime();
       const together = options.find((o) => o.start === chosen.start && o.staffId !== chosen.staffId);
       const after = options.find((o) => new Date(o.start).getTime() >= firstEnd);
@@ -99,8 +99,8 @@ export function Book() {
       return;
     }
     const client = addClient({ name: name.trim(), phone });
-    const day = f.day(`${date}T12:00:00+02:00`);
-    addWaitlist({ clientId: client.id, serviceId: serviceIds[0], window: `Any time on ${f.day(`${date}T12:00:00+02:00`, "short")}${staffId ? `, ${staffById(staffId).name} only` : ""}` });
+    const day = f.day(f.at(date));
+    addWaitlist({ clientId: client.id, serviceId: serviceIds[0], day: date, staffId: staffId || undefined });
     setWaitDone(day);
   }
 
@@ -215,7 +215,7 @@ export function Book() {
                     setWaitForm(false);
                   }}
                 >
-                  {f.day(`${d}T12:00:00+02:00`, "short")}
+                  {f.day(f.at(d), "short")}
                 </button>
               ))}
             </div>

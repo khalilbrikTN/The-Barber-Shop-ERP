@@ -12,7 +12,7 @@ export function NotFound({ inApp = false }: { inApp?: boolean }) {
         <Link className="ui-btn ui-btn--primary" to={inApp ? "/app" : "/"}>
           {inApp ? t("err.backToday") : t("err.home")}
         </Link>
-        <Link className="ui-btn ui-btn--quiet" to="/s/example-barbers">
+        <Link className="ui-btn ui-btn--quiet" to="/s/barbier-exemple">
           {t("err.shop")}
         </Link>
       </div>

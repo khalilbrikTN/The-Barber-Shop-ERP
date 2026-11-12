@@ -1,11 +1,12 @@
 import { useMemo } from "react";
 import { Entry, fill, Plural, pluralForm, Vars } from "../lib/plural";
 import { en } from "./locales/en";
+import { fr } from "./locales/fr";
 
 export type { Entry, Plural };
 
 /* The staff interface catalogue: the business app and barber mode (PLAN.md section 8.1).
-   English at launch; every string goes through here so a language is a new file, not a rewrite.
+   French at launch in Tunisia, with English as the source catalogue; every string goes through here so a language is a new file, not a rewrite.
    A string is "Text with {vars}"; a count uses a plural entry (src/lib/plural.ts), where {n} is
    the formatted count. */
 
@@ -14,9 +15,12 @@ export type TextKey = { [K in AppKey]: (typeof en)[K] extends string ? K : never
 export type PluralKey = Exclude<AppKey, TextKey>;
 export type Catalogue = { [K in AppKey]: (typeof en)[K] extends string ? string : Plural };
 
-export type StaffLang = "en";
-export const STAFF_LANGS: { id: StaffLang; label: string; locale: string; dir: "ltr" | "rtl" }[] = [{ id: "en", label: "English", locale: "en", dir: "ltr" }];
-export const STAFF_DICTS: Record<StaffLang, Catalogue> = { en };
+export type StaffLang = "en" | "fr";
+export const STAFF_LANGS: { id: StaffLang; label: string; locale: string; dir: "ltr" | "rtl" }[] = [
+  { id: "en", label: "English", locale: "en", dir: "ltr" },
+  { id: "fr", label: "Français", locale: "fr", dir: "ltr" },
+];
+export const STAFF_DICTS: Record<StaffLang, Catalogue> = { en, fr };
 
 export function translator(lang: StaffLang) {
   const dict = STAFF_DICTS[lang];
@@ -37,8 +41,8 @@ export function translator(lang: StaffLang) {
   };
 }
 
-/** The staff member's interface language. One per user once accounts exist; English until a second catalogue ships. */
+/** The staff member's interface language. One per user once accounts exist; French for every Tunisian shop until then. */
 export function useT() {
-  const lang: StaffLang = "en";
+  const lang: StaffLang = "fr";
   return useMemo(() => translator(lang), [lang]);
 }

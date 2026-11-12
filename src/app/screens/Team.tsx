@@ -158,8 +158,8 @@ function Hours() {
 function Pay() {
   const f = useFormat();
   const { t } = useT();
-  const takings: Record<string, number> = { karim: 1850000, marco: 1240000, hana: 960000 };
-  const tips: Record<string, number> = { karim: 90000, marco: 65000, hana: 40000 };
+  const takings: Record<string, number> = { karim: 1850000, mehdi: 1240000, hana: 960000 };
+  const tips: Record<string, number> = { karim: 90000, mehdi: 65000, hana: 40000 };
   return (
     <section className="app-section" aria-labelledby="pay-title">
       <h2 id="pay-title" className="app-h2">
@@ -207,8 +207,8 @@ function Pay() {
 function TimeOff() {
   const { t, label } = useT();
   const [requests, setRequests] = useState([
-    { id: "t1", who: "Marco", when: "24 to 26 December", why: "Family", status: "waiting" },
-    { id: "t2", who: "Hana", when: "2 January", why: "Course", status: "approved" },
+    { id: "t1", who: "Mehdi", when: "Du 24 au 26 décembre", why: "Famille", status: "waiting" },
+    { id: "t2", who: "Hana", when: "2 janvier", why: "Formation", status: "approved" },
   ]);
   return (
     <div className="ui-tablewrap">

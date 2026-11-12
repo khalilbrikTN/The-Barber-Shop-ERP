@@ -31,7 +31,7 @@ export function Manage() {
     );
 
   const day = b.start.slice(0, 10);
-  const slots = findSlots({ date: day, serviceIds: b.serviceIds, staffId: b.staffId, bookings: bookings.filter((x) => x.id !== b.id) });
+  const slots = findSlots({ date: day, serviceIds: b.serviceIds, staffId: b.staffId, bookings: bookings.filter((x) => x.id !== b.id), timeZone: f.timeZone });
 
   return (
     <ShopFrame narrow>

@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { SCREENS } from "../components/PhoneScreens";
 
 const PANELS = [
-  { title: "A booking confirms itself", line: "The reminder goes out on WhatsApp. One tap confirms, one tap moves it." },
-  { title: "A walk-in joins from the pavement", line: "A QR code on the window puts them in line, with a message when they are next." },
-  { title: "A cancellation fills itself", line: "The free slot goes to the waitlist. The first to tap takes it." },
-  { title: "The drawer counts itself", line: "Card and wallet are counted apart. The drawer should hold the cash and the float." },
+  { title: "Un rendez-vous se confirme tout seul", line: "Le rappel part sur WhatsApp. Un geste pour confirmer, un geste pour déplacer." },
+  { title: "Un client sans rendez-vous s’inscrit depuis le trottoir", line: "Un QR code sur la vitrine le met dans la file, avec un message quand c’est bientôt son tour." },
+  { title: "Une annulation se remplace toute seule", line: "Le créneau libéré part à la liste d’attente. Le premier qui répond le prend." },
+  { title: "La caisse se compte toute seule", line: "Carte et portefeuille mobile sont comptés à part. La caisse doit contenir les espèces et le fond de caisse." },
 ];
 
 export function Saturday() {
@@ -29,13 +29,13 @@ export function Saturday() {
     <section className="saturday" id="day" aria-labelledby="day-title">
       <div className="container">
         <div className="head head--split">
-          <h2 id="day-title">One Saturday, four screens</h2>
-          <p className="lead">What the shop and its clients see, from the first reminder to the last count.</p>
+          <h2 id="day-title">Un samedi, quatre écrans</h2>
+          <p className="lead">Ce que voient le salon et ses clients, du premier rappel au dernier comptage.</p>
         </div>
 
         <div className="pin">
           <div className="pin__visual">
-            <div className="phone" data-slot="day" data-kind="product" data-alt="Phone screens from the client and front-desk apps, one for each moment of the day">
+            <div className="phone" data-slot="day" data-kind="product" data-alt="Écrans de téléphone du client et de l’accueil, un pour chaque moment de la journée">
               {SCREENS.map((Screen, i) => (
                 <div key={i} className="phone__state" hidden={i !== active}>
                   <Screen />

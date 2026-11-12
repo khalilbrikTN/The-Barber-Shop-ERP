@@ -111,7 +111,7 @@ export function Setup() {
             <h1 id="s2">{t("setup.where")}</h1>
             <Field label={t("set.country")} hint={t("setup.countryHint")}>
               {(id, hint) => (
-                <select id={id} aria-describedby={hint} className="ui-input" defaultValue="Egypt" onChange={(e) => update(COUNTRY_PRESETS[e.target.value])}>
+                <select id={id} aria-describedby={hint} className="ui-input" defaultValue="Tunisia" onChange={(e) => update(COUNTRY_PRESETS[e.target.value])}>
                   {Object.keys(COUNTRY_PRESETS).map((c) => (
                     <option key={c} value={c}>
                       {label("country", c)}
@@ -160,14 +160,14 @@ export function Setup() {
             <h1 id="s4">{t("setup.live", { shop: settings.shopName })}</h1>
             <p>{t("setup.share")}</p>
             <p className="plate plate--link">
-              <strong>example-barbers.chairside.app</strong>
+              <strong>barbier-exemple.chairside.app</strong>
             </p>
             <p className="app-quiet">{t("setup.preview")}</p>
             <div className="rebook">
               <Link className="ui-btn ui-btn--primary" to="/app">
                 {t("setup.openToday")}
               </Link>
-              <Link className="ui-btn ui-btn--quiet" to="/s/example-barbers">
+              <Link className="ui-btn ui-btn--quiet" to="/s/barbier-exemple">
                 {t("setup.seePage")}
               </Link>
             </div>

@@ -22,7 +22,7 @@ const MODES: { to: string; label: TextKey }[] = [
   { to: "/me", label: "nav.barberMode" },
   { to: "/kiosk", label: "nav.kiosk" },
   { to: "/tv", label: "nav.tv" },
-  { to: "/s/example-barbers", label: "nav.shopSite" },
+  { to: "/s/barbier-exemple", label: "nav.shopSite" },
   { to: "/admin", label: "nav.admin" },
 ];
 

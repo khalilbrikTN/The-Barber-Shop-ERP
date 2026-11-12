@@ -13,7 +13,7 @@ const FIELDS = [
 ] as const satisfies readonly { id: string; label: TextKey; guess: RegExp }[];
 type FieldId = (typeof FIELDS)[number]["id"];
 
-const SAMPLE = 'Name,Mobile,Email,Notes\n"Karim Fathy",+20 100 000 0201,karim.f@example.com,"Short back and sides"\nYoussef,+20 100 000 0104,,"Already a client: matched by phone"\n"Mona S.",+20 100 000 0203,mona@example.com,\n';
+const SAMPLE = 'Nom,Mobile,Email,Notes\n"Karim Trabelsi",+216 20 000 201,karim.t@example.com,"Court derrière et sur les côtés"\nHamza,+216 20 000 104,,"Déjà client : reconnu par le téléphone"\n"Amel B.",+216 20 000 203,amel@example.com,\n';
 
 export function ClientImport() {
   const { clients, importClients } = useStore();

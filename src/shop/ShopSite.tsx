@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { BOOKABLE, OFFERS, SERVICES, TODAY } from "../lib/data";
-import { useFormat } from "../lib/format";
+import { minorDigits, useFormat } from "../lib/format";
 import { useLang } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { loadSite } from "../lib/site";
@@ -10,13 +10,13 @@ import { waitFor } from "../app/screens/Queue";
 import { SHOP, ShopFrame } from "./ShopFrame";
 
 const HOURS = [
-  ["Saturday", "10:00", "21:00"],
-  ["Sunday", "10:00", "21:00"],
-  ["Monday", "10:00", "21:00"],
+  ["Monday", "", ""],
   ["Tuesday", "10:00", "21:00"],
   ["Wednesday", "10:00", "21:00"],
-  ["Thursday", "10:00", "22:00"],
-  ["Friday", "", ""],
+  ["Thursday", "10:00", "21:00"],
+  ["Friday", "10:00", "21:00"],
+  ["Saturday", "10:00", "22:00"],
+  ["Sunday", "10:00", "15:00"],
 ];
 
 export function ShopSite() {
@@ -44,7 +44,7 @@ export function ShopSite() {
       telephone: site.phone,
       url: window.location.href,
       openingHours: HOURS.filter(([, o]) => o).map(([d, o, c]) => `${d.slice(0, 2)} ${o}-${c}`),
-      makesOffer: SERVICES.map((x) => ({ "@type": "Offer", name: x.name, price: x.priceMinor / 100, priceCurrency: settings.currency })),
+      makesOffer: SERVICES.map((x) => ({ "@type": "Offer", name: x.name, price: x.priceMinor / 10 ** minorDigits(settings.currency), priceCurrency: settings.currency })),
     };
     const tag = document.createElement("script");
     tag.type = "application/ld+json";
@@ -82,7 +82,7 @@ export function ShopSite() {
               {f.num(wait)}
               <small>{t("min")}</small>
             </p>
-            <p>{t("site.inLine", { n: f.num(queue.length), time: f.time(`${TODAY}T21:00:00+02:00`) })}</p>
+            <p>{t("site.inLine", { n: f.num(queue.length), time: f.time(f.at(TODAY, "21:00")) })}</p>
             <Link to={`${SHOP}/queue`} className="shop__btn shop__btn--onink">
               {t("site.joinHere")}
             </Link>
@@ -186,7 +186,7 @@ export function ShopSite() {
                 {HOURS.map(([d, o, c]) => (
                   <tr key={d} data-today={d === "Saturday" || undefined}>
                     <th scope="row">{s(d)}</th>
-                    <td className="num">{o ? t("site.to", { from: f.time(`${TODAY}T${o}:00+02:00`), to: f.time(`${TODAY}T${c}:00+02:00`) }) : t("site.closed")}</td>
+                    <td className="num">{o ? t("site.to", { from: f.time(f.at(TODAY, o)), to: f.time(f.at(TODAY, c)) }) : t("site.closed")}</td>
                   </tr>
                 ))}
               </tbody>

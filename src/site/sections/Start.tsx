@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 
-const COUNTRIES = ["Egypt", "Tunisia", "Italy", "France", "Germany", "Another country"];
+const CITIES = ["Tunis", "Ariana", "Ben Arous", "La Manouba", "Nabeul", "Bizerte", "Sousse", "Monastir", "Sfax", "Gabès", "Djerba", "Une autre ville"];
 
 export function Start() {
   const [help, setHelp] = useState("");
@@ -14,13 +14,13 @@ export function Start() {
     );
     if (first) {
       setInvalid(first.name);
-      setHelp(first.name === "email" ? "That address looks incomplete. Write it as name@example.com." : "Add your shop's name.");
+      setHelp(first.name === "email" ? "Cette adresse semble incomplète. Écrivez-la comme nom@example.com." : "Ajoutez le nom de votre salon.");
       first.focus();
       return;
     }
     setInvalid(null);
     if (!form.dataset.endpoint) {
-      setHelp("Nothing was sent: this form is not connected yet.");
+      setHelp("Rien n’a été envoyé : ce formulaire n’est pas encore relié.");
     }
   }
 
@@ -28,29 +28,29 @@ export function Start() {
     <section className="start band--paper" id="start" aria-labelledby="start-title">
       <div className="container start__grid">
         <div className="start__head">
-          <h2 id="start-title">Put your shop on the board</h2>
-          <p className="lead">Services, hours and barbers set up in one sitting. 14 days free, no card needed.</p>
+          <h2 id="start-title">Mettez votre salon à l’écran</h2>
+          <p className="lead">Prestations, horaires et barbiers réglés en une fois. 14 jours gratuits, sans carte bancaire.</p>
         </div>
 
         <form className="start__form" data-endpoint="" noValidate onSubmit={submit}>
           <div className="field">
-            <label htmlFor="shop">Shop name</label>
+            <label htmlFor="shop">Nom du salon</label>
             <input id="shop" name="shop" type="text" autoComplete="organization" required aria-invalid={invalid === "shop" || undefined} aria-describedby="start-help" />
           </div>
           <div className="field">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">E-mail</label>
             <input id="email" name="email" type="email" autoComplete="email" inputMode="email" required aria-invalid={invalid === "email" || undefined} aria-describedby="start-help" />
           </div>
           <div className="field">
-            <label htmlFor="country">Country</label>
-            <select id="country" name="country" autoComplete="country-name" defaultValue="Egypt">
-              {COUNTRIES.map((c) => (
+            <label htmlFor="city">Ville</label>
+            <select id="city" name="city" autoComplete="address-level2" defaultValue="Tunis">
+              {CITIES.map((c) => (
                 <option key={c}>{c}</option>
               ))}
             </select>
           </div>
           <button type="submit" className="btn btn--primary">
-            Start free trial
+            Commencer l’essai gratuit
           </button>
           <p className="start__help" id="start-help" aria-live="polite">
             {help}

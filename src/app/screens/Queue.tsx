@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link } from "react-router-dom";
-import { Booking, BOOKABLE, clientById, NOW, QueueEntry, serviceById, SERVICES, staffById } from "../../lib/data";
+import { Booking, BOOKABLE, clientById, NOW, QueueEntry, serviceById, SERVICES, staffById, WaitEntry } from "../../lib/data";
 import { useFormat } from "../../lib/format";
 import { useStore } from "../../lib/store";
 import { Field, PageHead, Region, useDataState } from "../../ui/kit";
@@ -25,6 +25,10 @@ export function Queue() {
   const [staff, setStaff] = useState("");
   const [called, setCalled] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const waitWindow = (w: WaitEntry) => {
+    const day = f.day(f.at(w.day ?? NOW.slice(0, 10)), "short");
+    return w.staffId ? t("queue.anyDayWith", { day, name: staffById(w.staffId).name }) : t("queue.anyDay", { day });
+  };
 
   function add(e: FormEvent) {
     e.preventDefault();
@@ -145,7 +149,7 @@ export function Queue() {
                     <div>
                       <strong>{clientById(w.clientId)?.name}</strong>
                       <span className="app-quiet">
-                        {t("common.list", { a: serviceById(w.serviceId).name, b: w.window })}
+                        {t("common.list", { a: serviceById(w.serviceId).name, b: w.window ?? waitWindow(w) })}
                       </span>
                     </div>
                     <span className="row-actions">
@@ -218,7 +222,7 @@ export function Queue() {
               <div>
                 <dt>{t("queue.home")}</dt>
                 <dd>
-                  <Link to="/s/example-barbers/queue">{t("queue.joinPage")}</Link> {t("queue.onSite")}
+                  <Link to="/s/barbier-exemple/queue">{t("queue.joinPage")}</Link> {t("queue.onSite")}
                 </dd>
               </div>
               <div>

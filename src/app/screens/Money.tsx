@@ -54,7 +54,7 @@ function CashUp() {
     <div className="app-split">
       <section className="app-section" aria-labelledby="cu-title">
         <h2 id="cu-title" className="app-h2">
-          {t("money.today", { day: f.day(`${TODAY}T12:00:00+02:00`) })}
+          {t("money.today", { day: f.day(f.at(TODAY)) })}
         </h2>
         <div className="ui-stats ui-stats--row">
           <Stat label={t("method.cash")} value={f.money(sum("cash"))} />
@@ -284,7 +284,7 @@ function Sales() {
             <tbody>
               {WEEK_SALES.map((d) => (
                 <tr key={d.day}>
-                  <th scope="row">{f.day(`${d.day}T12:00:00+02:00`, "short")}</th>
+                  <th scope="row">{f.day(f.at(d.day), "short")}</th>
                   <td className="r num">{d.bookings || t("money.closed")}</td>
                   <td className="r num">{f.money(d.cash, { whole: true })}</td>
                   <td className="r num opt">{f.money(d.card, { whole: true })}</td>
@@ -324,7 +324,7 @@ function Expenses() {
     <div className="app-split">
       <section className="app-section" aria-labelledby="exp-title">
         <h2 id="exp-title" className="app-h2">
-          {f.month(`${TODAY}T12:00:00+02:00`)}
+          {f.month(f.at(TODAY))}
         </h2>
         <Region state={state} label={t("money.expensesLabel")} rows={4} empty={{ title: t("money.noExpenses"), body: t("money.noExpensesBody") }}>
           <div className="ui-tablewrap">
@@ -397,7 +397,7 @@ function Report() {
   return (
     <section className="app-section" aria-labelledby="pl-title">
       <h2 id="pl-title" className="app-h2">
-        {t("money.soFar", { month: f.month(`${TODAY}T12:00:00+02:00`) })}
+        {t("money.soFar", { month: f.month(f.at(TODAY)) })}
       </h2>
       <div className="ui-tablewrap app-narrow">
         <table className="ui-table">

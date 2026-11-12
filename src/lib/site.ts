@@ -23,25 +23,25 @@ export type SiteConfig = {
 export const DEFAULT_SITE: SiteConfig = {
   preset: "board",
   accent: "cobalt",
-  area: "Example Street, Cairo",
-  about: "Fades, beards and kids cuts. Walk in or book a chair.",
+  area: "Rue de l’Exemple, Tunis",
+  about: "Dégradés, barbes et coupes enfant. Passez sans rendez-vous ou réservez un fauteuil.",
   hero: "/sample/chair-brick.jpg",
   gallery: [
-    { src: "/sample/thinning-shears.jpg", alt: "A fade finished with thinning shears" },
-    { src: "/sample/razor-trim.jpg", alt: "A line-up with a straight razor" },
-    { src: "/sample/beard-scissors.jpg", alt: "A beard shaped with scissors" },
-    { src: "/sample/blow-dry.jpg", alt: "A blow-dry" },
-    { src: "/sample/barber-chair-client.jpg", alt: "A client in the chair" },
-    { src: "/sample/tools.jpg", alt: "Clippers, scissors and combs" },
+    { src: "/sample/thinning-shears.jpg", alt: "Un dégradé fini aux ciseaux sculpteurs" },
+    { src: "/sample/razor-trim.jpg", alt: "Un contour au coupe-chou" },
+    { src: "/sample/beard-scissors.jpg", alt: "Une barbe taillée aux ciseaux" },
+    { src: "/sample/blow-dry.jpg", alt: "Un brushing" },
+    { src: "/sample/barber-chair-client.jpg", alt: "Un client au fauteuil" },
+    { src: "/sample/tools.jpg", alt: "Tondeuses, ciseaux et peignes" },
   ],
   sections: { services: true, team: true, offers: true, gallery: true, hours: true, find: true },
-  whatsapp: "+20 100 000 0000",
-  phone: "+20 100 000 0000",
-  address: "Example Street, Cairo",
-  instagram: "example.barbers",
+  whatsapp: "+216 20 000 000",
+  phone: "+216 71 000 000",
+  address: "Rue de l’Exemple, Tunis",
+  instagram: "barbier.exemple",
 };
 
-const KEY = "chairside.site";
+const KEY = "chairside.tn.site";
 
 export function loadSite(): SiteConfig {
   try {

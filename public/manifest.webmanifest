@@ -1,7 +1,8 @@
 {
   "name": "Chairside",
   "short_name": "Chairside",
-  "description": "Bookings, walk-ins and payments for barbershops and salons.",
+  "description": "Rendez-vous, clients sans rendez-vous et paiements pour les barbiers et les salons.",
+  "lang": "fr",
   "start_url": "/me",
   "scope": "/",
   "display": "standalone",

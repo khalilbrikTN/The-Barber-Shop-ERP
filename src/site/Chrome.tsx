@@ -8,37 +8,37 @@ export function SiteNav({ home = false }: { home?: boolean }) {
   return (
     <>
       <a className="skip" href="#main">
-        Skip to content
+        Aller au contenu
       </a>
       <header className="nav" data-open={open || undefined}>
         <div className="container nav__bar">
-          <Link className="nav__mark" to="/" aria-label="Chairside, home">
+          <Link className="nav__mark" to="/" aria-label="Chairside, accueil">
             Chairside
           </Link>
           <button type="button" className="nav__menu" aria-expanded={open} aria-controls="site-links" onClick={() => setOpen((o) => !o)}>
-            {open ? "Close" : "Menu"}
+            {open ? "Fermer" : "Menu"}
           </button>
           <nav aria-label="Site" id="site-links">
             <ul className="nav__links">
               <li>
-                <a href={a("day")}>A Saturday</a>
+                <a href={a("day")}>Un samedi</a>
               </li>
               <li>
-                <Link to="/pricing">Pricing</Link>
+                <Link to="/pricing">Tarifs</Link>
               </li>
               <li>
-                <Link to="/switch">Switching</Link>
+                <Link to="/switch">Changer d’application</Link>
               </li>
               <li>
-                <a href="/app">See the app</a>
+                <a href="/app">Voir l’application</a>
               </li>
               <li className="nav__phone-only">
-                <a href={a("start")}>Start free</a>
+                <a href={a("start")}>Essai gratuit</a>
               </li>
             </ul>
           </nav>
           <a className="btn btn--on-ink nav__action" href={a("start")}>
-            Start free
+            Essai gratuit
           </a>
         </div>
       </header>
@@ -54,38 +54,38 @@ export function SiteFooter({ home = false }: { home?: boolean }) {
         <Link className="footer__mark" to="/">
           Chairside
         </Link>
-        <nav className="footer__col" aria-label="Product">
-          <h2 className="footer__title">Product</h2>
+        <nav className="footer__col" aria-label="Produit">
+          <h2 className="footer__title">Produit</h2>
           <ul>
             <li>
-              <a href={a("top")}>Queue board</a>
+              <a href={a("top")}>Écran de file d’attente</a>
             </li>
             <li>
-              <a href={a("cities")}>Cities</a>
+              <a href={a("cities")}>Langues</a>
             </li>
             <li>
-              <Link to="/pricing">Pricing</Link>
+              <Link to="/pricing">Tarifs</Link>
             </li>
             <li>
-              <Link to="/switch">Switching</Link>
+              <Link to="/switch">Changer d’application</Link>
             </li>
           </ul>
         </nav>
-        <nav className="footer__col" aria-label="Help">
-          <h2 className="footer__title">Help</h2>
+        <nav className="footer__col" aria-label="Aide">
+          <h2 className="footer__title">Aide</h2>
           <ul>
             <li>
-              <Link to="/help">Help centre</Link>
+              <Link to="/help">Centre d’aide</Link>
             </li>
             <li>
-              <a href={a("start")}>Start a trial</a>
+              <a href={a("start")}>Commencer un essai</a>
             </li>
             <li>
-              <span className="fill" data-fill="contact">Contact email to come</span>
+              <span className="fill" data-fill="contact">Adresse de contact à venir</span>
             </li>
           </ul>
         </nav>
-        <p className="footer__legal">Chairside, 2026. Made for barbershops and salons in any country.</p>
+        <p className="footer__legal">Chairside, 2026. Fait pour les barbiers et les salons de coiffure en Tunisie.</p>
       </div>
     </footer>
   );

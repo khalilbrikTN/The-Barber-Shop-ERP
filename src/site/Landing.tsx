@@ -16,16 +16,16 @@ export default function Landing() {
           <div className="container hero__grid">
             <div className="hero__text">
               <h1 id="hero-title">
-                <span className="hero__figure num">0%</span>
-                <span className="hero__line">of every booking goes to us.</span>
+                <span className="hero__figure num">0 %</span>
+                <span className="hero__line">de chaque réservation pour nous.</span>
               </h1>
-              <p className="lead">Bookings, walk-ins and payments for barbershops and salons, one flat price.</p>
+              <p className="lead">Rendez-vous, clients sans rendez-vous et paiements pour les barbiers et les salons, à prix fixe.</p>
               <div className="hero__actions">
                 <a className="btn btn--primary" href="#start">
-                  Start free trial
+                  Commencer l’essai gratuit
                 </a>
                 <a className="btn btn--ghost" href="#day">
-                  See a Saturday
+                  Voir un samedi
                 </a>
               </div>
             </div>
@@ -36,9 +36,9 @@ export default function Landing() {
         <Saturday />
         <Cities />
 
-        <section className="statement" aria-label="Your data">
+        <section className="statement" aria-label="Vos données">
           <div className="container">
-            <p className="statement__text">Your client list leaves with you, in one file, any day you like.</p>
+            <p className="statement__text">Votre liste de clients part avec vous, en un seul fichier, le jour où vous le voulez.</p>
           </div>
         </section>
 

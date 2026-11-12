@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { FLAGS, NOW, TENANTS } from "../lib/data";
+import { at, FLAGS, NOW, TENANTS, Tenant } from "../lib/data";
 import { useFormat } from "../lib/format";
 import { PageHead, Status, Tabs, useTab } from "../ui/kit";
 
 type LogRow = { at: string; who: string; what: string };
 
-/** What each plan includes, as on /pricing: queue and deposits from Shop, domain and the AI beta on Pro. */
+const PLAN: Record<Tenant["plan"], string> = { Free: "Gratuit", Solo: "Solo", Shop: "Salon", Pro: "Pro" };
+
+/** What each plan includes, as on /pricing: queue and deposits from Salon, domain and the AI beta on Pro. */
 function flagForPlan(flag: string, plan: string) {
-  if (flag === "WhatsApp messages") return true;
-  if (flag === "Walk-in queue" || flag === "Online deposits") return plan === "Shop" || plan === "Pro";
+  if (flag === "Messages WhatsApp") return true;
+  if (flag === "File sans rendez-vous" || flag === "Acomptes en ligne") return plan === "Shop" || plan === "Pro";
   return plan === "Pro";
 }
 
@@ -20,46 +22,46 @@ export function Admin() {
   const [flags, setFlags] = useState<Record<string, Record<string, boolean>>>(() =>
     Object.fromEntries(TENANTS.map((t) => [t.id, Object.fromEntries(FLAGS.map((fl) => [fl, flagForPlan(fl, t.plan)]))])),
   );
-  const [log, setLog] = useState<LogRow[]>([{ at: "2026-12-11T16:20:00+02:00", who: "Support", what: "Opened Example Friseur to fix a payment setting. The shop was told." }]);
+  const [log, setLog] = useState<LogRow[]>([{ at: at("16:20", "2026-12-11"), who: "Support", what: "Ouvert Barbier Exemple, Bizerte pour corriger un réglage de paiement. Le salon a été prévenu." }]);
   const [reason, setReason] = useState<Record<string, string>>({});
 
-  const shops = TENANTS.filter((t) => !q || `${t.name} ${t.country} ${t.plan}`.toLowerCase().includes(q.toLowerCase()));
+  const shops = TENANTS.filter((t) => !q || `${t.name} ${t.country} ${PLAN[t.plan]}`.toLowerCase().includes(q.toLowerCase()));
 
   return (
     <div className="app-root admin">
       <header className="admin__bar">
-        <strong>Chairside admin</strong>
-        <span>Staff only. Every action here is logged and shown to the shop.</span>
-        <Link to="/app">Back to the shop app</Link>
+        <strong>Administration Chairside</strong>
+        <span>Réservé à l’équipe. Chaque action ici est journalisée et montrée au salon.</span>
+        <Link to="/app">Retour à l’application du salon</Link>
       </header>
       <main className="app-main admin__main" id="admin-main">
-        <PageHead title="Shops" sub={`${TENANTS.length} shops in this sample`} />
+        <PageHead title="Salons" sub={`${TENANTS.length} salons dans cet exemple`} />
         <Tabs
           tabs={[
-            { id: "shops", label: "Shops" },
-            { id: "flags", label: "Features" },
-            { id: "log", label: "Audit log" },
+            { id: "shops", label: "Salons" },
+            { id: "flags", label: "Fonctionnalités" },
+            { id: "log", label: "Journal" },
           ]}
         />
         {tab === "shops" && (
           <>
             <div className="cal-toolbar">
               <label className="ui-search">
-                <span className="visually-hidden">Search shops</span>
-                <input className="ui-input" type="search" placeholder="Name, country or plan" value={q} onChange={(e) => setQ(e.target.value)} />
+                <span className="visually-hidden">Rechercher un salon</span>
+                <input className="ui-input" type="search" placeholder="Nom, ville ou formule" value={q} onChange={(e) => setQ(e.target.value)} />
               </label>
             </div>
             <div className="ui-tablewrap">
               <table className="ui-table ui-table--stack admin__shops">
                 <thead>
                   <tr>
-                    <th scope="col">Shop</th>
-                    <th scope="col">Country</th>
-                    <th scope="col">Plan</th>
-                    <th scope="col" className="r">Staff</th>
-                    <th scope="col">Status</th>
-                    <th scope="col" className="r">Messages this month</th>
-                    <th scope="col">Since</th>
+                    <th scope="col">Salon</th>
+                    <th scope="col">Pays</th>
+                    <th scope="col">Formule</th>
+                    <th scope="col" className="r">Équipe</th>
+                    <th scope="col">Statut</th>
+                    <th scope="col" className="r">Messages ce mois-ci</th>
+                    <th scope="col">Depuis</th>
                     <th scope="col">
                       <span className="visually-hidden">Support</span>
                     </th>
@@ -69,16 +71,16 @@ export function Admin() {
                   {shops.map((t) => (
                     <tr key={t.id}>
                       <th scope="row">{t.name}</th>
-                      <td data-label="Country">{t.country}</td>
-                      <td data-label="Plan">{t.plan}</td>
-                      <td className="r num" data-label="Staff">{t.staff}</td>
-                      <td data-label="Status">
+                      <td data-label="Pays">{t.country}</td>
+                      <td data-label="Formule">{PLAN[t.plan]}</td>
+                      <td className="r num" data-label="Équipe">{t.staff}</td>
+                      <td data-label="Statut">
                         <Status value={t.status} />
                       </td>
                       <td className="r num" data-label="Messages" data-warn={t.messages / t.allowance > 0.9 || undefined}>
-                        {f.num(t.messages)} of {f.num(t.allowance)}
+                        {f.num(t.messages)} sur {f.num(t.allowance)}
                       </td>
-                      <td data-label="Since">{f.date(`${t.since}T12:00:00Z`)}</td>
+                      <td data-label="Depuis">{f.date(`${t.since}T12:00:00Z`)}</td>
                       <td className="r">
                         <form
                           className="admin__imp"
@@ -86,16 +88,16 @@ export function Admin() {
                             e.preventDefault();
                             const why = (reason[t.id] ?? "").trim();
                             if (why.length < 8) return;
-                            setLog((l) => [{ at: NOW, who: "You", what: `Opened ${t.name}: ${why}` }, ...l]);
+                            setLog((l) => [{ at: NOW, who: "Vous", what: `Ouvert ${t.name} : ${why}` }, ...l]);
                             setReason((r) => ({ ...r, [t.id]: "" }));
                           }}
                         >
                           <label className="visually-hidden" htmlFor={`why-${t.id}`}>
-                            Reason for opening {t.name}
+                            Motif pour ouvrir {t.name}
                           </label>
-                          <input id={`why-${t.id}`} className="ui-input" placeholder="Why, for the log" value={reason[t.id] ?? ""} onChange={(e) => setReason((r) => ({ ...r, [t.id]: e.target.value }))} />
+                          <input id={`why-${t.id}`} className="ui-input" placeholder="Pourquoi, pour le journal" value={reason[t.id] ?? ""} onChange={(e) => setReason((r) => ({ ...r, [t.id]: e.target.value }))} />
                           <button type="submit" className="ui-btn ui-btn--quiet" disabled={(reason[t.id] ?? "").trim().length < 8}>
-                            Open as support
+                            Ouvrir en tant que support
                           </button>
                         </form>
                       </td>
@@ -104,7 +106,7 @@ export function Admin() {
                 </tbody>
               </table>
             </div>
-            <p className="app-quiet">Opening a shop as support needs a reason. The shop sees it in their own log.</p>
+            <p className="app-quiet">Ouvrir un salon en tant que support demande un motif. Le salon le voit dans son propre journal.</p>
           </>
         )}
         {tab === "flags" && (
@@ -112,7 +114,7 @@ export function Admin() {
             <table className="ui-table roles">
               <thead>
                 <tr>
-                  <th scope="col">Shop</th>
+                  <th scope="col">Salon</th>
                   {FLAGS.map((fl) => (
                     <th key={fl} scope="col" className="c">
                       {fl}
@@ -125,7 +127,7 @@ export function Admin() {
                   <tr key={t.id}>
                     <th scope="row">
                       {t.name}
-                      <span className="ui-tags">{t.plan} plan</span>
+                      <span className="ui-tags">Formule {PLAN[t.plan]}</span>
                     </th>
                     {FLAGS.map((fl) => (
                       <td key={fl} className="c">
@@ -134,9 +136,9 @@ export function Admin() {
                           checked={flags[t.id][fl]}
                           onChange={(e) => {
                             setFlags((all) => ({ ...all, [t.id]: { ...all[t.id], [fl]: e.target.checked } }));
-                            setLog((l) => [{ at: NOW, who: "You", what: `${e.target.checked ? "Turned on" : "Turned off"} ${fl} for ${t.name}` }, ...l]);
+                            setLog((l) => [{ at: NOW, who: "Vous", what: `${e.target.checked ? "Activé" : "Désactivé"} : ${fl} pour ${t.name}` }, ...l]);
                           }}
-                          aria-label={`${fl} for ${t.name}`}
+                          aria-label={`${fl} pour ${t.name}`}
                         />
                       </td>
                     ))}
@@ -151,9 +153,9 @@ export function Admin() {
             <table className="ui-table">
               <thead>
                 <tr>
-                  <th scope="col">When</th>
-                  <th scope="col">Who</th>
-                  <th scope="col">What</th>
+                  <th scope="col">Quand</th>
+                  <th scope="col">Qui</th>
+                  <th scope="col">Quoi</th>
                 </tr>
               </thead>
               <tbody>
@@ -170,7 +172,7 @@ export function Admin() {
             </table>
           </div>
         )}
-        <p className="app-quiet admin__note">Sample shops and figures. Nothing here touches a real account.</p>
+        <p className="app-quiet admin__note">Salons et chiffres d’exemple. Rien ici ne touche un vrai compte.</p>
       </main>
     </div>
   );

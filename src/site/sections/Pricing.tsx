@@ -1,25 +1,22 @@
-import { RegionSwitch, useRegion } from "../prices";
-
-const PLANS = ["Free", "Solo", "Shop", "Pro"];
+import { PLANS, usePrices } from "../prices";
 
 const ROWS: { label: string; values: string[]; figure?: boolean }[] = [
-  { label: "Bookable staff", values: ["1", "1", "Up to 6", "Up to 15"] },
-  { label: "Messages a month", values: ["50", "300", "1,500", "4,000"] },
-  { label: "Walk-in queue and deposits", values: ["No", "No", "Yes", "Yes"] },
-  { label: "Your own domain", values: ["No", "No", "No", "Yes"] },
+  { label: "Membres réservables", values: ["1", "1", "Jusqu’à 6", "Jusqu’à 15"] },
+  { label: "Messages par mois", values: ["50", "300", "1 500", "4 000"] },
+  { label: "File sans rendez-vous et acomptes", values: ["Non", "Non", "Oui", "Oui"] },
+  { label: "Votre propre nom de domaine", values: ["Non", "Non", "Non", "Oui"] },
 ];
 
 export function Pricing() {
-  const { region, setRegion, meta, prices, money, multi } = useRegion();
-  const rows = [{ label: "Each month", values: prices.plans.map(money), figure: true }, ...ROWS];
+  const { prices, money, multi } = usePrices();
+  const rows = [{ label: "Par mois", values: prices.plans.map(money), figure: true }, ...ROWS];
   return (
     <section className="pricing" id="pricing" aria-labelledby="pricing-title">
       <div className="container">
         <div className="head head--split">
-          <h2 id="pricing-title">A monthly price, never a cut</h2>
+          <h2 id="pricing-title">Un prix par mois, jamais de commission</h2>
           <div>
-            <p className="lead">Per location, in {meta.currencyName}.</p>
-            <RegionSwitch region={region} setRegion={setRegion} />
+            <p className="lead">Par salon, en dinars tunisiens.</p>
           </div>
         </div>
 

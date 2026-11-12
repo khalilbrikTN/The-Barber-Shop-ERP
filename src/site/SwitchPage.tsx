@@ -3,22 +3,22 @@ import { SiteFooter, SiteNav } from "./Chrome";
 import { Start } from "./sections/Start";
 
 const STEPS = [
-  { title: "Export from your old app", line: "Look for Export in its client list." },
-  { title: "Import the file", line: "Clients are matched by phone, never doubled." },
-  { title: "Check services and hours", line: "Start from a ready list and edit it." },
-  { title: "Share your new link", line: "Instagram bio, WhatsApp, the window." },
+  { title: "Exportez depuis votre ancienne application", line: "Cherchez Exporter dans sa liste de clients." },
+  { title: "Importez le fichier", line: "Les clients sont reconnus par leur téléphone, jamais en double." },
+  { title: "Vérifiez prestations et horaires", line: "Partez d’une liste toute prête et modifiez-la." },
+  { title: "Partagez votre nouveau lien", line: "Bio Instagram, WhatsApp, la vitrine." },
 ];
 
 const COMES = [
-  { what: "Clients, phones, emails", how: "Yes, from the CSV" },
-  { what: "Notes on each client", how: "Yes, when the file has them" },
-  { what: "Services and prices", how: "From a template you edit" },
-  { what: "Future bookings", how: "Add them in the calendar; importing them comes later" },
+  { what: "Clients, téléphones, e-mails", how: "Oui, depuis le CSV" },
+  { what: "Notes sur chaque client", how: "Oui, quand le fichier les contient" },
+  { what: "Prestations et prix", how: "À partir d’un modèle que vous modifiez" },
+  { what: "Rendez-vous à venir", how: "Ajoutez-les dans l’agenda ; leur import arrive plus tard" },
 ];
 
 export function SwitchPage() {
   useEffect(() => {
-    document.title = "Switching to Chairside";
+    document.title = "Passer à Chairside";
   }, []);
   return (
     <>
@@ -26,14 +26,14 @@ export function SwitchPage() {
       <main id="main">
         <section className="page-hero" aria-labelledby="sw-title">
           <div className="container">
-            <h1 id="sw-title">Move your shop in an evening</h1>
-            <p className="lead">Bring your clients from another booking app with one CSV file.</p>
+            <h1 id="sw-title">Changez d’application en une soirée</h1>
+            <p className="lead">Apportez vos clients d’une autre application de réservation avec un seul fichier CSV.</p>
             <div className="hero__actions">
               <a className="btn btn--primary" href="#start">
-                Start free trial
+                Commencer l’essai gratuit
               </a>
               <a className="btn btn--ghost" href="/app/clients/import">
-                Try the import
+                Essayer l’import
               </a>
             </div>
           </div>
@@ -41,7 +41,7 @@ export function SwitchPage() {
 
         <section className="steps" aria-labelledby="steps-title">
           <div className="container">
-            <h2 id="steps-title">Export, import, check, share</h2>
+            <h2 id="steps-title">Exporter, importer, vérifier, partager</h2>
             <ol className="steps__list">
               {STEPS.map((s) => (
                 <li key={s.title}>
@@ -55,7 +55,7 @@ export function SwitchPage() {
 
         <section className="never band--ink" aria-labelledby="comes-title">
           <div className="container never__grid">
-            <h2 id="comes-title">What comes across</h2>
+            <h2 id="comes-title">Ce qui est repris</h2>
             <dl className="never__rows">
               {COMES.map((c) => (
                 <div key={c.what}>

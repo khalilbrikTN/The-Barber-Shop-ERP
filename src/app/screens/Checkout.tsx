@@ -33,7 +33,7 @@ export function Checkout() {
   const [sold, setSold] = useState<string[]>([]);
 
   const subtotal = lines.reduce((t, l) => t + l.minor, 0);
-  const discount = applied === "MORNING10" ? Math.round(subtotal * 0.1) : applied === "WELCOME" ? Math.min(5000, subtotal) : 0;
+  const discount = applied === "MATIN10" ? Math.round(subtotal * 0.1) : applied === "BIENVENUE" ? Math.min(5000, subtotal) : 0;
   const deposit = booking?.deposit ?? 0;
   const tip = Math.round(((subtotal - discount) * tipPct) / 100);
   const total = subtotal - discount + tip - deposit;

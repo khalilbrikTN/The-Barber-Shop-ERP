@@ -7,8 +7,8 @@ import { Entry, fill, Plural, pluralForm, Vars } from "./plural";
 
 export type Lang = "en" | "ar" | "fr";
 export const LANGS: { id: Lang; label: string; locale: string; dir: "ltr" | "rtl" }[] = [
-  { id: "en", label: "English", locale: "en-EG", dir: "ltr" },
-  { id: "ar", label: "العربية", locale: "ar-EG", dir: "rtl" },
+  { id: "en", label: "English", locale: "en-TN", dir: "ltr" },
+  { id: "ar", label: "العربية", locale: "ar-TN", dir: "rtl" },
   { id: "fr", label: "Français", locale: "fr-TN", dir: "ltr" },
 ];
 
@@ -67,7 +67,7 @@ const en = {
   "book.phone": "Phone, for WhatsApp reminders",
   "book.email": "Email, optional",
   "book.errName": "Add your name so the barber knows who is coming.",
-  "book.errPhone": "Add a phone number with its country code, like +20 100 000 0000.",
+  "book.errPhone": "Add a phone number with its country code, like +216 20 000 000.",
   "book.errAgree": "Accept the cancellation rule to book.",
   "book.errBlocked": "This number cannot book online. Call or message the shop.",
   "book.extraTitle": "Someone coming with you",
@@ -242,7 +242,7 @@ const ar: Catalogue = {
   "book.phone": "رقم الهاتف، لتذكيرات واتساب",
   "book.email": "البريد الإلكتروني، اختياري",
   "book.errName": "أضف اسمك حتى يعرف الحلاق من القادم.",
-  "book.errPhone": "أضف رقم هاتف مع مفتاح الدولة، مثل ‎+20 100 000 0000.",
+  "book.errPhone": "أضف رقم هاتف مع مفتاح الدولة، مثل ‎+216 20 000 000.",
   "book.errAgree": "وافق على سياسة الإلغاء لإتمام الحجز.",
   "book.errBlocked": "لا يمكن الحجز أونلاين بهذا الرقم. اتصل بالمحل أو راسله.",
   "book.extraTitle": "شخص قادم معك",
@@ -532,19 +532,60 @@ const fr: Catalogue = {
 /** Exported for the catalogue test only. */
 export const DICTS: Record<Lang, Catalogue> = { en, ar, fr };
 
-/* The sample shop's own translations of its services, roles and offers. */
+/* The sample shop writes in French; these are its own translations of its services, roles and offers.
+   Roles, categories and days are stored as English codes, so every language translates those. */
 const SHOP_TEXT: Record<Lang, Record<string, string>> = {
-  en: {},
+  en: {
+    "Dégradé à blanc": "Skin fade",
+    "Dégradé et barbe": "Fade and beard",
+    "Coupe tondeuse": "Buzz cut",
+    "Taille de barbe": "Beard trim",
+    "Rasage à la serviette chaude": "Hot towel shave",
+    "Coupe enfant": "Kids cut",
+    "Coupe et brushing": "Cut and blow-dry",
+    "Coupe de frange": "Fringe trim",
+    "Couleur, racines": "Colour, roots",
+    "Tondeuse à blanc, ciseaux sur le dessus.": "Clippers to the skin, scissors on top.",
+    "Dégradé avec contour de barbe.": "Skin fade with a beard shape and line-up.",
+    "Un seul sabot partout.": "One guard all over.",
+    "Forme, contour et serviette chaude.": "Shape, line-up and hot towel.",
+    "Coupe-chou, deux serviettes chaudes.": "Straight razor, two hot towels.",
+    "Moins de 12 ans.": "Under 12.",
+    "Shampooing, coupe et brushing.": "Wash, cut and blow-dry.",
+    "Entre deux coupes.": "Between full cuts.",
+    "Couleur racines avec temps de pose.": "Root colour with processing time.",
+    "Père et fils": "Father and son",
+    "Un dégradé et une coupe enfant ensemble, 15 % de remise.": "A fade and a kids cut together, 15% off.",
+    "Matins de semaine": "Weekday mornings",
+    "10 % sur toute prestation du mardi au jeudi avant midi.": "10% off any service Tuesday to Thursday before noon.",
+    "Dégradés, barbes et coupes enfant. Passez sans rendez-vous ou réservez un fauteuil.": "Fades, beards and kids cuts. Walk in or book a chair.",
+    "Rue de l’Exemple, Tunis": "Example Street, Tunis",
+  },
   ar: {
-    "Skin fade": "تدريج على الجلد",
-    "Fade and beard": "تدريج ولحية",
-    "Buzz cut": "قصة ماكينة",
-    "Beard trim": "تهذيب اللحية",
-    "Hot towel shave": "حلاقة بالفوطة الساخنة",
-    "Kids cut": "قصة أطفال",
-    "Cut and blow-dry": "قص وسشوار",
-    "Fringe trim": "قص الغُرّة",
-    "Colour, roots": "صبغة الجذور",
+    "Dégradé à blanc": "تدريج على الجلد",
+    "Dégradé et barbe": "تدريج ولحية",
+    "Coupe tondeuse": "قصة ماكينة",
+    "Taille de barbe": "تهذيب اللحية",
+    "Rasage à la serviette chaude": "حلاقة بالفوطة الساخنة",
+    "Coupe enfant": "قصة أطفال",
+    "Coupe et brushing": "قص وسشوار",
+    "Coupe de frange": "قص الغُرّة",
+    "Couleur, racines": "صبغة الجذور",
+    "Tondeuse à blanc, ciseaux sur le dessus.": "ماكينة حتى الجلد، ومقص من فوق.",
+    "Dégradé avec contour de barbe.": "تدريج مع تحديد اللحية.",
+    "Un seul sabot partout.": "مقاس واحد لكل الرأس.",
+    "Forme, contour et serviette chaude.": "تشكيل وتحديد وفوطة ساخنة.",
+    "Coupe-chou, deux serviettes chaudes.": "موس، وفوطتان ساخنتان.",
+    "Moins de 12 ans.": "تحت 12 سنة.",
+    "Shampooing, coupe et brushing.": "غسيل وقص وسشوار.",
+    "Entre deux coupes.": "بين القصات الكاملة.",
+    "Couleur racines avec temps de pose.": "صبغة جذور مع وقت التفاعل.",
+    "Père et fils": "الأب والابن",
+    "Un dégradé et une coupe enfant ensemble, 15 % de remise.": "تدريج وقصة أطفال معًا، خصم 15٪.",
+    "Matins de semaine": "صباح أيام الأسبوع",
+    "10 % sur toute prestation du mardi au jeudi avant midi.": "خصم 10٪ على أي خدمة من الثلاثاء إلى الخميس قبل الظهر.",
+    "Dégradés, barbes et coupes enfant. Passez sans rendez-vous ou réservez un fauteuil.": "تدريج ولحية وقصات أطفال. تعال بدون حجز أو احجز كرسيًا.",
+    "Rue de l’Exemple, Tunis": "نهج المثال، تونس",
     Hair: "الشعر",
     Beard: "اللحية",
     Colour: "الصبغة",
@@ -552,21 +593,6 @@ const SHOP_TEXT: Record<Lang, Record<string, string>> = {
     Owner: "المالك",
     Barber: "حلاق",
     Stylist: "مصففة",
-    "Clippers to the skin, scissors on top.": "ماكينة حتى الجلد، ومقص من فوق.",
-    "Skin fade with a beard shape and line-up.": "تدريج مع تحديد اللحية.",
-    "One guard all over.": "مقاس واحد لكل الرأس.",
-    "Shape, line-up and hot towel.": "تشكيل وتحديد وفوطة ساخنة.",
-    "Straight razor, two hot towels.": "موس، وفوطتان ساخنتان.",
-    "Under 12.": "تحت ١٢ سنة.",
-    "Wash, cut and blow-dry.": "غسيل وقص وسشوار.",
-    "Between full cuts.": "بين القصات الكاملة.",
-    "Root colour with processing time.": "صبغة جذور مع وقت التفاعل.",
-    "Father and son": "الأب والابن",
-    "A fade and a kids cut together, 15% off.": "تدريج وقصة أطفال معًا، خصم ١٥٪.",
-    "Weekday mornings": "صباح أيام الأسبوع",
-    "10% off any service Sunday to Wednesday before noon.": "خصم ١٠٪ على أي خدمة من الأحد إلى الأربعاء قبل الظهر.",
-    "Fades, beards and kids cuts. Walk in or book a chair.": "تدريج ولحية وقصات أطفال. تعال بدون حجز أو احجز كرسيًا.",
-    "Example Street, Cairo": "شارع المثال، القاهرة",
     Saturday: "السبت",
     Sunday: "الأحد",
     Monday: "الاثنين",
@@ -576,15 +602,6 @@ const SHOP_TEXT: Record<Lang, Record<string, string>> = {
     Friday: "الجمعة",
   },
   fr: {
-    "Skin fade": "Dégradé à blanc",
-    "Fade and beard": "Dégradé et barbe",
-    "Buzz cut": "Coupe tondeuse",
-    "Beard trim": "Taille de barbe",
-    "Hot towel shave": "Rasage à la serviette chaude",
-    "Kids cut": "Coupe enfant",
-    "Cut and blow-dry": "Coupe et brushing",
-    "Fringe trim": "Coupe de frange",
-    "Colour, roots": "Couleur, racines",
     Hair: "Cheveux",
     Beard: "Barbe",
     Colour: "Couleur",
@@ -592,21 +609,6 @@ const SHOP_TEXT: Record<Lang, Record<string, string>> = {
     Owner: "Gérant",
     Barber: "Barbier",
     Stylist: "Coiffeuse",
-    "Clippers to the skin, scissors on top.": "Tondeuse à blanc, ciseaux sur le dessus.",
-    "Skin fade with a beard shape and line-up.": "Dégradé avec contour de barbe.",
-    "One guard all over.": "Un seul sabot partout.",
-    "Shape, line-up and hot towel.": "Forme, contour et serviette chaude.",
-    "Straight razor, two hot towels.": "Coupe-chou, deux serviettes chaudes.",
-    "Under 12.": "Moins de 12 ans.",
-    "Wash, cut and blow-dry.": "Shampooing, coupe et brushing.",
-    "Between full cuts.": "Entre deux coupes.",
-    "Root colour with processing time.": "Couleur racines avec temps de pose.",
-    "Father and son": "Père et fils",
-    "A fade and a kids cut together, 15% off.": "Un dégradé et une coupe enfant ensemble, 15 % de remise.",
-    "Weekday mornings": "Matins de semaine",
-    "10% off any service Sunday to Wednesday before noon.": "10 % sur toute prestation du dimanche au mercredi avant midi.",
-    "Fades, beards and kids cuts. Walk in or book a chair.": "Dégradés, barbes et coupes enfant. Passez sans rendez-vous ou réservez un fauteuil.",
-    "Example Street, Cairo": "Rue de l’Exemple, Le Caire",
     Saturday: "Samedi",
     Sunday: "Dimanche",
     Monday: "Lundi",
@@ -619,7 +621,7 @@ const SHOP_TEXT: Record<Lang, Record<string, string>> = {
 
 type Ctx = { lang: Lang; setLang: (l: Lang) => void };
 const LangContext = createContext<Ctx | null>(null);
-const KEY = "chairside.lang";
+const KEY = "chairside.tn.lang";
 
 function initial(): Lang {
   try {
@@ -628,8 +630,8 @@ function initial(): Lang {
   } catch {
     /* storage blocked */
   }
-  const nav = typeof navigator !== "undefined" ? navigator.language.slice(0, 2) : "en";
-  return nav === "ar" || nav === "fr" ? nav : "en";
+  // French first for every Tunisian client, whatever the browser says; Arabic and English are one tap away
+  return "fr";
 }
 
 export function LangProvider({ children }: { children: ReactNode }) {

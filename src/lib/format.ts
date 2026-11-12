@@ -1,4 +1,5 @@
 import { useSettings } from "./settings";
+import { zonedIso } from "./zone";
 
 /** Minor units per currency come from Intl, so TND gets 3 decimals and EUR 2. */
 export function minorDigits(currency: string) {
@@ -44,10 +45,13 @@ export function useFormat(localeOverride?: string) {
 
   const month = (iso: string | Date) => new Intl.DateTimeFormat(locale, { month: "long", timeZone }).format(new Date(iso));
 
+  /** A wall-clock time on a date in the shop's zone, as an instant. Noon is the safe default for showing a day. */
+  const at = (date: string, hhmm = "12:00") => zonedIso(date, hhmm, timeZone);
+
   const num = (n: number) => new Intl.NumberFormat(locale).format(n);
   const pct = (n: number) => new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 0 }).format(n);
 
-  return { money, time, day, date, weekday, month, num, pct, currency, locale, timeZone };
+  return { money, time, day, date, weekday, month, at, num, pct, currency, locale, timeZone };
 }
 
 /** Minutes from midnight in the shop's time zone, for laying out the calendar. */

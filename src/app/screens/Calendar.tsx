@@ -40,7 +40,7 @@ export function Calendar() {
     if (view === "week") {
       return Array.from({ length: 7 }, (_, i) => {
         const d = addDays(date, i);
-        return { key: d, label: f.day(`${d}T12:00:00+02:00`, "short"), staffId: weekStaff, date: d };
+        return { key: d, label: f.day(f.at(d), "short"), staffId: weekStaff, date: d };
       });
     }
     return BOOKABLE.map((s) => ({ key: s.id, label: s.name, staffId: s.id, date }));
@@ -55,7 +55,7 @@ export function Calendar() {
     const minutes = SCHEDULE_HOURS.open + row * STEP;
     const hh = String(Math.floor(minutes / 60)).padStart(2, "0");
     const mm = String(minutes % 60).padStart(2, "0");
-    moveBooking(dragging, col.staffId, `${col.date}T${hh}:${mm}:00+02:00`);
+    moveBooking(dragging, col.staffId, f.at(col.date, `${hh}:${mm}`));
     setDragging(null);
   }
 
@@ -65,7 +65,7 @@ export function Calendar() {
     <>
       <PageHead
         title={t("cal.label")}
-        sub={view === "week" ? t("cal.weekOf", { day: f.day(`${date}T12:00:00+02:00`), name: staffById(weekStaff).name }) : f.day(`${date}T12:00:00+02:00`)}
+        sub={view === "week" ? t("cal.weekOf", { day: f.day(f.at(date)), name: staffById(weekStaff).name }) : f.day(f.at(date))}
         actions={
           <button type="button" className="ui-btn ui-btn--primary" onClick={() => set({ new: "1", booking: null })}>
             {t("cal.newBooking")}
@@ -138,7 +138,7 @@ export function Calendar() {
             ))}
             {Array.from({ length: ROWS / 4 }, (_, h) => (
               <div key={h} className="cal__hour num" style={{ gridRow: `${h * 4 + 2} / span 4` }}>
-                {f.time(`${TODAY}T${String(SCHEDULE_HOURS.open / 60 + h).padStart(2, "0")}:00:00+02:00`)}
+                {f.time(f.at(TODAY, `${String(SCHEDULE_HOURS.open / 60 + h).padStart(2, "0")}:00`))}
               </div>
             ))}
             {columns.map((c, ci) =>
@@ -380,7 +380,7 @@ function BookingPanel({ b, onClose }: { b: Booking; onClose: () => void }) {
           className="cal-move"
           onSubmit={(e) => {
             e.preventDefault();
-            moveBooking(b.id, moveStaff, `${b.start.slice(0, 10)}T${hhmm(moveTime)}:00+02:00`);
+            moveBooking(b.id, moveStaff, f.at(b.start.slice(0, 10), hhmm(moveTime)));
           }}
         >
           <p className="ui-field__label">{t("cal.moveTitle")}</p>
@@ -431,7 +431,7 @@ function NewBookingPanel({ date, onClose, onCreated }: { date: string; onClose: 
   const [blockFrom, setBlockFrom] = useState("13:00");
   const [blockMin, setBlockMin] = useState(30);
   const [blockLabel, setBlockLabel] = useState(() => t("cal.lunch"));
-  const slots = findSlots({ date, serviceIds, staffId: staffId || undefined, bookings });
+  const slots = findSlots({ date, serviceIds, staffId: staffId || undefined, bookings, timeZone: f.timeZone });
 
   function submit(e: FormEvent) {
     e.preventDefault();
@@ -469,7 +469,7 @@ function NewBookingPanel({ date, onClose, onCreated }: { date: string; onClose: 
           className="ui-form"
           onSubmit={(e) => {
             e.preventDefault();
-            const created = addBooking({ clientId: "", serviceIds: [], staffId: blockStaff, start: `${date}T${blockFrom}:00+02:00`, status: "blocked", source: "phone", label: blockLabel || t("cal.blocked"), minutes: blockMin });
+            const created = addBooking({ clientId: "", serviceIds: [], staffId: blockStaff, start: f.at(date, blockFrom), status: "blocked", source: "phone", label: blockLabel || t("cal.blocked"), minutes: blockMin });
             onCreated(created.id);
           }}
         >

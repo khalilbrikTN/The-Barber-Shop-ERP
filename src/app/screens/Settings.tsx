@@ -1,5 +1,5 @@
 import { ChangeEvent, useState } from "react";
-import { HOLIDAYS_EG_2027, NOW, SERVICES } from "../../lib/data";
+import { HOLIDAYS_TN_2027, NOW, SERVICES } from "../../lib/data";
 import { minorDigits, toMinor, useFormat } from "../../lib/format";
 import { PHOTO_TYPES, readPhoto } from "../../lib/photo";
 import { COUNTRY_PRESETS, useSettings } from "../../lib/settings";
@@ -7,10 +7,10 @@ import { photoMessage } from "../photoError";
 import { Field, NotConnected, PageHead, Tabs, Toggle, useTab } from "../../ui/kit";
 import { useT } from "../i18n";
 
-const ZONES = ["Africa/Cairo", "Africa/Tunis", "Europe/Rome", "Europe/Paris", "Europe/Berlin", "Europe/London", "Asia/Dubai"];
-const CURRENCIES = ["EGP", "TND", "EUR", "GBP", "AED", "USD"];
+const ZONES = ["Africa/Tunis", "Africa/Cairo", "Europe/Rome", "Europe/Paris", "Europe/Berlin", "Europe/London", "Asia/Dubai"];
+const CURRENCIES = ["TND", "EGP", "EUR", "GBP", "AED", "USD"];
 /** Format locales; their names come from Intl in the staff's language, so the list needs no translating. */
-const LOCALES = ["en-EG", "en-GB", "fr-TN", "fr-FR", "it-IT", "de-DE", "ar-EG"];
+const LOCALES = ["fr-TN", "ar-TN", "en-TN", "fr-FR", "en-GB", "it-IT", "de-DE", "en-EG", "ar-EG"];
 
 export function SettingsScreen() {
   const tab = useTab("tab", "region");
@@ -151,7 +151,7 @@ function Business() {
 function Locations() {
   const { t } = useT();
   const { settings } = useSettings();
-  const [list, setList] = useState([{ id: "l1", name: settings.shopName, address: "Example Street, Cairo", chairs: 3, timeZone: settings.timeZone }]);
+  const [list, setList] = useState([{ id: "l1", name: settings.shopName, address: "Rue de l’Exemple, Tunis", chairs: 3, timeZone: settings.timeZone }]);
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [chairs, setChairs] = useState(2);
@@ -448,7 +448,7 @@ function Holidays() {
   const [extra, setExtra] = useState<{ date: string; name: string }[]>([]);
   const [date, setDate] = useState("");
   const [name, setName] = useState("");
-  const all = [...HOLIDAYS_EG_2027, ...extra].sort((a, b) => a.date.localeCompare(b.date));
+  const all = [...HOLIDAYS_TN_2027, ...extra].sort((a, b) => a.date.localeCompare(b.date));
   return (
     <div className="app-split">
       <section className="app-section" aria-labelledby="hol-title">

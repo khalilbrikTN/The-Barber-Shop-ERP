@@ -9,7 +9,7 @@ import "./styles/page.css";
 import "./styles/pages.css";
 import "./app/styles/app.css";
 
-const SHOP = "/s/example-barbers";
+const SHOP = "/s/barbier-exemple";
 
 /* Each area loads its own code, so a client opening a shop's booking page never downloads the business app. */
 const page = <T,>(load: () => Promise<T>, pick: (m: T) => ComponentType) => async () => ({ Component: pick(await load()) });

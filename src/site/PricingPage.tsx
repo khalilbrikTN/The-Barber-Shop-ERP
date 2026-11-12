@@ -1,32 +1,31 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { SiteFooter, SiteNav } from "./Chrome";
-import { RegionSwitch, useRegion } from "./prices";
+import { PLANS, usePrices } from "./prices";
 import { Start } from "./sections/Start";
 
-const PLANS = ["Free", "Solo", "Shop", "Pro"];
 const ROWS: { label: string; values: string[]; figure?: boolean }[] = [
-  { label: "Bookable staff", values: ["1", "1", "Up to 6", "Up to 15"] },
-  { label: "Messages a month", values: ["50", "300", "1,500", "4,000"] },
-  { label: "Walk-in queue, deposits, loyalty", values: ["No", "No", "Yes", "Yes"] },
-  { label: "Commissions and chair rent", values: ["No", "No", "Yes", "Yes"] },
-  { label: "Custom roles and stock", values: ["No", "No", "No", "Yes"] },
-  { label: "Your own domain", values: ["No", "No", "No", "Yes"] },
+  { label: "Membres réservables", values: ["1", "1", "Jusqu’à 6", "Jusqu’à 15"] },
+  { label: "Messages par mois", values: ["50", "300", "1 500", "4 000"] },
+  { label: "File sans rendez-vous, acomptes, fidélité", values: ["Non", "Non", "Oui", "Oui"] },
+  { label: "Commissions et location de fauteuil", values: ["Non", "Non", "Oui", "Oui"] },
+  { label: "Rôles sur mesure et stock", values: ["Non", "Non", "Non", "Oui"] },
+  { label: "Votre propre nom de domaine", values: ["Non", "Non", "Non", "Oui"] },
 ];
 
 const NEVER = [
-  { what: "Setting up", cost: "Free, with help over WhatsApp if you get stuck." },
-  { what: "Each booking", cost: "Nothing, new clients included." },
-  { what: "Card payments", cost: "Your provider’s fee, paid to them, never through us." },
-  { what: "Leaving", cost: "Nothing. Your client list downloads in one file." },
-  { what: "Switching from another app", cost: "Free. Bring your clients in one CSV file." },
+  { what: "La mise en place", cost: "Gratuite, avec de l’aide sur WhatsApp si vous bloquez." },
+  { what: "Chaque réservation", cost: "Rien, nouveaux clients compris." },
+  { what: "Les paiements par carte", cost: "Les frais de votre prestataire, payés à lui, jamais à nous." },
+  { what: "Partir", cost: "Rien. Votre liste de clients se télécharge en un fichier." },
+  { what: "Venir d’une autre application", cost: "Gratuit. Apportez vos clients dans un seul fichier CSV." },
 ];
 
 export function PricingPage() {
-  const { region, setRegion, meta, prices, money, multi } = useRegion();
-  const rows = [{ label: "Each month, per location", values: prices.plans.map(money), figure: true }, ...ROWS];
+  const { prices, money, multi } = usePrices();
+  const rows = [{ label: "Par mois, par salon", values: prices.plans.map(money), figure: true }, ...ROWS];
   useEffect(() => {
-    document.title = "Pricing, Chairside";
+    document.title = "Tarifs, Chairside";
   }, []);
   return (
     <>
@@ -34,20 +33,19 @@ export function PricingPage() {
       <main id="main">
         <section className="page-hero" aria-labelledby="pp-title">
           <div className="container">
-            <h1 id="pp-title">One price a month. No cut.</h1>
-            <p className="lead">Per location, in {meta.currencyName}. Pick where your shop is.</p>
-            <RegionSwitch region={region} setRegion={setRegion} />
+            <h1 id="pp-title">Un prix par mois. Aucune commission.</h1>
+            <p className="lead">Par salon, en dinars tunisiens.</p>
             <div className="hero__actions">
               <a className="btn btn--primary" href="#start">
-                Start free trial
+                Commencer l’essai gratuit
               </a>
             </div>
           </div>
         </section>
 
-        <section className="pricing pricing--page" aria-label="Plans compared">
+        <section className="pricing pricing--page" aria-label="Formules comparées">
           <div className="container">
-            <div className="table-wrap" tabIndex={0} role="region" aria-label="Plans compared">
+            <div className="table-wrap" tabIndex={0} role="region" aria-label="Formules comparées">
               <table className="pricing__table">
                 <thead>
                   <tr>
@@ -73,13 +71,13 @@ export function PricingPage() {
                 </tbody>
               </table>
             </div>
-            <p className="pricing__note">{multi} Reports cover all of them.</p>
+            <p className="pricing__note">{multi} Les rapports les couvrent tous.</p>
           </div>
         </section>
 
         <section className="never band--ink" aria-labelledby="never-title">
           <div className="container never__grid">
-            <h2 id="never-title">What you never pay us for</h2>
+            <h2 id="never-title">Ce que vous ne nous payez jamais</h2>
             <dl className="never__rows">
               {NEVER.map((n) => (
                 <div key={n.what}>
@@ -89,7 +87,7 @@ export function PricingPage() {
               ))}
             </dl>
             <Link className="btn btn--on-ink never__link" to="/switch">
-              How switching works
+              Comment changer d’application
             </Link>
           </div>
         </section>

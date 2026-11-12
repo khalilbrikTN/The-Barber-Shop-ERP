@@ -1,4 +1,5 @@
-import { Booking, BOOKABLE, NOW, SCHEDULE_HOURS, serviceById } from "./data";
+import { Booking, BOOKABLE, NOW, SAMPLE_TIME_ZONE, SCHEDULE_HOURS, serviceById } from "./data";
+import { zonedIso } from "./zone";
 
 /* A frontend stand-in for the booking engine (PLAN.md section 15): free slots per barber for one day,
    respecting existing bookings, a slot step and minimum notice. The server will own this later. */
@@ -48,12 +49,12 @@ export function busyIntervals(b: Booking): [number, number][] {
   return workIntervals(b.serviceIds, start);
 }
 
-export function findSlots(opts: { date: string; serviceIds: string[]; staffId?: string; bookings: Booking[]; step?: number; noticeMin?: number }) {
-  const { date, serviceIds, bookings, step = 15, noticeMin = 30 } = opts;
+export function findSlots(opts: { date: string; serviceIds: string[]; staffId?: string; bookings: Booking[]; step?: number; noticeMin?: number; timeZone?: string }) {
+  const { date, serviceIds, bookings, step = 15, noticeMin = 30, timeZone = SAMPLE_TIME_ZONE } = opts;
   const staff = BOOKABLE.filter((s) => (opts.staffId ? s.id === opts.staffId : true)).filter((s) => serviceIds.every((id) => s.services.includes(id)));
   const segs = pattern(serviceIds);
   const total = segs.reduce((m, s) => m + s.minutes, 0);
-  const dayStart = new Date(`${date}T00:00:00+02:00`).getTime();
+  const dayStart = new Date(zonedIso(date, "00:00", timeZone)).getTime();
   const earliest = new Date(NOW).getTime() + noticeMin * MIN;
   const busyByStaff = new Map(
     staff.map((s) => [s.id, bookings.filter((b) => b.staffId === s.id && b.status !== "cancelled" && b.status !== "no-show").flatMap(busyIntervals)]),

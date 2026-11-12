@@ -4,7 +4,7 @@ import { Lang, LANGS, useLang } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { loadSite } from "../lib/site";
 
-export const SHOP = "/s/example-barbers";
+export const SHOP = "/s/barbier-exemple";
 
 export function ShopFrame({ children, narrow }: { children: ReactNode; narrow?: boolean }) {
   const { settings } = useSettings();
